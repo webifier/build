@@ -12,11 +12,14 @@ jobs:
         with:
           python-version: 3.8
 
+      - name: Add conda to path
+        run: export PATH="$CONDA/bin:$PATH"
+
       - name: Install Jupyter
-        run: $CONDA/bin/conda install jupyter
+        run: conda install jupyter
       
       - name: Build notebooks
-        run: $CONDA/bin/python .github/scripts/build_notebooks.py build
+        run: python .github/scripts/build_notebooks.py build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.0.0
