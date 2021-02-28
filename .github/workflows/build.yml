@@ -11,6 +11,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+
+      - name: Install Jupyter
+        run: $CONDA/bin/conda install jupyter
       
       - name: Build notebooks
         run: $CONDA/bin/python .github/scripts/build_notebooks.py build
