@@ -9,5 +9,7 @@ for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
     targetdir = os.path.join(target_root, *sourcedir.split('/')[1:])
     os.makedirs(targetdir, exist_ok=True)
     print(f'building {file} to {targetdir}')
-    os.system(f"jupyter nbconvert --to html --output-dir='{targetdir}' {file}")
+    error = os.system(f"$CONDA/bin/jupyter nbconvert --to html --output-dir='{targetdir}' {file}")
+    if error:
+        raise Exception(f"Error in building {file}")
 
