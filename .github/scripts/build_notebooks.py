@@ -2,33 +2,37 @@ import os
 from sys import argv
 import glob
 
-def create_jekyll(notebook):
-    return f'''---
-layout: notebook
-notebook: {notebook}
----
-'''
-
-jupyter_command = argv[1]
-target_root = argv[2]
-
-for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
-    sourcedir, filename = os.path.split(file)
-    filename = filename.split('.')[0]
-
-    splitted = sourcedir.split('/')[1:]
-    path = os.path.join(*splitted) if len(splitted) else '.'
-
-    targetdir = os.path.join(target_root, path)
-
+def build_notebook(file, targetdir):
     os.makedirs(targetdir, exist_ok=True)
+
     print(f'building {file} to {targetdir}')
+
     error = os.system(f"{jupyter_command} nbconvert --to html --output-dir='{targetdir}' {file}")
     if error:
         raise Exception(f"Error in building {file}")
 
-    os.makedirs(path, exist_ok=True)
-    jekyll_path = os.path.join(path, f'{filename}.html')
-    jekyll_file_text = create_jekyll(jekyll_path)
+
+def create_jekyll_text(notebook):
+    return f'---\nlayout: notebook\nnotebook: {notebook}\n---'
+
+
+def create_jekyll_file(sourcedir, filename):
+    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'))
+    jekyll_path = os.path.join('./', *sourcedir.split('/')[1:], f'{filename}.html')   # ./a/b.html
+    jekyll_dir, _ = os.path.split(jekyll_path)
+    os.makedirs(jekyll_dir, exist_ok=True)
     with open(jekyll_path, 'w') as jekyll_file:
-        jekyll_file.write(jekyll_file_text)
+        jekyll_file.write(text)
+
+
+
+jupyter_command = argv[1]
+
+for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
+    sourcedir, filename = os.path.split(file)                   # notebooks/a, b.ipynb
+    filename = filename.split('.')[0]                           # b
+
+    targetdir = os.path.join('_includes', sourcedir)             # _include/notebooks/a
+    build_notebook(file, targetdir)
+    create_jekyll_file(sourcedir, filename)
+    
