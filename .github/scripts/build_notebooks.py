@@ -7,7 +7,7 @@ def build_notebook(file, targetdir):
 
     print(f'building {file} to {targetdir}')
 
-    error = os.system(f"{jupyter_command} nbconvert --to html --output-dir='{targetdir}' {file}")
+    error = os.system(f"{jupyter_command} nbconvert --to html --output-dir='{targetdir}' --template template/template.tpl {file}")
     if error:
         raise Exception(f"Error in building {file}")
 
