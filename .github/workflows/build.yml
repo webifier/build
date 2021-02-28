@@ -24,8 +24,5 @@ jobs:
       - name: Check build
         run: ls build
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.0.0
-        with:
-          branch: master # The branch the action should deploy to.
-          folder: . # The folder the action should deploy.
+      - name: Build Jekyll site.
+        uses: fabacab/jekyll-builder-for-github-pages-action@v1 # Or whatever "@ref" you want.
