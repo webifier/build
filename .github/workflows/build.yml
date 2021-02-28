@@ -20,6 +20,9 @@ jobs:
       
       - name: Build notebooks
         run: python .github/scripts/build_notebooks.py build
+      
+      - name: Check build
+        run: ls build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.0.0
