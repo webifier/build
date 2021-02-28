@@ -20,9 +20,9 @@ jobs:
       
       - name: Build notebooks
         run: python .github/scripts/build_notebooks.py build
-      
-      - name: Check build
-        run: ls build
 
-      - name: Build Jekyll site.
-        uses: fabacab/jekyll-builder-for-github-pages-action@v1 # Or whatever "@ref" you want.
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
