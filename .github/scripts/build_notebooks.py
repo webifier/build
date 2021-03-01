@@ -65,9 +65,7 @@ def create_jekyll_text(notebook, title):
 
 def create_jekyll_file(sourcedir, filename):
     text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), "Page Title")
-    jekyll_path = os.path.join('./', *sourcedir.split('/')[1:], f'{filename}.html')   # ./a/b.html
-    jekyll_dir, _ = os.path.split(jekyll_path)
-    os.makedirs(jekyll_dir, exist_ok=True)
+    jekyll_path = os.path.join(sourcedir, f'{filename}.html')   # notebooks/a/b.html
     with open(jekyll_path, 'w') as jekyll_file:
         jekyll_file.write(text)
 
