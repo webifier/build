@@ -27,3 +27,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           enable_jekyll: true
           publish_dir: .
+          exclude_assets: '.github,.gitignore'

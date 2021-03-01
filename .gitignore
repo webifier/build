@@ -3,3 +3,9 @@ _site/
 .jekyll-cache/
 .jekyll-metadata
 **/.DS_Store
+
+# built notebooks
+_includes/notebooks
+*.html
+!_includes/*.html
+!_layouts/*.html
