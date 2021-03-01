@@ -11,7 +11,7 @@
         crossorigin="anonymous"></script>
 </head>
 
-<body class="bg-light">
+<body>
     {% include header.html %}
     <div class="container bg-light shadow">
         {% include {{ page.notebook }} %}
@@ -19,6 +19,7 @@
 
     <script defer>
         $('body').attr('style', 'padding: 0px;')
+            .addClass('bg-light')
     </script>
 </body>
 
