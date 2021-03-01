@@ -21,8 +21,12 @@ jobs:
       - name: Install Jupyter
         run: conda install jupyter
       
+      - name: Get Repository Name
+        run: echo ::set-env name=REPOSITORY_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
+        shell: bash
+      
       - name: Build notebooks
-        run: python .github/scripts/build_notebooks.py /${{ github.repository.name }}
+        run: python .github/scripts/build_notebooks.py /$REPOSITORY_NAME
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
