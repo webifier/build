@@ -3,6 +3,7 @@ import shutil
 import re
 from sys import argv
 import glob
+from bs4 import BeautifulSoup
 import nbconvert
 import nbformat
 
@@ -19,6 +20,9 @@ def build_notebook(source_file, targetdir):
     notebook = nbformat.reads(nb_contents, as_version=4)
     exporter = nbconvert.HTMLExporter()
     body, _ = exporter.from_notebook_node(notebook)
+
+    soup = BeautifulSoup(body, 'html.parser')
+    body = "".join(map(str, soup.select('#notebook-container')[0].contents))
 
     ### MOVE RESOURCE FILES
 

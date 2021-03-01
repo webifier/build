@@ -20,22 +20,13 @@
     </style>
 </head>
 
-<body>
+<body class="bg-light">
     {% include header.html %}
 
 
     <div class="container bg-white shadow p-2" id="main-container">
         {% include {{ page.notebook }} %}
     </div>
-    
-
-    <script defer>
-        $('body').attr('style', 'padding: 0px;')
-            .addClass('bg-light')
-        $('#main-container').html(
-            $('#notebook-container').html()
-        )
-    </script>
 
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config" defer>
