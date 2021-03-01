@@ -17,9 +17,6 @@ jobs:
       
       - name: Install Requirements
         run: pip install -r requirements.txt
-
-      - name: Install Jupyter
-        run: conda install jupyter
       
       - name: Build notebooks
         run: python .github/scripts/build_notebooks.py /${{ github.event.repository.name }}
