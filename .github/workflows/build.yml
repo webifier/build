@@ -22,7 +22,7 @@ jobs:
         run: conda install jupyter
       
       - name: Build notebooks
-        run: python .github/scripts/build_notebooks.py /${{ github.event.repository.name }}.
+        run: python .github/scripts/build_notebooks.py /${{ github.event.repository.name }}
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
