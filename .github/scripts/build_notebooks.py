@@ -1,15 +1,58 @@
 import os
+import shutil
+import re
 from sys import argv
 import glob
+import nbconvert
+import nbformat
 
-def build_notebook(file, targetdir):
+
+def build_notebook(source_file, targetdir):
     os.makedirs(targetdir, exist_ok=True)
 
-    print(f'building {file} to {targetdir}')
+    print(f'building {source_file} to {targetdir}')
 
-    error = os.system(f"{jupyter_command} nbconvert --to html --output-dir='{targetdir}' {file}")
-    if error:
-        raise Exception(f"Error in building {file}")
+    with open(source_file) as nb_file:
+        nb_contents = nb_file.read()
+    
+    # Convert using the ordinary exporter
+    notebook = nbformat.reads(nb_contents, as_version=4)
+    exporter = nbconvert.HTMLExporter()
+    body, _ = exporter.from_notebook_node(notebook)
+
+    ### MOVE RESOURCE FILES
+
+    sourcedir, _ = os.path.split(source_file)
+    all_files = glob.glob(os.path.join(sourcedir, '*.*'), recursive=True)
+    for asset in filter(lambda name: name != source_file, all_files):
+        _, filename = os.path.split(asset)
+
+        pattern = r'src=".*' + filename + r'"'
+        if not re.search(pattern, body):
+            continue
+
+        target_file = os.path.join('assets', asset)
+        target_dir, _ = os.path.split(target_file)
+        os.makedirs(target_dir, exist_ok=True)
+        
+        print(f"copying {asset} to {target_file}")
+        shutil.copy2(asset, target_file)
+        body = re.sub(pattern, f'src="/{target_file}"', body)
+
+
+    ### REPLACE ATTACHMENTS
+    images = {}
+    for cell in notebook['cells']:
+        if 'attachments' in cell:
+            attachments = cell['attachments']
+            for filename, attachment in attachments.items():
+                for mime, base64 in attachment.items():
+                    images[f'attachment:{filename}'] = f'data:{mime};base64,{base64}'
+    for src, base64 in images.items():
+        body = body.replace(f'src="{src}"', f'src="{base64}"')
+    
+    with open(os.path.join(targetdir, 'index.html'), 'w') as output_file:
+        output_file.write(body)
 
 
 def create_jekyll_text(notebook, title):
@@ -25,8 +68,6 @@ def create_jekyll_file(sourcedir, filename):
         jekyll_file.write(text)
 
 
-
-jupyter_command = argv[1]
 
 for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
     sourcedir, filename = os.path.split(file)                   # notebooks/a, b.ipynb

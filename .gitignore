@@ -6,6 +6,7 @@ _site/
 
 # built notebooks
 _includes/notebooks
+assets/notebooks
 *.html
 !_includes/*.html
 !_layouts/*.html
