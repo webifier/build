@@ -37,7 +37,7 @@ def build_notebook(source_file, targetdir):
         
         print(f"copying {asset} to {target_file}")
         shutil.copy2(asset, target_file)
-        body = re.sub(pattern, f'src="/{target_file}"', body)
+        body = re.sub(pattern, f'src="{baseurl}/{target_file}"', body)
 
 
     ### REPLACE ATTACHMENTS
@@ -67,6 +67,8 @@ def create_jekyll_file(sourcedir, filename):
     with open(jekyll_path, 'w') as jekyll_file:
         jekyll_file.write(text)
 
+
+baseurl = argv[1] if len(argv) > 1 else ""
 
 
 for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
