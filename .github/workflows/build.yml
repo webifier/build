@@ -14,6 +14,9 @@ jobs:
 
       - name: Add conda to path
         run: export PATH="$CONDA/bin:$PATH"
+      
+      - name: Install Requirements
+        run: pip install -r requirements.txt
 
       - name: Install Jupyter
         run: conda install jupyter
