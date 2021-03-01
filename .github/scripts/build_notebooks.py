@@ -35,7 +35,7 @@ def build_notebook(source_file, targetdir):
         target_dir, _ = os.path.split(target_file)
         os.makedirs(target_dir, exist_ok=True)
         
-        print(f"copying {asset} to {target_file}")
+        print(f"copying {asset} to {target_file} with baseurl={baseurl}/")
         shutil.copy2(asset, target_file)
         body = re.sub(pattern, f'src="{baseurl}/{target_file}"', body)
 
@@ -69,7 +69,6 @@ def create_jekyll_file(sourcedir, filename):
 
 
 baseurl = argv[1] if len(argv) > 1 else ""
-
 
 for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
     sourcedir, filename = os.path.split(file)                   # notebooks/a, b.ipynb
