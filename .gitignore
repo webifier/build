@@ -8,5 +8,6 @@ _site/
 _includes/notebooks
 assets/notebooks
 *.html
+!assets/**/*.html
 !_includes/*.html
 !_layouts/*.html
