@@ -12,12 +12,12 @@ def build_notebook(file, targetdir):
         raise Exception(f"Error in building {file}")
 
 
-def create_jekyll_text(notebook):
-    return f'---\nlayout: notebook\nnotebook: {notebook}\n---'
+def create_jekyll_text(notebook, title):
+    return f'---\nlayout: notebook\ntitle: {title}\nnotebook: {notebook}\n---'
 
 
 def create_jekyll_file(sourcedir, filename):
-    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'))
+    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), "Page Title")
     jekyll_path = os.path.join('./', *sourcedir.split('/')[1:], f'{filename}.html')   # ./a/b.html
     jekyll_dir, _ = os.path.split(jekyll_path)
     os.makedirs(jekyll_dir, exist_ok=True)
