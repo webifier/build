@@ -13,14 +13,9 @@
 
 <body>
     <div class="container">
-        <iframe id="content p-5"></iframe>
+        {% include nav.html %}
+        {% include {{ page.notebook }} %}
     </div>
-
-    <script type="text/javascript">
-        var html = '{% include {{ page.notebook }} %}';
-        var iframe = document.querySelector('#content');
-        iframe.src = 'data:text/html,' + encodeURIComponent(html);
-    </script>
 </body>
 
 </html>
