@@ -13,8 +13,11 @@
     <style>
         body {
             zoom: 160%;
-            padding-top: 35px;
-            padding-bottom: 35px;
+        }
+
+        .app-content {
+            padding-top: 70px;
+            padding-bottom: 70px;
         }
 
         .container {
@@ -56,8 +59,10 @@
 <body class="bg-secondary">
     {% include header.html %}
 
-    <div class="container bg-white shadow p-2" id="main-container">
-        {% include {{ page.notebook }} %}
+    <div class="app-content">
+        <div class="container bg-white shadow p-2" id="main-container">
+            {% include {{ page.notebook }} %}
+        </div>
     </div>
 
     {% include footer.html title=page.title %}
