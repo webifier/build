@@ -1,26 +1,23 @@
-- name: The Author
-  image: default.png
+- name: Ahmad Salimi
+  image: ahmadsalimi.png
   role: Author
   contact:
-    - icon: fab fa-github
-      url: https://github.com
     - icon: fas fa-at
-      url: mailto:a@google.com
+      url: mailto:ahsalimi@ce.sharif.edu
+    - icon: fab fa-github
+      url: https://github.com/ahmadsalimi
+    - icon: fab fa-linkedin
+      url: https://linkedin.com/in/ahmadsalimi
 
-- name: The Other Author
+- name: Unknown
   image: default.png
-  role: Author
+  role: Their Role
   contact:
-    - icon: fab fa-github
-      url: https://github.com
     - icon: fas fa-at
-      url: mailto:a@google.com
-
-- name: The Other2 Author
-  image: default.png
-  role: Author
-  contact:
+      url: mailto:the_email@gmail.com
     - icon: fab fa-github
-      url: https://github.com
-    - icon: fas fa-at
-      url: mailto:a@google.com
+      url: https://github.com/
+    - icon: fab fa-linkedin
+      url: https://linkedin.com/
+    - icon: fab fa-telegram
+      url: https://telegram.me/

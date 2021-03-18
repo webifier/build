@@ -108,7 +108,7 @@ def build_note(chapter, note):
     author_path = move_author_data(sourcedir, authors)
     jekyll_targetdir = os.path.join('notebooks', chapter['id'], notebook)
     os.makedirs(jekyll_targetdir, exist_ok=True)
-    create_jekyll_file(sourcedir, jekyll_targetdir, note['title'], filename, author_path)
+    create_jekyll_file(sourcedir, jekyll_targetdir, f"{chapter['title']} - {note['title']}", filename, author_path)
 
 baseurl = argv[1] if len(argv) > 1 else ""
 
