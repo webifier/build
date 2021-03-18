@@ -60,12 +60,12 @@ def build_notebook(source_file, targetdir):
         output_file.write(body)
 
 
-def create_jekyll_text(notebook, title, author_path):
-    return f'---\nlayout: notebook\ntitle: {title}\nnotebook: {notebook}\nauthors: {author_path}\n---'
+def create_jekyll_text(notebook, title, author_path, colab_url):
+    return f'---\nlayout: notebook\ntitle: {title}\nnotebook: {notebook}\nauthors: {author_path}\ncolab: {colab_url}\n---'
 
 
-def create_jekyll_file(sourcedir, targetdir, title, filename, author_path):
-    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), title, author_path)
+def create_jekyll_file(sourcedir, targetdir, title, filename, author_path, colab_url):
+    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), title, author_path, colab_url)
     jekyll_path = os.path.join(targetdir, f'{filename}.html')   # notebooks/a/b.html
     with open(jekyll_path, 'w') as jekyll_file:
         jekyll_file.write(text)
@@ -95,6 +95,10 @@ def move_author_data(sourcedir, authors):
     return data_name
 
 
+def get_colab_url(notebook):
+    return f'https://colab.research.google.com/github/SUT-AI/LectureNotes/blob/master/notebooks/{notebook}/index.ipynb'
+
+
 def build_note(chapter, note):
     notebook = note['notebook']
     sourcedir = os.path.join('notebooks', notebook)
@@ -108,7 +112,8 @@ def build_note(chapter, note):
     author_path = move_author_data(sourcedir, authors)
     jekyll_targetdir = os.path.join('notebooks', chapter['id'], notebook)
     os.makedirs(jekyll_targetdir, exist_ok=True)
-    create_jekyll_file(sourcedir, jekyll_targetdir, f"{chapter['title']} - {note['title']}", filename, author_path)
+    colab_url = get_colab_url(notebook)
+    create_jekyll_file(sourcedir, jekyll_targetdir, f"{chapter['title']} - {note['title']}", filename, author_path, colab_url)
 
 baseurl = argv[1] if len(argv) > 1 else ""
 
