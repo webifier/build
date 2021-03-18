@@ -1,0 +1,22 @@
+{% assign author = include.author %}
+<div class="card bg-light rounded-0 shadow border-0 p-0 mb-3">
+    <div class="row no-gutters">
+        <div class="col-6 m-auto">
+            <img class="card-img m-auto" src="/assets/images/people/{{ author.image }}">
+        </div>
+        <div class="col">
+            <div class="card-body align-middle text-center">
+                <h5 class="card-title">{{ author.name }}</h5>
+                <span class="badge badge-pill badge-success">{{ author.role }}</span>
+                <br>
+                {% if author.contact %}
+                    {% for contact in author.contact %}
+                    <a href="{{ contact.url }}" class="text-reset">
+                        <i class="{{ contact.icon }}" aria-hidden="true"></i>
+                    </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

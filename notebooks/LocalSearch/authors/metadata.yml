@@ -1,0 +1,26 @@
+- name: The Author
+  image: default.png
+  role: Author
+  contact:
+    - icon: fab fa-github
+      url: https://github.com
+    - icon: fas fa-at
+      url: mailto:a@google.com
+
+- name: The Other Author
+  image: default.png
+  role: Author
+  contact:
+    - icon: fab fa-github
+      url: https://github.com
+    - icon: fas fa-at
+      url: mailto:a@google.com
+
+- name: The Other2 Author
+  image: default.png
+  role: Author
+  contact:
+    - icon: fab fa-github
+      url: https://github.com
+    - icon: fas fa-at
+      url: mailto:a@google.com
