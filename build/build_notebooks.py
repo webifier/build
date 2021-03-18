@@ -6,6 +6,7 @@ import glob
 from bs4 import BeautifulSoup
 import nbconvert
 import nbformat
+import yaml
 
 
 def build_notebook(source_file, targetdir):
@@ -59,15 +60,39 @@ def build_notebook(source_file, targetdir):
         output_file.write(body)
 
 
-def create_jekyll_text(notebook, title):
-    return f'---\nlayout: notebook\ntitle: {title}\nnotebook: {notebook}\n---'
+def create_jekyll_text(notebook, title, author_path):
+    return f'---\nlayout: notebook\ntitle: {title}\nnotebook: {notebook}\nauthors: {author_path}\n---'
 
 
-def create_jekyll_file(sourcedir, filename):
-    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), "Page Title")
+def create_jekyll_file(sourcedir, filename, author_path):
+    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), "Page Title", author_path)
     jekyll_path = os.path.join(sourcedir, f'{filename}.html')   # notebooks/a/b.html
     with open(jekyll_path, 'w') as jekyll_file:
         jekyll_file.write(text)
+
+
+def read_authors(sourcedir):
+    with open(os.path.join(sourcedir, 'authors/metadata.yml')) as file:
+        return yaml.full_load(file)
+
+
+def move_author_data(sourcedir, authors):
+    data_name = sourcedir.split('/')[-1]
+    datadir = '_data/authors'
+    os.makedirs(datadir, exist_ok=True)
+    shutil.copy2(
+        os.path.join(sourcedir, 'authors/metadata.yml'),
+        os.path.join(datadir, data_name + '.yml'))
+
+    imagesdir = 'assets/images/people'
+
+    os.makedirs(imagesdir, exist_ok=True)
+    for author in authors:
+        shutil.copy2(
+            os.path.join(sourcedir, 'authors', author['image']),
+            os.path.join(imagesdir, author['image']))
+    
+    return data_name
 
 
 baseurl = argv[1] if len(argv) > 1 else ""
@@ -78,5 +103,7 @@ for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
 
     targetdir = os.path.join('_includes', sourcedir)             # _include/notebooks/a
     build_notebook(file, targetdir)
-    create_jekyll_file(sourcedir, filename)
+    authors = read_authors(sourcedir)
+    author_path = move_author_data(sourcedir, authors)
+    create_jekyll_file(sourcedir, filename, author_path)
     
