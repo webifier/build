@@ -11,7 +11,7 @@
                 <br>
                 {% if author.contact %}
                     {% for contact in author.contact %}
-                    <a href="{{ contact.url }}" class="text-reset">
+                    <a href="{{ contact.url }}" class="text-reset text-decoration-none">
                         <i class="{{ contact.icon }}" aria-hidden="true"></i>
                     </a>
                     {% endfor %}
