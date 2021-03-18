@@ -11,6 +11,13 @@
                 <a class="nav-link" href="{{ '/' | prepend: site.baseurl }}">Home <span class="sr-only">(current)</span></a>
             </li>
             {% for chapter in site.data.content %}
+            {% assign found = false %}
+            {% for note in chapter.notes %}
+                {% if note.notebook %}
+                    {% assign found = true %}
+                {% endif %}
+            {% endfor %}
+            {% if found %}
             <li class="nav-item dropdown">
                 <a
                     class="nav-link dropdown-toggle"
@@ -23,20 +30,25 @@
                     {{ chapter.title }}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="-{{ chapter.id }}">
+                    {% assign found = false %}
                     {% for note in chapter.notes %}
+                        {% if note.notebook %}
+                        {% assign found = true %}
                         <a
                             class="dropdown-item {% unless note.notebook %}disabled{% endunless %}"
                             href="{{ '/notebooks' | prepend: site.baseurl }}/{{chapter.id}}/{{ note.notebook }}"
                         >
                         {{ note.title }}
                         </a>
+                        {% endif %}
                     {% endfor %}
+                    {% unless found %}
+                        <a class="dropdown-item disabled">Empty</a>
+                    {% endunless %}
                 </div>
             </li>
+            {% endif %}
             {% endfor %}
-            <!-- <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-            </li> -->
         </ul>
     </div>
 </nav>

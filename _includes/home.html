@@ -1,13 +1,30 @@
 <div id="toc_container" class="p-2">
     <p class="toc_title"><h1>Table of Contents</h1></p>
     <ul class="toc_list">
-        <li><a href="#First_Point_Header">1 First Point Header</a>
-            <ul>
-                <li><a href="#First_Sub_Point_1">1.1 First Sub Point 1</a></li>
-                <li><a href="#First_Sub_Point_2">1.2 First Sub Point 2</a></li>
-            </ul>
-        </li>
-        <li><a href="#Second_Point_Header">2 Second Point Header</a></li>
-        <li><a href="#Third_Point_Header">3 Third Point Header</a></li>
+        {% for chapter in site.data.content %}
+            {% assign found = false %}
+            {% for note in chapter.notes %}
+                {% if note.notebook %}
+                    {% assign found = true %}
+                {% endif %}
+            {% endfor %}
+            {% if found %}
+                <li>{{ chapter.title }}</a>
+                <ul>
+                    {% for note in chapter.notes %}
+                        {% if note.notebook %}
+                            <li>
+                                <a
+                                    class="btn btn-sm"
+                                    href="{{ '/notebooks' | prepend: site.baseurl }}/{{chapter.id}}/{{ note.notebook }}">
+                                    {{ note.title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            </li>
+        {% endfor %}
     </ul>
 </div>
