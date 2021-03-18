@@ -1,0 +1,44 @@
+- title: Chapter 1
+  id: 1
+  notes:
+    - title: Intelligent Agents
+    - title: Uniformed Search
+    - title: Informed Search
+    - title: Advanced Heuistics
+- title: Chapter 2
+  id: 2
+  notes:
+    - title: Local Search
+    - title: Search in Continuous Space
+- title: Chapter 3
+  id: 3
+  notes:
+    - title: Constraint Satisfaction Problems
+    - title: Adversarial Search
+- title: Chapter 4
+  id: 4
+  notes:
+    - title: Bayesian Networks Representation
+    - title: Inference in Bayesian Networks
+- title: Chapter 5
+  id: 5
+  notes:
+    - title: Temporal Probability Models
+    - title: Intro to Machine Learning
+    - title: Learning a decision tree
+- title: Chapter 6
+  id: 6
+  notes:
+    - title: Regression
+    - title: Neural Networks & MLPs
+    - title: Deep Neural Networks
+- title: Chapter 7
+  id: 7
+  notes:
+    - title: Markov Decision Processes
+    - title: Reinforcement Learning
+- title: Sample Notebooks
+  id: sample
+  notes:
+    - title: Local Search
+      notebook: LocalSearch

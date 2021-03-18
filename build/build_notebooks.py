@@ -64,15 +64,15 @@ def create_jekyll_text(notebook, title, author_path):
     return f'---\nlayout: notebook\ntitle: {title}\nnotebook: {notebook}\nauthors: {author_path}\n---'
 
 
-def create_jekyll_file(sourcedir, filename, author_path):
-    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), "Page Title", author_path)
-    jekyll_path = os.path.join(sourcedir, f'{filename}.html')   # notebooks/a/b.html
+def create_jekyll_file(sourcedir, targetdir, title, filename, author_path):
+    text = create_jekyll_text(os.path.join(sourcedir, f'{filename}.html'), title, author_path)
+    jekyll_path = os.path.join(targetdir, f'{filename}.html')   # notebooks/a/b.html
     with open(jekyll_path, 'w') as jekyll_file:
         jekyll_file.write(text)
 
 
-def read_authors(sourcedir):
-    with open(os.path.join(sourcedir, 'authors/metadata.yml')) as file:
+def read_yaml(path):
+    with open(path) as file:
         return yaml.full_load(file)
 
 
@@ -95,15 +95,29 @@ def move_author_data(sourcedir, authors):
     return data_name
 
 
-baseurl = argv[1] if len(argv) > 1 else ""
-
-for file in glob.glob('notebooks/**/*.ipynb', recursive=True):
-    sourcedir, filename = os.path.split(file)                   # notebooks/a, b.ipynb
-    filename = filename.split('.')[0]                           # b
+def build_note(chapter, note):
+    notebook = note['notebook']
+    sourcedir = os.path.join('notebooks', notebook)
+    filename = 'index'
+    notebook_path = os.path.join(sourcedir, filename + '.ipynb')
+    assert os.path.exists(notebook_path), f"{notebook_path} not found!"
 
     targetdir = os.path.join('_includes', sourcedir)             # _include/notebooks/a
-    build_notebook(file, targetdir)
-    authors = read_authors(sourcedir)
+    build_notebook(notebook_path, targetdir)
+    authors = read_yaml(os.path.join(sourcedir, 'authors/metadata.yml'))
     author_path = move_author_data(sourcedir, authors)
-    create_jekyll_file(sourcedir, filename, author_path)
-    
+    jekyll_targetdir = os.path.join('notebooks', chapter['id'], notebook)
+    os.makedirs(jekyll_targetdir, exist_ok=True)
+    create_jekyll_file(sourcedir, jekyll_targetdir, note['title'], filename, author_path)
+
+baseurl = argv[1] if len(argv) > 1 else ""
+
+contents = read_yaml('_data/content.yml')
+
+for chapter in contents:
+    for note in chapter['notes']:
+        if 'notebook' not in note:
+            continue
+        
+        print(f"Building {chapter['title']} -> {note['title']}")
+        build_note(chapter, note)
