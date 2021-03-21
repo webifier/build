@@ -83,3 +83,6 @@ jobs:
 
       - name: Build notebooks
         run: python build/build_notebooks.py /${{ github.event.repository.name }}
+
+      - name: Jekyll Build
+        uses: jerryjvl/jekyll-build-action@v1
