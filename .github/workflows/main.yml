@@ -4,7 +4,30 @@ on:
     branches:
       - master
 jobs:
+  check-notebooks:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1
+      
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Add conda to path
+        run: export PATH="$CONDA/bin:$PATH"
+      
+      - name: Install Requirements
+        run: pip install -r requirements.txt
+      
+      - name: Check notebooks
+        env:
+          IMAGE_MAX_SIZE: 1500000
+        run: python build/check_notebooks.py
+
   build-and-deploy:
+    needs: check-notebooks
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout 🛎️

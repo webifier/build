@@ -6,7 +6,7 @@ import glob
 from bs4 import BeautifulSoup
 import nbconvert
 import nbformat
-import yaml
+from yaml_helper import read_yaml
 
 
 def build_notebook(source_file, targetdir):
@@ -69,11 +69,6 @@ def create_jekyll_file(sourcedir, targetdir, title, filename, author_path, colab
     jekyll_path = os.path.join(targetdir, f'{filename}.html')   # notebooks/a/b.html
     with open(jekyll_path, 'w') as jekyll_file:
         jekyll_file.write(text)
-
-
-def read_yaml(path):
-    with open(path) as file:
-        return yaml.full_load(file)
 
 
 def move_author_data(sourcedir, authors):
