@@ -1,6 +1,7 @@
 import os
 import shutil
 import re
+import argparse
 from sys import argv
 import glob
 from bs4 import BeautifulSoup
@@ -109,8 +110,16 @@ def build_note(chapter, note):
     os.makedirs(jekyll_targetdir, exist_ok=True)
     colab_url = get_colab_url(notebook)
     create_jekyll_file(sourcedir, jekyll_targetdir, f"{chapter['title']} - {note['title']}", filename, author_path, colab_url)
+    if remove_source:
+        shutil.rmtree(sourcedir)
 
-baseurl = argv[1] if len(argv) > 1 else ""
+parser = argparse.ArgumentParser(description='Build Notebooks.')
+parser.add_argument('--remove-source', dest='remove_source', action='store_true', default=False, help='Remove source notebook files')
+parser.add_argument('--baseurl', dest='baseurl', default="", help='Baseurl of deploying site')
+
+args = parser.parse_args()
+baseurl = args.baseurl
+remove_source = args.remove_source
 
 contents = read_yaml('_data/content.yml')
 

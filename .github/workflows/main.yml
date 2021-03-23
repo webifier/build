@@ -45,7 +45,7 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: Build notebooks
-        run: python build/build_notebooks.py /${{ github.event.repository.name }}
+        run: python build/build_notebooks.py --baseurl /${{ github.event.repository.name }} --remove-source
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
