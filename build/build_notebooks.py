@@ -28,7 +28,7 @@ def build_notebook(source_file, targetdir):
     ### MOVE RESOURCE FILES
 
     sourcedir, _ = os.path.split(source_file)
-    all_files = glob.glob(os.path.join(sourcedir, '*.*'), recursive=True)
+    all_files = glob.glob(os.path.join(sourcedir, '**', '*.*'), recursive=True)
     for asset in filter(lambda name: name != source_file, all_files):
         _, filename = os.path.split(asset)
 
