@@ -80,7 +80,7 @@ def move_author_data(sourcedir, authors):
         os.path.join(sourcedir, 'authors/metadata.yml'),
         os.path.join(datadir, data_name + '.yml'))
 
-    imagesdir = 'assets/images/people'
+    imagesdir = f'assets/notebooks/{data_name}/authors'
 
     os.makedirs(imagesdir, exist_ok=True)
     for author in authors:

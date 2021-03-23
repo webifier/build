@@ -87,13 +87,13 @@
             {% include {{ page.notebook }} %}
         </div>
         <div class="container bg-dark shadow row mx-auto py-2">
-                {% if page.authors %}
-                    {% for author in site.data.authors[page.authors] %}
-                        <div class="col my-2" style="max-width: 25%; min-width: 25%;">
-                            {% include notebook-card.html author=author %}
-                        </div>
-                    {% endfor %}
-                {% endif %}
+            {% if page.authors %}
+                {% for author in site.data.authors[page.authors] %}
+                    <div class="col my-2" style="max-width: 25%; min-width: 25%;">
+                        {% include notebook-card.html author=author author_path=page.authors %}
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
     </div>
