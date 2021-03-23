@@ -40,5 +40,5 @@
 - title: Sample Notebooks
   id: sample
   notes:
-    - title: Local Search
-      notebook: LocalSearch
+    - title: Local Search (An example of notebook)
+      notebook: Example
