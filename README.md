@@ -1,37 +1,79 @@
-## Welcome to GitHub Pages
+<div style="text-align: justify">
 
-You can use the [editor on GitHub](https://github.com/SUT-AI/LectureNotes/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+# SUT AI Lecture Notes
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+An auto generator static-site for jupyter notebook files containing the lecture notes of Artificial Intelligence course at Sharif University of Technology. See https://sut-ai.github.io/LectureNotes/
 
-### Markdown
+## Contribution in Lecture Notes
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+> The following instructions describe how to contribute.
 
-```markdown
-Syntax highlighted code block
+1. Assume you want to add *Chapter 1 - Intelligent Agents* lecture note. Then, you have a `.ipynb` file and maybe some other resources such as images.
 
-# Header 1
-## Header 2
-### Header 3
+1. Create a fork of this repository.
 
-- Bulleted
-- List
+1. Create a directory inside `notebooks`. **(IMPORTANT: Note that the name of this directory shouldn't contain whitespaces.)**
 
-1. Numbered
-2. List
+    ```bash
+    cd notebooks
+    mkdir IntelligentAgents
+    ```
 
-**Bold** and _Italic_ and `Code` text
+1. Put your notebook and resource files in the above directory.
 
-[Link](url) and ![Image](src)
-```
+1. Rename your notebook file to `index.ipynb`.
+    
+    ```bash
+    mv some_nb.ipynb index.ipynb
+    ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+1. Add your notebook directory name which you have created at step 3 to `_data/content.yml` as shown below.
 
-### Jekyll Themes
+    ```yaml
+    ...
+      notes:
+        ...
+        - title: Intelligent Agents
+          notebook: IntelligentAgents # Add this line
+        ...
+    ...
+    ```
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/SUT-AI/LectureNotes/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+1. Create `authors` directory in your notebook directory.
+    
+    ```bash
+    cd notebooks/IntelligentAgents
+    mkdir authors
+    ```
 
-### Support or Contact
+1. Add **SQUARE** images of each author with a maximum size of **1.5MB** to the `authors` directory.
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+1. Add `metadata.yml` and write authors information as shown bellow. (Icons can be any font-awesome free icon. See https://fontawesome.com/icons?d=gallery)
+
+    ```yaml
+    - name: Author 1
+      image: author1.png
+      role: Author 1 role
+      contact:              # This section is optional
+        - icon: fas fa-at
+          url: mailto:the_email@gmail.com
+        - icon: fab fa-github
+          url: https://github.com/
+
+    - name: Author 2
+      image: author2.png
+      role: Author 2 role
+      contact:
+        - icon: fab fa-linkedin
+          url: https://linkedin.com/
+        - icon: fab fa-telegram
+          url: https://telegram.me/
+    ```
+
+1. Create a pull request from your fork to the `master` branch of this repository, and wait for reviewers to approve your changes or make changes if they request more changes. Note that some checks will be done in your pull requests which you must pass **required** ones. If you fail one of them, check error message and try to fix the problem.
+
+Check out `notebooks/Example` as a sample of a lecture note files.
+
+Thank you for your contribution.
+
+</div>
