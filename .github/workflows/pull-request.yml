@@ -61,7 +61,7 @@ jobs:
         run: python build/check_notebooks.py
 
   build-notebook:
-    needs: [check-notebooks, check-notebook-changes]
+    needs: check-notebooks
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout 🛎️
