@@ -2,6 +2,8 @@
 
 # SUT AI Lecture Notes
 
+[![Build and Deploy](https://github.com/SUT-AI/LectureNotes/actions/workflows/main.yml/badge.svg)](https://github.com/SUT-AI/LectureNotes/actions/workflows/main.yml)
+
 An automatic static-site generator for jupyter notebook files.
 
 The lecture notes of Artificial Intelligence course at Sharif University of Technology. See https://sut-ai.github.io/LectureNotes/
