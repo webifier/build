@@ -1,6 +1,6 @@
 # Lecture Note
 
-## Which lecture note you are adding or modifiying?
+## Which lecture note you are adding or modifying?
 
 Chapter # - Title
 
