@@ -52,7 +52,7 @@ The lecture notes of Artificial Intelligence course at Sharif University of Tech
 
 1. Add **SQUARE** images of each author with a maximum size of **1.5MB** to the `authors` directory.
 
-1. Add `metadata.yml` and write authors information as shown bellow. (Icons can be any font-awesome free icon. See https://fontawesome.com/icons?d=gallery)
+1. Add `metadata.yml` to `authors` directory and write authors information as shown bellow. (Icons can be any font-awesome free icon. See https://fontawesome.com/icons?d=gallery)
 
     ```yaml
     - name: Author 1
