@@ -12,38 +12,7 @@
         crossorigin="anonymous"></script>
     <!-- FontAwesome JS-->
     <script defer src="/assets/fontawesome/js/all.min.js"></script>
-    <style>
-        body {
-            zoom: 160%;
-        }
-
-        .app-content {
-            padding-top: 70px;
-            padding-bottom: 35px;
-        }
-
-        .container {
-            width: 80%;
-        }
-
-        .sidebar-section {
-            position: absolute;
-            height: 100%;
-            width: 100%;
-        }
-
-        .make-me-sticky {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 45px;
-        }
-
-        @media only screen and (max-width: 768px) {
-            .container {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | prepend: site.baseurl }}">
 
     <!-- Loading mathjax macro -->
     <!-- Load mathjax -->
@@ -97,6 +66,8 @@
         </div>
     </div>
     </div>
+
+    {% include footer.html %}
 </body>
 
 </html>

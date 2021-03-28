@@ -1,0 +1,41 @@
+body {
+    zoom: 160%;
+}
+
+footer {
+    position: static;
+    width: 100%;
+    bottom: 0;
+}
+
+.bg-black {
+    background-color: black;
+}
+
+.app-content {
+    padding-top: 70px;
+    padding-bottom: 35px;
+    min-height: 90%;
+}
+
+.container {
+    width: 80%;
+}
+
+.sidebar-section {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.make-me-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 45px;
+}
+
+@media only screen and (max-width: 768px) {
+    .container {
+        width: 100%;
+    }
+}
