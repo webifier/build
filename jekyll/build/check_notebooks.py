@@ -4,7 +4,7 @@ from yaml_helper import read_yaml
 
 IMAGE_MAX_SIZE = float(os.environ.get('IMAGE_MAX_SIZE', float('inf')))
 
-contents = read_yaml('_data/content.yml')
+contents = read_yaml('content.yml')
 
 for chapter in contents:
     for note in chapter['notes']:
