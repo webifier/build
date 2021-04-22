@@ -1,6 +1,6 @@
 <div style="text-align: justify">
 
-#Notebook Pages
+# Notebook Pages
 
 Jupyter Notebook Integration with Github Pages
 
