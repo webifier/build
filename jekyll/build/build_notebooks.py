@@ -92,7 +92,7 @@ def move_author_data(sourcedir, authors):
 
 
 def get_colab_url(notebook):
-    return f'https://colab.research.google.com/github/SUT-AI/LectureNotes/blob/master/notebooks/{notebook}/index.ipynb'
+    return f'https://colab.research.google.com/github/{repo_full_name}/blob/master/notebooks/{notebook}/index.ipynb'
 
 
 def build_note(chapter, note):
@@ -116,10 +116,16 @@ def build_note(chapter, note):
 parser = argparse.ArgumentParser(description='Build Notebooks.')
 parser.add_argument('--remove-source', dest='remove_source', action='store_true', default=False, help='Remove source notebook files')
 parser.add_argument('--baseurl', dest='baseurl', default="", help='Baseurl of deploying site')
+parser.add_argument('--repo_full_name', dest='baseurl', help='user/repo_name')
 
 args = parser.parse_args()
 baseurl = args.baseurl
 remove_source = args.remove_source
+repo_full_name = args.repo_full_name
+
+print(f'baseurl: {baseurl}')
+print(f'remove_source: {remove_source}')
+print(f'repo_full_name: {repo_full_name}')
 
 contents = read_yaml('_data/content.yml')
 
