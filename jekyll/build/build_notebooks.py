@@ -116,7 +116,7 @@ def build_note(chapter, note):
 parser = argparse.ArgumentParser(description='Build Notebooks.')
 parser.add_argument('--remove-source', dest='remove_source', action='store_true', default=False, help='Remove source notebook files')
 parser.add_argument('--baseurl', dest='baseurl', default="", help='Baseurl of deploying site')
-parser.add_argument('--repo_full_name', dest='baseurl', help='user/repo_name')
+parser.add_argument('--repo_full_name', dest='repo_full_name', help='user/repo_name')
 
 args = parser.parse_args()
 baseurl = args.baseurl
