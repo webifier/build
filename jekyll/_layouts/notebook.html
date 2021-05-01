@@ -43,27 +43,33 @@
     {% include header.html %}
 
     <div class="app-content">
-        <div class="container bg-dark text-white shadow p-3">
-            <h3 class="text-center m-auto">
-                {{ page.title }}
-                <a href="{{ page.colab }}">
-                    <img src="{{ '/assets/images/colab-badge.svg' | prepend: site.baseurl }}" height="15px"
-                        alt="Open in colab">
-                </a>
-            </h3>
+        <div class="container bg-dark text-white shadow p-3 text-center">
+            <h1 class="text-center m-auto"> {{ page.title }}</h1>
+            <a href="{{ page.colab }}">
+                <img src="{{ '/assets/images/colab-badge.svg' | prepend: site.baseurl }}" height="10px"
+                    alt="Open in colab">
+            </a>
+            {% if page.description %}
+            <p class="lead my-3">{{page.description}}</p>
+            {% endif %}
         </div>
+
         <div class="container bg-white shadow p-3">
             {% include {{ page.notebook }} %}
         </div>
-        <div class="container bg-dark shadow row mx-auto py-2">
-            {% if page.authors %}
+
+        <!-- Authors -->
+        {% if page.authors %}
+        <div class="container py-5 bg-light">
+            <div class="row pb-5 mb-4">
                 {% for author in site.data.authors[page.authors] %}
-                    <div class="col my-2" style="max-width: 25%; min-width: 25%;">
+                    <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
                         {% include notebook-card.html author=author author_path=page.authors %}
                     </div>
                 {% endfor %}
-            {% endif %}
+            </div>
         </div>
+        {% endif %}
     </div>
     </div>
 

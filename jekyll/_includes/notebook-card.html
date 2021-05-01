@@ -1,23 +1,33 @@
 {% assign author = include.author %}
 {% assign author_path = include.author_path %}
-<div class="card bg-light rounded-0 shadow border-0 p-0">
-    <div class="row no-gutters">
-        <div class="col-6 m-auto">
-            <img class="card-img m-auto" src="{{ '/assets/notebooks' | prepend: site.baseurl }}/{{ author_path }}/authors/{{ author.image }}">
-        </div>
-        <div class="col">
-            <div class="card-body align-middle text-center">
-                <h5 class="card-title">{{ author.name }}</h5>
-                <span class="badge badge-pill badge-success">{{ author.role }}</span>
-                <br>
-                {% if author.contact %}
+<div class="card shadow-sm border-0 rounded">
+    <div class="card-body p-0">
+        {% if author.image %}
+
+                <img alt="" class="w-100 card-img-top"
+                    {% unless author.image contains '://' %}
+                    src="{{ '/assets/notebooks' | prepend: site.baseurl }}/{{ author_path }}/authors/{{ author.image }}"
+                    {% else %}
+                    src="{{ author.image }}"
+                    {% endunless %}
+                >
+
+        {% endif %}
+        <div class="p-4 text-center">
+            <h5 class="mb-0">{{ author.name }}</h5>
+            <p class="small text-muted">{{ author.role }}</p>
+            {% if author.contact %}
+            <ul class="social mb-0 list-inline mt-3">   
                     {% for contact in author.contact %}
-                    <a href="{{ contact.url }}" class="text-reset text-decoration-none">
-                        <i class="{{ contact.icon }}" aria-hidden="true"></i>
-                    </a>
+                    <li class="list-inline-item m-0">
+                        <a href="{{ contact.url }}">
+                            <i class="{{ contact.icon }}" aria-hidden="true"></i>
+                        </a>
+                    </li>
                     {% endfor %}
-                {% endif %}
-            </div>
+            </ul>
+            {% endif %}
         </div>
+
     </div>
 </div>
