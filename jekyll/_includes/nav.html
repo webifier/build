@@ -1,18 +1,14 @@
 {% assign colab = include.colab %}
-<nav class="navbar navbar-expand-sm navbar-light bg-light p-3 sticky-top">
+<nav class="navbar shadow navbar-expand-sm navbar-light bg-light p-3 sticky-top">
     {% if site.data.index.nav.brand %}
     {% include link.html link=site.data.index.nav.brand class="navbar-brand" %}
     {% endif %}
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav  mb-lg-0">
              <li class="nav-item active">
-                <a class="nav-link" href="{{ '/' | prepend: site.baseurl }}">
-                    {% if site.data.index.title %}
-                    {{site.data.index.title}}
-                    {% else %}
-                    Index
-                    {% endif %}
-                </a>
+                {% assign url = '/' | prepend: site.baseurl %}
+                {% assign text = site.data.index.title | default: "Index" %}
+                {% include link.html class="nav-link" url=url text=text %}
             </li>
             {% assign links = site.data.index.nav.content | site.data.index.nav %}
             {% for link in links %}

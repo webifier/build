@@ -70,60 +70,7 @@
             <!--generic media links-->
             {% else %}
             {% for link in content %}
-
-            <!--pdf link-->
-            {% if link.pdf %}
-            {% assign kind = "PDF" %}
-            {% unless link.link %}
-            {% if link.pdf contains "://" %}
-            {% assign url = link.pdf | prepend: "http://docs.google.com/gview?url=" %}
-            {% else %}
-            {% assign url = link.pdf %}
-            {% endif %}
-            {% endunless %}
-            {% endif %}
-
-            <!--notebook link-->
-            {% if link.notebook %}
-            {% assign kind = "Notebook" %}
-            {% assign metadata_name = link.notebook | replace: "/", "_" | remove: " " %}
-            {% assign title = site.data.notebooks[metadata_name].title %}
-            {% assign description = site.data.notebooks[metadata_name].description %}
-            {% unless link.link %}
-            {% assign url = link.notebook | prepend: site.baseurl   %}
-            {% endunless %}
-            {% endif %}
-
-            <!--another page link-->
-            {% if link.index %}
-            {% assign kind = "Page" %}
-            {% assign title = site.data[link.index].title %}
-            {% assign description = site.data[link.index].description.content | default: site.data[link.index].description | default: site.data[link.index].header.description | default: site.data[link.index].header  %}
-            {% unless link.link %}
-            {% assign url = link.index | prepend: site.baseurl | append: ".html" %}
-            {% endunless %}
-            {% endif %}
-
-            <a href="{{ link.link | default: url }}" class="list-group-item list-group-item-action p-4 m-0">
-                <div class="d-flex w-100 justify-content-between py-0 my-0 p-0">
-                    <h5>
-                        {% if link.icon %}
-                        <i class="{{ link.icon }}" aria-hidden="true"></i>
-                        {% endif %}
-                        {% if link.text or title %}
-                        {{ link.text | default: title }}
-                        {% endif %}
-                    </h5>
-                    {% if link.kind or kind %}
-                    <small>{{link.kind | default: kind | capitalize}}</small>
-                    {% endif %}
-                </div>
-                {% if link.description or description %}
-                <div class="mb-1">
-                    {{ link.description | default: description }}
-                </div>
-                {% endif %}
-            </a>
+            {% include link.html grouped=true link=link %}
             {% endfor %}
             {% endcase %}
             {% else %}
