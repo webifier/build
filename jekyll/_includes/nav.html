@@ -1,7 +1,7 @@
 {% assign colab = include.colab %}
 <nav class="navbar shadow navbar-expand-sm navbar-light bg-light p-3 sticky-top">
     {% if site.data.index.nav.brand %}
-    {% include link.html link=site.data.index.nav.brand class="navbar-brand" %}
+    {% include link.html link=site.data.index.nav.brand class="btn navbar-brand" %}
     {% endif %}
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav  mb-lg-0">
@@ -9,9 +9,9 @@
             {% for link in links %}
             <li class="nav-item">
                 {% if page.url == link.link %}
-                {% include link.html link=link class="nav-link active" %}
+                {% include link.html link=link class="btn nav-link active" %}
                 {% else %}
-                {% include link.html link=link class="nav-link" %}
+                {% include link.html link=link class="btn nav-link" %}
                 {% endif %}
             </li>
             {% endfor %}

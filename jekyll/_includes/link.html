@@ -37,7 +37,7 @@
 {% assign link_kind = include.kind | default: include.link.kind | default: link_kind %}
 
 {% unless include.grouped %}
-<a href="{{ link_url }}" class="btn {{include.class}}"
+<a href="{{ link_url }}" class="{{include.class}}"
    {% if include.description or include.link.description %}
    data-bs-toggle="tooltip" data-bs-html="true" title="{{include.description | default : include.link.description}}"
    {% else %}

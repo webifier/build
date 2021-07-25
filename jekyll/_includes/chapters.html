@@ -13,8 +13,7 @@
         </button>
         </h{{include.level}}>
         <div id="collapse-{{include.level}}-{{index_tag}}-{{tag}}" class="accordion-collapse collapse"
-             aria-labelledby="heading-{{include.level}}-{{index_tag}}-{{tag}}"
-             data-bs-parent="#accordion-{{include.level}}-{{index_tag}}">
+             aria-labelledby="heading-{{include.level}}-{{index_tag}}-{{tag}}">
             <div class="accordion-body py-0 m-0 container-fluid rounded" >
                 {% assign next_level = include.level | plus:1 %}
                 {% include toc.html index=chapter level=next_level%}

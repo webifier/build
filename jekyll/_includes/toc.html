@@ -9,6 +9,19 @@
     {% continue %}
     {% endif %}
 
+    {% if include.inline != null  %}
+    {% if pair[0] == "kind" or pair[0] =="background" or pair[0] =="label" %}
+    {% continue %}
+    {% endif %}
+
+    {% if pair[0] == "content" %}
+    {% unless pair[1].content %}
+    {{ pair[1] }}
+    {% continue %}
+    {% endunless %}
+    {% endif %}
+    {% endif %}
+
     {% assign label = pair[1].label | default: pair[0] %}
     {% assign value = pair[1] %}
     {% assign content = pair[1].content | default: pair[1] %}
@@ -26,6 +39,9 @@
     {% endif %}
     <div
         {% if pair[1].background %}
+        {% if include.inline != null %}
+        class="row align-items-center p-0 py-2"
+        {% else %}
         class="shadow-sm row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
         p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
         style="
@@ -35,27 +51,39 @@
           background-position: center;
           background-repeat: no-repeat;
           background-size: cover;"
+        {% endif %}
+        {% else %}
+        {% if include.inline != null %}
+        class="row align-items-center p-0 py-1 list-inline"
         {% else %}
         class="row align-items-center my-2 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0 p{{pad_direction}}-md-1
          p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
         style="min-height: 5vh;"
         {% endif %}
+        {% endif %}
     >
         {% unless pair[1].kind == "people" %}
-        {% if pair[1].label != false %}
+        {% if pair[1].label != false and include.inline == null %}
         <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2  col-xxl-2 p-2 d-flex text-muted justify-content-center">
             <strong>{{label | capitalize }}</strong>
         </div>
         {% endif %}
+        {% if include.inline != null and pair[1].label != false %}
+        <span class="text-muted pt-2 pb-1">
+            <strong>{{label | capitalize }}</strong>
+        </span>
+        {% endif %}
         <div
-            {% if pair[1].label != false %}
-            class="rounded list-group shadow col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center"
+            {% if pair[1].label != false and include.inline == null %}
+            class="rounded hover-shadow bg-white shadow col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center"
             {% else %}
-            class="rounded list-group shadow col-12 {{spacing}} justify-content-center"
+            {% if include.inline ==null %}
+            class="rounded hover-shadow bg-white shadow col-12 {{spacing}} justify-content-center"
+            {% else %}
+            class="px-4"
+            {% endif %}
             {% endif %}
         >
-            {% if content.first %}
-
             {% case pair[1].kind %}
             <!--chapters-->
             {% when "chapters" %}
@@ -63,14 +91,25 @@
 
             <!--generic media links-->
             {% else %}
+            {% if content[0] %}
             {% for link in content %}
+            {% if include.inline != null %}
+            {% include link.html link=link class="list-inline-item" %}
+            {% else %}
             {% include link.html grouped=true link=link %}
+            {% endif %}
             {% endfor %}
-            {% endcase %}
 
+            {% else %}
+            {% if pair[1].content %}
+            {% include toc.html index=value inline=true level=include.level %}
             {% else %}
             {{ content }}
             {% endif %}
+
+            {% endif %}
+
+            {% endcase %}
         </div>
         {% else %}
         {% case pair[1].kind %}
