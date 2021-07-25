@@ -1,0 +1,51 @@
+{% comment %}
+<!--data structure | specified in notebooks metadata people sections-->
+<!--* name: person name-->
+<!--* image: person image source (can be a url or link to static file)-->
+<!--* contact: a list of contact objects (link, icon/hyper-text)-->
+<!--* roles: a list of role labels (strings)-->
+<!--* role: shorthand for specifying only a single role label-->
+<!---->
+{% endcomment %}
+<div class="card shadow-sm border-0  rounded mx-5 mx-sm-0 mx-md-0 mx-lg-0 mx-xl-0 mx-xxl-0 my-2 my-sm-3 my-md-3 my-lg-3 my-xl-3 my-xxl-3">
+    <div class="card-body p-0">
+        <!--image-->
+        {% if include.person.image or include.image %}
+            {% assign image = include.image | default: include.person.image %}
+            <img alt="" class="w-100 card-img-top"
+                {% unless include.person.image contains '://' %}
+                src="{{ include.image | default: include.person.image | prepend: site.baseurl }}"
+                {% else %}
+                src="{{ include.person.image }}"
+                {% endunless %}
+            >
+        {% endif %}
+        <div class="p-4 text-center">
+            <!--name-->
+            <h5 class="mb-0">{{ include.person.name }}</h5>
+            <!--role-->
+            {% if include.person.role %}
+                <p class="small text-muted">{{ include.person.role }}</p>
+            {% else %}
+                {% if include.person.roles %}
+                    <p class="small text-muted list-inline">
+                    {% for role in include.person.roles %}
+                    <span class="list-inline-item">{{ role }}</span>
+                    {% endfor %}
+                    </p>
+                {% endif %}
+            {% endif %}
+
+            <!--contact-->
+            {% if include.person.contact %}
+            <ul class="social mb-0 list-inline mt-3">
+                {% for contact in include.person.contact %}
+                <li class="list-inline-item m-0">
+                    {% include link.html link=contact class="link-secondary" %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
