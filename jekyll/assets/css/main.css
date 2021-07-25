@@ -20,7 +20,14 @@ body {
         background-position: 0% 50%;
     }
 }
-
+.hover-shadow:hover {
+    filter: drop-shadow(0 0.1rem 0.3rem rgba(0,0,0, 0.5));
+    top: -0.1rem;
+}
+.hover-shadow {
+    position: relative;
+    transition: all 0.1s ease;
+}
 footer {
     position: static;
     width: 100%;
@@ -32,8 +39,9 @@ footer {
 }
 
 .app-content {
+    padding: 3vh 0;
     max-width:80%;
-    position: relative;
+    position
 }
 
 .app-body {
