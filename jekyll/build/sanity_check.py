@@ -6,48 +6,48 @@ IMAGE_MAX_SIZE = float(os.environ.get('IMAGE_MAX_SIZE', float('inf')))
 DEFAULT_INDEX_DATA_PATH = 'index.yml'
 
 
-def validate_link(link, object_name='Link'):
+def validate_notebook(link):
+    notebook_dir = link["notebook"]
+    if notebook_dir in checked_notebooks:
+        return
+    checked_notebooks.add(notebook_dir)
+
+    notebook_file = os.path.join(notebook_dir, 'index.ipynb')
+    assert os.path.exists(notebook_file), \
+        f"Notebook file {notebook_file}, specified in \n{link}\n could not be found!"
+
+    notebook_metadata_file = os.path.join(notebook_dir, 'metadata.yml')
+
+    if not os.path.exists(notebook_metadata_file):
+        warnings.warn(
+            f'Notebook metadata file {notebook_metadata_file} specified for {link["notebook"]},'
+            f" in \n{link}\n could not be found!", UserWarning)
+    else:
+        metadata = read_yaml(notebook_metadata_file)
+        assert isinstance(metadata, dict), \
+            f"Expected metadata file for {notebook_dir}, to be an object containing, {type(metadata)} provided instead!"
+        validate_index(metadata)
+
+
+def validate_link(link, kind=None):
     assert isinstance(link, dict), \
-        f"{object_name} object,\n{link}\n is supposed to be object, got {type(link)}"
+        f"Link object,\n{link}\n is supposed to be object, got {type(link)} instead!"
+
+    if link.get('kind', kind) == 'person':
+        validate_person(link)
 
     media_count = ('link' in link) + ('notebook' in link) + ('pdf' in link) + ('md' in link)
     assert media_count <= 1, \
-        f'{object_name} object,\n{link}\n is supposed to have only a single media source, ' \
-        f'{media_count} provided instead!'
+        f'Link object,\n{link}\n is supposed to have only a single media source, ' \
+        f'Link provided instead!'
 
-    # check local links
     if 'notebook' in link and '://' not in link['notebook']:
-        notebook_dir = link["notebook"]
-        notebook_file = os.path.join(notebook_dir, 'index.ipynb')
-
-        assert os.path.exists(notebook_file), \
-            f"Notebook file {notebook_file}, specified in {object_name} object,\n{link}\n could not be found!"
-
-        notebook_metadata_file = os.path.join(notebook_dir, 'metadata.yml')
-
-        if not os.path.exists(notebook_metadata_file):
-            assert 'text' in link or 'icon' in link, \
-                f'No text or icon is provided for notebook {link["notebook"]} in {object_name} object,\n{link}\n ' \
-                f'with no metadata!'
-            warnings.warn(
-                f'Notebook metadata file {notebook_metadata_file} specified for {link["notebook"]},'
-                f" in {object_name} object,\n{link}\n could not be found!", UserWarning)
-        else:
-            metadata = read_yaml(notebook_metadata_file)
-            assert isinstance(metadata, dict), \
-                f"Expected metadata file for {link['notebook']}, to be an object containing " \
-                f"[author(s), name, (description), ...]"
-            authors_list = metadata.get('authors', [])
-            authors_list = authors_list if 'content' not in authors_list else authors_list.get('content', [])
-            validate_image(metadata.get('authors', dict()), 'background')
-            if not authors_list:
-                warnings.warn(f"No author was specified for notebook {link['notebook']}", UserWarning)
-            for author in authors_list:
-                validate_author_data(author)
+        # check local notebook links
+        validate_notebook(link)
 
     if 'index' in link:
         assert os.path.isfile(f"{link['index']}.yml"), f'Index file {link["index"]} could not be found!'
-        validate_index(read_yaml(f"{link['index']}.yml"))
+        validate_index(read_yaml(f"{link['index']}.yml"), link['index'])
 
     if 'pdf' in link:
         assert os.path.isfile(link['pdf']), f'PDF file {link["pdf"]} could not be found!'
@@ -67,50 +67,58 @@ def validate_image(obj, obj_name='Object', key='image', force_present=False, war
             f' locally in "files" directory'
 
 
-def validate_author_data(author):
+def validate_person(person):
     """
-    Validate author metadata. It should have a name, optionally a list of roles and contact information and image
+    Validate person metadata. It should have a name, optionally a list of roles and contact information and image
     """
-    assert isinstance(author, dict), \
-        f"Author object,\n{author}\n is expected to be a dictionary, got {type(author)} instead!"
-    assert 'name' in author, \
-        f"Author object,\n{author}\n must contain name field"
-    validate_image(author, 'Author')
+    assert isinstance(person, dict), \
+        f"Author object,\n{person}\n is expected to be a dictionary, got {type(person)} instead!"
+    assert 'name' in person, \
+        f"Author object,\n{person}\n must contain name field"
+    validate_image(person, 'Author')
 
-    roles = author.get('roles', []) + [] if 'role' not in author else [author['role']]
+    roles = person.get('roles', []) + [] if 'role' not in person else [person['role']]
     if not roles:
-        warnings.warn(f"No role is specified for author,\n{author}", UserWarning)
+        warnings.warn(f"No role is specified for person,\n{person}", UserWarning)
 
-    if 'contact' not in author:
-        warnings.warn(f"No contact information is specified for author,\n{author}", UserWarning)
+    if 'contact' not in person:
+        warnings.warn(f"No contact information is specified for person,\n{person}", UserWarning)
 
-    for contact in author.get('contact', []):
+    for contact in person.get('contact', []):
         validate_link(contact, 'Contact')
 
 
-def validate_index(index):
+def validate_index(index, index_file=None):
     """
-    Validate the index structure and its chapters (which are again of index structure themselves)
+    Validate the index structure
     """
+    if index_file is not None and index_file in checked_indices:
+        return
+    checked_indices.add(index_file)
     assert isinstance(index, dict), \
         f"Index data,\n{index}\n is supposed to be an object containing [title, description, chapters, ...]"
     # traversing key-values to check descriptors and link lists
     for key, value in index.items():
-        if key in ['chapters', ]:
-            continue
         # objects should either have descriptors or be a list of link objects
         content = value if isinstance(value, (str, list)) or 'content' not in value else (
             value.get('content', value) if isinstance(value, dict) else value)
+
         if isinstance(value, dict):
+            # check section background
             validate_image(value, key='background')
         if isinstance(content, dict):
+            # check section value as link object
             validate_link(content)
         elif isinstance(content, list):
             for link in content:
-                validate_link(link)
-
-    for chapter in index.get('chapters', []):
-        validate_index(chapter)
+                if isinstance(value, dict) and value.get('kind', None) == 'index':
+                    # check subsections
+                    validate_index(value)
+                else:
+                    validate_link(
+                        link=link,
+                        kind='person' if isinstance(value, dict) and value.get('kind', None) == 'people' else None
+                    )
 
 
 if __name__ == '__main__':
@@ -120,5 +128,6 @@ if __name__ == '__main__':
     parser.add_argument('--index',
                         dest='index', help='index.yml file path', default=DEFAULT_INDEX_DATA_PATH)
     args = parser.parse_args()
-    index_file = read_yaml(args.index)
-    validate_index(index_file)
+    checked_indices = set()
+    checked_notebooks = set()
+    validate_index(read_yaml(args.index), args.index)

@@ -8,7 +8,7 @@ import nbformat
 from yaml_helper import read_yaml, save_yaml
 
 # metadata file names will be like `{notebook_folder_name}`
-BASE_INDEX_FILE = 'index.yml'
+BASE_INDEX_FILE = 'index'
 TARGET_INDEX_FILE = '_data/index.yml'
 NOTEBOOKS_METADATA_DIR = '_data/notebooks'
 
@@ -23,7 +23,8 @@ def process_file(src, target, src_dir=None, target_dir=None, baseurl=None):
     target_dir = '' if not target_dir else (target_dir if target_dir.endswith('/') else f'{target_dir}/')
     src = src if not src_dir else (f'{src_dir}{src}' if src_dir.endswith('/') else f'{src_dir}/{src}')
     assert os.path.isfile(src), f'{src} file does not exist!'
-    os.makedirs(f'{target_dir}{base_dir}', exist_ok=True)
+    if f'{target_dir}{base_dir}':
+        os.makedirs(f'{target_dir}{base_dir}', exist_ok=True)
     target = f'{target_dir}{target}'
     shutil.copy2(src, target)
     return target if baseurl is None else f'{baseurl}/{target}'
@@ -34,8 +35,10 @@ def build_notebook(src, build_dir, assets_dir):
 
     print(f'Building notebook {src} to {build_dir} (assets:{assets_dir})!')
     assert os.path.isfile(src), f'Notebook {src} could not be found!'
-    os.makedirs(build_dir, exist_ok=True)
-    os.makedirs(assets_dir, exist_ok=True)
+    if build_dir:
+        os.makedirs(build_dir, exist_ok=True)
+    if assets_dir:
+        os.makedirs(assets_dir, exist_ok=True)
 
     with open(src) as nb_file:
         nb_contents = nb_file.read()
@@ -59,7 +62,7 @@ def build_notebook(src, build_dir, assets_dir):
         if not re.search(pattern, body):
             continue
 
-        target_file = process_file(asset, asset, target_dir=assets_dir, baseurl=baseurl)  # todo: make right!
+        target_file = process_file(asset, asset, target_dir=assets_dir, baseurl=baseurl)
         if target_file:
             body = re.sub(pattern, f'src="{target_file}"', body)
     # replace attachment sources
@@ -75,7 +78,8 @@ def build_notebook(src, build_dir, assets_dir):
 
     build_dir = ('' if not build_dir else build_dir if build_dir.endswith('/') else f'{build_dir}/') + '/'.join(
         src.split('/')[:-1])
-    os.makedirs(build_dir, exist_ok=True)
+    if build_dir:
+        os.makedirs(build_dir, exist_ok=True)
     with open(os.path.join(build_dir, 'index.html'), 'w') as output_file:
         output_file.write(body)
 
@@ -93,7 +97,8 @@ def create_jekyll_home_text(index):
 
 def create_jekyll_file(target, text):
     basedir = '/'.join(target.split('/')[:-1])
-    os.makedirs(basedir, exist_ok=True)
+    if basedir:
+        os.makedirs(basedir, exist_ok=True)
     with open(target, 'w') as jekyll_file:
         jekyll_file.write(text)
 
@@ -124,6 +129,9 @@ def process_metadata(notebook: str, metadata: dict):
     This function is also responsible for loading up author image from their github profile if no image is provided.
     Author image files will also be moved to `assets/{notebook | preprocessed}/files`.
     """
+    if notebook in checked_notebooks:
+        return metadata
+    checked_notebooks.add(metadata)
     data_name = notebook.replace('/', '_').replace(' ', '')
     for key, value in metadata.items():
         metadata[key] = build_object(value, image_key='background', image_src_dir=f'{notebook}',
@@ -136,7 +144,8 @@ def process_metadata(notebook: str, metadata: dict):
         metadata['description'] = metadata['header']['description']
 
     # moving metadata yaml to `_data`
-    os.makedirs(NOTEBOOKS_METADATA_DIR, exist_ok=True)
+    if NOTEBOOKS_METADATA_DIR:
+        os.makedirs(NOTEBOOKS_METADATA_DIR, exist_ok=True)
     target_path = os.path.join(NOTEBOOKS_METADATA_DIR, data_name + '.yml')
     save_yaml(metadata, target_path)
     return data_name
@@ -189,14 +198,18 @@ def build_link(link, image_key=None, image_src_dir=None, image_target_dir='asset
     elif 'kind' in link and link['kind'] == 'person':
         link = process_person(link, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
     elif 'index' in link:
-        index_file = read_yaml(f'{link["index"]}.yml')
-        index_file = build_index(index_file)
-        if 'title' in index_file:
-            link['text'] = index_file['title']
-        data_name = link["index"].replace('/', '_').replace(' ', '')
-        save_yaml(index_file, f'_data/{data_name}.yml')
-        link['link'] = f'{baseurl}/{link["index"]}.html'
-        create_jekyll_file(f'{link["index"]}.html', create_jekyll_home_text(data_name))
+        index = build_index(index_file=link['index'])
+        if 'text' not in link:
+            if 'title' in index:
+                link['text'] = index['title']
+            elif 'header' in index and 'title' in index['header']:
+                link['text'] = index['header']['title']
+        if 'description' not in link and 'header' in index and 'description' in index['header']:
+            link['description'] = index['header']['description']
+        link['link'] = f'{baseurl}/{link["index"]}.html' if not link["index"].endswith('index') else \
+            f'{baseurl}/{"/".join(link["index"].split("/")[:-1])}'
+
+
     elif 'pdf' in link:
         file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=baseurl)
         if file_path:
@@ -239,10 +252,18 @@ def build_object(obj, image_key=None, image_src_dir=None, image_target_dir='asse
     return obj
 
 
-def build_index(index):
+def build_index(index: dict = None, index_file: str = None, target_data_file: str = None):
     """
     Process the self replicating structure of `index.yml` and look for notebook links and render them.
     """
+    assert index_file is not None or index is not None, f'Either index or index_file should be specified!'
+    if index is None:
+        assert os.path.isfile(f'{index_file}.yml'), f"Index file {f'{index_file}.yml'} could not be found!"
+        index = read_yaml(f'{index_file}.yml')
+        if index_file in checked_indices:
+            return index
+        checked_indices.add(index_file)
+
     assert isinstance(index, dict), \
         f'index is supposed to be an object, got {type(index)}'
     index['title'] = index.get('title', 'Index')
@@ -253,6 +274,13 @@ def build_index(index):
 
     for idx, chapter in enumerate(index.get('chapters', [])):
         index['chapters'][idx] = build_index(chapter)
+
+    if index_file is not None:
+        # save data file
+        data_name = index_file.replace('/', '_').replace(' ', '')
+        save_yaml(index, f'_data/{data_name}.yml' if target_data_file is None else target_data_file)
+        # create and save html file
+        create_jekyll_file(f'{index_file}.html', create_jekyll_home_text(data_name))
 
     return index
 
@@ -274,8 +302,10 @@ if __name__ == '__main__':
     remove_source = args.remove_source
     repo_full_name = args.repo_full_name
 
+    checked_indices = set()
+    checked_notebooks = set()
     print(f'baseurl: {baseurl}')
     print(f'remove_source: {remove_source}')
     print(f'repo_full_name: {repo_full_name}')
 
-    save_yaml(build_index(read_yaml(args.index)), TARGET_INDEX_FILE)
+    build_index(index_file=args.index, target_data_file=TARGET_INDEX_FILE)
