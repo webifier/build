@@ -93,6 +93,8 @@ def create_jekyll_home_text(index):
 
 
 def create_jekyll_file(target, text):
+    basedir = '/'.join(target.split('/')[:-1])
+    os.makedirs(basedir, exist_ok=True)
     with open(target, 'w') as jekyll_file:
         jekyll_file.write(text)
 
@@ -187,9 +189,10 @@ def build_link(link, image_key=None, image_src_dir=None, image_target_dir='asset
         index_file = build_index(index_file)
         if 'title' in index_file:
             link['text'] = index_file['title']
-        save_yaml(index_file, f'_data/{link["index"]}.yml')
+        data_name = link["index"].replace('/', '_').replace(' ', '')
+        save_yaml(index_file, f'_data/{data_name}.yml')
         link['link'] = f'{baseurl}/{link["index"]}.html'
-        create_jekyll_file(f'{link["index"]}.html', create_jekyll_home_text(link["index"]))
+        create_jekyll_file(f'{link["index"]}.html', create_jekyll_home_text(data_name))
     return link
 
 
