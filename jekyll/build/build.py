@@ -183,7 +183,7 @@ def build_link(link, image_key=None, image_src_dir=None, image_target_dir='asset
         link = process_notebook(link)  # in case some data was added to link descriptor later
     elif 'kind' in link and link['kind'] == 'person':
         link = process_person(link, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
-    if 'index' in link:
+    elif 'index' in link:
         index_file = read_yaml(f'{link["index"]}.yml')
         index_file = build_index(index_file)
         if 'title' in index_file:
@@ -192,6 +192,10 @@ def build_link(link, image_key=None, image_src_dir=None, image_target_dir='asset
         save_yaml(index_file, f'_data/{data_name}.yml')
         link['link'] = f'{baseurl}/{link["index"]}.html'
         create_jekyll_file(f'{link["index"]}.html', create_jekyll_home_text(data_name))
+    elif 'pdf' in link:
+        file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=baseurl)
+        if file_path:
+            link['pdf'] = file_path
     return link
 
 

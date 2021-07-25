@@ -49,6 +49,9 @@ def validate_link(link, object_name='Link'):
         assert os.path.isfile(f"{link['index']}.yml"), f'Index file {link["index"]} could not be found!'
         validate_index(read_yaml(f"{link['index']}.yml"))
 
+    if 'pdf' in link:
+        assert os.path.isfile(link['pdf']), f'PDF file {link["pdf"]} could not be found!'
+
 
 def validate_image(obj, obj_name='Object', key='image', force_present=False, warn=False):
     """
