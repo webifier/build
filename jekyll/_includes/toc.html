@@ -1,0 +1,146 @@
+<div class="container-fluid p-0 m-0">
+    {% assign index_tag = include.index.title | remove: " " %}
+
+    <!--generic content spaces-->
+    {% for pair in include.index %}
+    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" %}
+    {% continue %}
+    {% endif %}
+
+    {% assign label = pair[1].label | default: pair[0] %}
+    {% assign value = pair[1] %}
+    {% assign content = pair[1].content | default: pair[1] %}
+
+    <!--setting dynamic spacing (padding/margins)-->
+    {% if content.first %}
+    {% assign spacing = "p-0" %}
+    {% else %}
+    {% assign spacing = "p-4" %}
+    {% endif %}
+    <div
+        {% if pair[1].background %}
+        class="shadow-sm row align-items-center py-3 pe-xs-0 pe-sm-0 pe-md-1 pe-lg-2 pe-xlg-2 pe-xxlg-2"
+        style="
+          min-height: 5vh;
+          background-image: url('{{ pair[1].background }}');
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;"
+        {% else %}
+        class="row align-items-center my-2 pe-xs-0 pe-sm-0 pe-md-1 pe-lg-2 pe-xlg-2 pe-xxlg-2"
+        style="min-height: 5vh;"
+        {% endif %}
+    >
+        {% unless pair[1].kind %}
+        <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2  col-xxl-2 p-2 d-flex text-muted justify-content-center">
+            <strong>{{label | capitalize }}</strong>
+        </div>
+        <div class="rounded list-group shadow col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center">
+            {% if content.first %}
+            {% case pair[0] %}
+            <!--chapters-->
+            {% when "chapters" %}
+            <div class="shadow accordion px-0" id="accordion-{{include.level}}-{{index_tag}}">
+                {% for chapter in content %}
+                {% assign tag = chapter.title | remove: " " %}
+                {% assign index_tag = include.index.title | remove: " " %}
+                <div class="accordion-item">
+                    <h{{include.level}}
+                            class="accordion-header"
+                            id="heading-{{include.level}}-{{index_tag}}-{{tag}}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse-{{include.level}}-{{index_tag}}-{{tag}}"
+                                aria-expanded="false" aria-controls="collapse-{{include.level}}-{{index_tag}}-{{tag}}">
+                            {{chapter.title}}
+                        </button>
+                    </h{{include.level}}>
+                    <div id="collapse-{{include.level}}-{{index_tag}}-{{tag}}" class="accordion-collapse collapse"
+                         aria-labelledby="heading-{{include.level}}-{{index_tag}}-{{tag}}"
+                         data-bs-parent="#accordion-{{include.level}}-{{index_tag}}">
+                        <div class="accordion-body">
+                            {% assign next_level = include.level | plus:1 %}
+                            {% include toc.html index=chapter level=next_level%}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!--generic media links-->
+            {% else %}
+            {% for link in content %}
+
+            <!--pdf link-->
+            {% if link.pdf %}
+            {% assign kind = "PDF" %}
+            {% unless link.link %}
+            {% if link.pdf contains "://" %}
+            {% assign url = link.pdf | prepend: "http://docs.google.com/gview?url=" %}
+            {% else %}
+            {% assign url = link.pdf %}
+            {% endif %}
+            {% endunless %}
+            {% endif %}
+
+            <!--notebook link-->
+            {% if link.notebook %}
+            {% assign kind = "Notebook" %}
+            {% assign metadata_name = link.notebook | replace: "/", "_" | remove: " " %}
+            {% assign title = site.data.notebooks[metadata_name].title %}
+            {% assign description = site.data.notebooks[metadata_name].description %}
+            {% unless link.link %}
+            {% assign url = "/notebooks" | prepend: site.baseurl | append: "/" | append: link.notebook %}
+            {% endunless %}
+            {% endif %}
+
+            <!--another page link-->
+            {% if link.index %}
+            {% assign kind = "Page" %}
+            {% assign title = site.data[link.index].title %}
+            {% assign description = site.data[link.index].description.content | default: site.data[link.index].description | default: site.data[link.index].header.description | default: site.data[link.index].header  %}
+            {% unless link.link %}
+            {% assign url = link.index | prepend: site.baseurl | append: ".html" %}
+            {% endunless %}
+            {% endif %}
+
+            <a href="{{ link.link | default: url }}" class="list-group-item list-group-item-action p-4 m-0">
+                <div class="d-flex w-100 justify-content-between py-0 my-0 p-0">
+                    <h5>
+                        {% if link.icon %}
+                        <i class="{{ link.icon }}" aria-hidden="true"></i>
+                        {% endif %}
+                        {% if link.text or title %}
+                        {{ link.text | default: title }}
+                        {% endif %}
+                    </h5>
+                    {% if link.kind or kind %}
+                    <small>{{link.kind | default: kind | capitalize}}</small>
+                    {% endif %}
+                </div>
+                {% if link.description or description %}
+                <div class="mb-1">
+                    {{ link.description | default: description }}
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+            {% endcase %}
+            {% else %}
+            {{ content }}
+            {% endif %}
+        </div>
+        {% else %}
+        {% case pair[1].kind %}
+        {% when "people" %}
+        {% include people.html people=value label=label %}
+        {% endcase %}
+        {% endunless %}
+    </div>
+    {% endfor %}
+</div>
+
+
+
+
+
