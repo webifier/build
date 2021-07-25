@@ -17,9 +17,15 @@
     {% else %}
     {% assign spacing = "p-4" %}
     {% endif %}
+    {% if pair[1].label != false %}
+    {% assign pad_direction = "e" %}
+    {% else %}
+    {% assign pad_direction = "x" %}
+    {% endif %}
     <div
         {% if pair[1].background %}
-        class="shadow-sm row align-items-center py-3 pe-xs-0 pe-sm-0 pe-md-1 pe-lg-2 pe-xlg-2 pe-xxlg-2"
+        class="shadow-sm row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
+        p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
         style="
           min-height: 5vh;
           background-image: url('{{ pair[1].background }}');
@@ -28,15 +34,24 @@
           background-repeat: no-repeat;
           background-size: cover;"
         {% else %}
-        class="row align-items-center my-2 pe-xs-0 pe-sm-0 pe-md-1 pe-lg-2 pe-xlg-2 pe-xxlg-2"
+        class="row align-items-center my-2 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0 p{{pad_direction}}-md-1
+         p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
         style="min-height: 5vh;"
         {% endif %}
     >
         {% unless pair[1].kind %}
+        {% if pair[1].label != false %}
         <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2  col-xxl-2 p-2 d-flex text-muted justify-content-center">
             <strong>{{label | capitalize }}</strong>
         </div>
-        <div class="rounded list-group shadow col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center">
+        {% endif %}
+        <div
+            {% if pair[1].label != false %}
+            class="rounded list-group shadow col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center"
+            {% else %}
+            class="rounded list-group shadow col-12 {{spacing}} justify-content-center"
+            {% endif %}
+        >
             {% if content.first %}
             {% case pair[0] %}
             <!--chapters-->

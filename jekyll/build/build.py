@@ -131,7 +131,7 @@ def process_metadata(notebook: str, metadata: dict):
     """
     if notebook in checked_notebooks:
         return metadata
-    checked_notebooks.add(metadata)
+    checked_notebooks.add(notebook)
     data_name = notebook.replace('/', '_').replace(' ', '')
     for key, value in metadata.items():
         metadata[key] = build_object(value, image_key='background', image_src_dir=f'{notebook}',
