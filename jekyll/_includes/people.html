@@ -1,0 +1,28 @@
+{% if include.people %}
+{% assign content = include.people.content | default: include.people %}
+{% assign label = include.label | default: include.people.label %}
+<div
+        class="container-fluid bg-white align-center px-0 text-center"
+        {% if include.people.background or include.background %}
+        style="
+          background-image: url('{{ include.people.background | default: include.background }}');
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;"
+        {% endif %}
+>
+    {% if label %}
+    <div class="text-white  text-muted mb-2 mt-2 text-center">
+        <span class="bg-white p-3 px-5"><strong>{{label | capitalize}}</strong></span>
+    </div>
+    {% endif %}
+    <div class="row pb-0 mb-0 d-flex justify-content-center">
+        {% for person in content %}
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 mb-1 mb-lg-0">
+            {% include person.html person=person %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
