@@ -17,7 +17,7 @@ def validate_link(link, object_name='Link'):
 
     # check local links
     if 'notebook' in link and '://' not in link['notebook']:
-        notebook_dir = os.path.join('notebooks', link["notebook"])
+        notebook_dir = link["notebook"]
         notebook_file = os.path.join(notebook_dir, 'index.ipynb')
 
         assert os.path.exists(notebook_file), \

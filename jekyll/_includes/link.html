@@ -15,7 +15,7 @@
 {% assign title = site.data.notebooks[metadata_name].title %}
 {% assign description = site.data.notebooks[metadata_name].description %}
 {% unless link.link %}
-{% assign url = "/notebooks" | prepend: site.baseurl | append: "/" | append: link.notebook %}
+{% assign url = link.notebook | prepend: site.baseurl   %}
 {% endunless %}
 {% endif %}
 

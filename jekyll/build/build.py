@@ -11,7 +11,6 @@ from yaml_helper import read_yaml, save_yaml
 BASE_INDEX_FILE = 'index.yml'
 TARGET_INDEX_FILE = '_data/index.yml'
 NOTEBOOKS_METADATA_DIR = '_data/notebooks'
-NOTEBOOKS_DIR = 'notebooks'
 
 
 def process_file(src, target, src_dir=None, target_dir=None, baseurl=None):
@@ -34,7 +33,7 @@ def build_notebook(src, build_dir, assets_dir):
     """Generates notebook html file and puts it into `build_dir` and move its assets to `assets_dir`"""
 
     print(f'Building notebook {src} to {build_dir} (assets:{assets_dir})!')
-    assert os.path.isfile(src), f'Note'
+    assert os.path.isfile(src), f'Notebook {src} could not be found!'
     os.makedirs(build_dir, exist_ok=True)
     os.makedirs(assets_dir, exist_ok=True)
 
@@ -123,12 +122,12 @@ def process_metadata(notebook: str, metadata: dict):
     """
     Process notebook's metadata file and move it to `{NOTEBOOKS_METADATA_DIR}/{notebook | preprocessed}.yml`.
     This function is also responsible for loading up author image from their github profile if no image is provided.
-    Author image files will also be moved to `assets/notebooks/{notebook | preprocessed}/files`.
+    Author image files will also be moved to `assets/{notebook | preprocessed}/files`.
     """
     data_name = notebook.replace('/', '_').replace(' ', '')
     for key, value in metadata.items():
-        metadata[key] = build_object(value, image_key='background', image_src_dir=f'{NOTEBOOKS_DIR}/{notebook}',
-                                     image_target_dir=f'assets/{NOTEBOOKS_DIR}/{notebook}')
+        metadata[key] = build_object(value, image_key='background', image_src_dir=f'{notebook}',
+                                     image_target_dir=f'assets/{notebook}')
 
     metadata = build_object(metadata, 'background')
     # moving metadata yaml to `_data`
@@ -140,12 +139,12 @@ def process_metadata(notebook: str, metadata: dict):
 
 def get_colab_url(notebook_dir, notebook_file_name='index'):
     base_url = 'https://colab.research.google.com/github/'
-    return f'{base_url}{repo_full_name}/blob/master/notebooks/{notebook_dir}/{notebook_file_name}.ipynb'
+    return f'{base_url}{repo_full_name}/blob/master/{notebook_dir}/{notebook_file_name}.ipynb'
 
 
 def process_notebook(link):
-    notebook = link['notebook']  # path to notebook `notebooks/{folder_name}`
-    notebook_dir = os.path.join(NOTEBOOKS_DIR, notebook)
+    notebook = link['notebook']  # path to notebook `{folder_name}`
+    notebook_dir = notebook
     filename = os.path.join(notebook_dir, 'index.ipynb')
     build_notebook(
         # todo: if no more than one notebook is found in the directory use that as index else raise exception
@@ -161,7 +160,7 @@ def process_notebook(link):
         metadata = read_yaml(raw_metadata_path)
         metadata_path = process_metadata(notebook, metadata)
 
-    jekyll_targetdir = os.path.join(NOTEBOOKS_DIR, notebook, 'index.html')
+    jekyll_targetdir = os.path.join(notebook, 'index.html')
     create_jekyll_file(
         target=jekyll_targetdir,
         text=create_jekyll_notebook_text(
