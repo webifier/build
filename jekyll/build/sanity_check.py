@@ -100,7 +100,7 @@ def validate_index(index, index_file=None):
     # traversing key-values to check descriptors and link lists
     for key, value in index.items():
         # objects should either have descriptors or be a list of link objects
-        content = value if isinstance(value, (str, list)) or 'content' not in value else (
+        content = value if isinstance(value, (str, list, bool)) or 'content' not in value else (
             value.get('content', value) if isinstance(value, dict) else value)
 
         if isinstance(value, dict):
@@ -111,7 +111,7 @@ def validate_index(index, index_file=None):
             validate_link(content)
         elif isinstance(content, list):
             for link in content:
-                if isinstance(value, dict) and value.get('kind', None) == 'index':
+                if isinstance(value, dict) and value.get('kind', None) == 'chapters':
                     # check subsections
                     validate_index(value)
                 else:

@@ -227,11 +227,14 @@ def build_object(obj, image_key=None, image_src_dir=None, image_target_dir='asse
 
     # building object content
     if isinstance(content, list):
-        # if object is a list of links
+        # if object is a list of other objects
         for idx, item in enumerate(content):
             if 'kind' in obj and obj['kind'] == 'people':
                 item['kind'] = 'person'
-            content[idx] = build_link(item, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
+            if 'kind' in obj and obj['kind'] == 'chapters':
+                content[idx] = build_index(item)
+            else:
+                content[idx] = build_link(item, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
     if 'content' in obj:
         obj['content'] = content
     else:
@@ -268,12 +271,7 @@ def build_index(index: dict = None, index_file: str = None, target_data_file: st
         f'index is supposed to be an object, got {type(index)}'
     index['title'] = index.get('title', 'Index')
     for key, value in index.items():
-        if key in ['chapters', ]:
-            continue
         index[key] = build_object(value, image_key='background')
-
-    for idx, chapter in enumerate(index.get('chapters', [])):
-        index['chapters'][idx] = build_index(chapter)
 
     if index_file is not None:
         # save data file
