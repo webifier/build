@@ -1,5 +1,24 @@
+
 body {
     zoom: 160%;
+    background: linear-gradient(-45deg, #000066, #116666, #006666,  #006633, #665555);
+    background-size: 400% 400%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 footer {
@@ -13,29 +32,35 @@ footer {
 }
 
 .app-content {
-    padding-top: 70px;
-    padding-bottom: 35px;
-    min-height: 90%;
+    padding: 3vh 0;
+    max-width:80%;
 }
 
-.container {
-    width: 80%;
+.app-body {
+    min-height: 44vh;
 }
 
-.sidebar-section {
-    position: absolute;
-    height: 100%;
-    width: 100%;
+.accordion-button:not(.collapsed) {
+    color: #0c63e4;
+    background-color: #e7f1ff;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
 }
 
-.make-me-sticky {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 45px;
+.accordion-button:hover {
+    z-index: 2;
 }
 
-@media only screen and (max-width: 768px) {
-    .container {
-        width: 100%;
+.accordion-button:focus {
+    z-index: 3;
+    outline: 0;
+}
+
+.accordion-button.collapsed {
+    background-color: white;
+}
+
+@media only screen and (max-width: 1300px) {
+    .app-content {
+        max-width:100%;
     }
 }
