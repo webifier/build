@@ -107,6 +107,12 @@ def process_person(person, image_src_dir=None, image_target_dir=None):
     assert isinstance(person, dict), \
         f'person objects, are expected to be dictionaries, {type(person)} provided instead!'
     image = person.get('image', None)
+    # build contact links
+    for idx, contact_info in enumerate(person.get('contact', [])):
+        person['contact'][idx] = build_link(contact_info, None)
+        if 'github.com' in contact_info['link']:
+            # if no image was provided use person github profile picture instead
+            image = f"{contact_info['link']}.png"
     if 'image' in person:
         # copy person's static profile image into assets
         src = person['image'] if image_src_dir is None else f'{image_src_dir}/{person["image"]}'
@@ -137,7 +143,6 @@ def process_metadata(notebook: str, metadata: dict):
         metadata[key] = build_object(value, image_key='background', image_src_dir=f'{notebook}',
                                      image_target_dir=f'assets/{notebook}')
 
-    metadata = build_object(metadata, 'background')
     if 'title' not in metadata and 'header' in metadata and 'title' in metadata['header']:
         metadata['title'] = metadata['header']['title']
     if 'description' not in metadata and 'header' in metadata and 'description' in metadata['header']:
@@ -209,7 +214,6 @@ def build_link(link, image_key=None, image_src_dir=None, image_target_dir='asset
         link['link'] = f'{baseurl}/{link["index"]}.html' if not link["index"].endswith('index') else \
             f'{baseurl}/{"/".join(link["index"].split("/")[:-1])}'
 
-
     elif 'pdf' in link:
         file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=baseurl)
         if file_path:
@@ -222,9 +226,13 @@ def build_object(obj, image_key=None, image_src_dir=None, image_target_dir='asse
     Process the self replicating structure of objects in `index.yml`
     """
     # objects are either have descriptors or a list of link objects
-    content = obj if 'content' not in obj else (
+    content = obj if isinstance(obj, dict) and 'content' not in obj else (
         obj.get('content', obj) if isinstance(obj, dict) else obj)
 
+    if sub_objects is not None:
+        sub_objects = sub_objects if isinstance(sub_objects, list) else [sub_objects]
+    else:
+        sub_objects = []
     # building object content
     if isinstance(content, list):
         # if object is a list of other objects
@@ -235,16 +243,20 @@ def build_object(obj, image_key=None, image_src_dir=None, image_target_dir='asse
                 content[idx] = build_index(item)
             else:
                 content[idx] = build_link(item, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
+    elif isinstance(obj, dict) and 'content' in obj:
+        for key, value in obj.items():
+            if key == 'content':
+                content = build_object(
+                    obj['content'], image_key, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
+                continue
+            obj[key] = build_object(
+                value, image_key, image_src_dir=image_src_dir, image_target_dir=image_target_dir)
+    else:
+        return obj
     if 'content' in obj:
         obj['content'] = content
     else:
         obj = content
-
-    # processing sub objects of the same kind
-    if sub_objects is not None:
-        for sub in sub_objects if isinstance(sub_objects, list) else [sub_objects]:
-            obj[sub] = build_object(obj, image_key, image_src_dir=image_src_dir, image_target_dir=image_target_dir,
-                                    sub_objects=sub_objects)
 
     # building object (background) image
     if image_key is not None and image_key in obj:
@@ -265,6 +277,7 @@ def build_index(index: dict = None, index_file: str = None, target_data_file: st
         index = read_yaml(f'{index_file}.yml')
         if index_file in checked_indices:
             return index
+        print('Processing index', index_file)
         checked_indices.add(index_file)
 
     assert isinstance(index, dict), \
