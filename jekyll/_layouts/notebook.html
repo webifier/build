@@ -20,17 +20,16 @@
 </head>
 
 <body class="bg-secondary">
-<div class="app-content container-fluid">
+<div class="app-content container-fluid px-0">
     {% include header.html header=metadata background=metadata.header.background title=metadata.header.title
     description=metadata.header.description %}
     {% include nav.html colab=page.colab %}
-    <div id="app-body"
-         class="container-fluid bg-white shadow p-3">
+    <div class="container-fluid bg-white shadow app-body">
         {% include {{ page.notebook }} %}
+        {% include toc.html index=metadata skip_description=true level=1 %}
     </div>
-    <!-- Authors -->
-    {% include people.html people=metadata.authors label="Authors" %}
-    {% include footer.html background=metadata.footer.background %}
+
+    {% include footer.html background=metadata.footer.background  %}
 </div>
 </body>
 </html>

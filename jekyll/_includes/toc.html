@@ -1,9 +1,11 @@
-<div class="container-fluid p-0 m-0">
+<div class="container-fluid p-0 m-0 no-gutters"
+     style="box-sizing: border-box;">
     {% assign index_tag = include.index.title | remove: " " %}
 
     <!--generic content spaces-->
     {% for pair in include.index %}
-    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" %}
+    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" or
+    include.skip_description and pair[0] == "description" %}
     {% continue %}
     {% endif %}
 
