@@ -1,7 +1,14 @@
-<footer class="bg-dark text-center text-white">
-    <!-- Copyright -->
-    <div class="text-center p-3 bg-black">
-        © {{ site.copyright_text }} - {{ site.data.template_config.creator_text }}
+<footer class="bg-light text-dark text-center hidden-print"
+        style="min-height: 2vh;"
+
+>
+    <!-- footer-text -->
+    <div class="text-center p-3 ">
+        {% if site.data.index.footer.first %}
+         {{ site.data.index.footer.text | default: "© Copyright 2021" }}
+        {% else %}
+        {{  site.data.index.footer | default: "© Copyright 2021" }}
+        {% endif %}
     </div>
-    <!-- Copyright -->
+    <!-- footer-text -->
 </footer>
