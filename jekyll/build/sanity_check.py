@@ -14,7 +14,7 @@ def validate_notebook(link):
 
     notebook_file = os.path.join(notebook_dir, 'index.ipynb')
     assert os.path.exists(notebook_file), \
-        f"Notebook file {notebook_file}, specified in \n{link}\n could not be found!"
+        f"Notebook file {notebook_file}, could not be found!"
 
     notebook_metadata_file = os.path.join(notebook_dir, 'metadata.yml')
 
@@ -95,8 +95,7 @@ def validate_index(index, index_file=None):
     if index_file is not None and index_file in checked_indices:
         return
     checked_indices.add(index_file)
-    assert isinstance(index, dict), \
-        f"Index data,\n{index}\n is supposed to be an object containing [title, description, chapters, ...]"
+
     # traversing key-values to check descriptors and link lists
     for key, value in index.items():
         # objects should either have descriptors or be a list of link objects
@@ -106,6 +105,8 @@ def validate_index(index, index_file=None):
         if isinstance(value, dict):
             # check section background
             validate_image(value, key='background')
+            if isinstance(value, dict) and 'content' in value:
+                validate_index(value)
         if isinstance(content, dict):
             # check section value as link object
             validate_link(content)
