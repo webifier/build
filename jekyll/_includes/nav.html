@@ -5,15 +5,19 @@
     {% endif %}
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav  mb-lg-0">
-             <li class="nav-item active">
+             <li class="nav-item">
                 {% assign url = '/' | prepend: site.baseurl %}
                 {% assign text = site.data.index.title | default: "Index" %}
                 {% include link.html class="nav-link" url=url text=text %}
             </li>
             {% assign links = site.data.index.nav.content | site.data.index.nav %}
             {% for link in links %}
-            <li class="nav-item active">
+            <li class="nav-item">
+                {% if page.url == link.link %}
+                {% include link.html link=link class="nav-link active" %}
+                {% else %}
                 {% include link.html link=link class="nav-link" %}
+                {% endif %}
             </li>
             {% endfor %}
         </ul>
