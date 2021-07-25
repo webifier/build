@@ -130,6 +130,11 @@ def process_metadata(notebook: str, metadata: dict):
                                      image_target_dir=f'assets/{notebook}')
 
     metadata = build_object(metadata, 'background')
+    if 'title' not in metadata and 'header' in metadata and 'title' in metadata['header']:
+        metadata['title'] = metadata['header']['title']
+    if 'description' not in metadata and 'header' in metadata and 'description' in metadata['header']:
+        metadata['description'] = metadata['header']['description']
+
     # moving metadata yaml to `_data`
     os.makedirs(NOTEBOOKS_METADATA_DIR, exist_ok=True)
     target_path = os.path.join(NOTEBOOKS_METADATA_DIR, data_name + '.yml')
@@ -227,7 +232,8 @@ def build_object(obj, image_key=None, image_src_dir=None, image_target_dir='asse
 
     # building object (background) image
     if image_key is not None and image_key in obj:
-        target_path = process_file(obj['background'], obj['background'], image_target_dir, baseurl)
+        target_path = process_file(obj[image_key], obj[image_key], src_dir=image_src_dir, target_dir=image_target_dir,
+                                   baseurl=baseurl)
         if target_path:
             obj[image_key] = target_path
     return obj

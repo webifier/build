@@ -1,3 +1,4 @@
+{% comment %}
 <!--data structure | specified in notebooks metadata-->
 <!--* title: notebook's title (string)-->
 <!--* description: a short description for notebook (html string) [optional]-->
@@ -5,6 +6,7 @@
 <!--* footer: an image for the footer of the notebook (src url) [optional]-->
 <!--* authors: a list of author instances [optional] (rendered as person.html's)-->
 <!---->
+{% endcomment %}
 {% if page.metadata %}
 {% assign metadata = site.data.notebooks[page.metadata] %}
 {% endif %}
@@ -19,7 +21,8 @@
 
 <body class="bg-secondary">
 <div class="app-content container-fluid">
-    {% include header.html header=metadata background=metadata.header %}
+    {% include header.html header=metadata background=metadata.header.background title=metadata.header.title
+    description=metadata.header.description %}
     {% include nav.html colab=page.colab %}
     <div id="app-body"
          class="container-fluid bg-white shadow p-3">
@@ -27,7 +30,7 @@
     </div>
     <!-- Authors -->
     {% include people.html people=metadata.authors label="Authors" %}
-    {% include footer.html %}
+    {% include footer.html background=metadata.footer.background %}
 </div>
 </body>
 </html>

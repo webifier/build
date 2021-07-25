@@ -1,4 +1,4 @@
-{% if include.header %}
+{% if include.header or include.title or include.description or include.background %}
 <header class="container-fluid bg-dark text-white shadow text-center align-items-center p-0"
         {% if include.header.background or include.background %}
         style="
@@ -20,9 +20,9 @@
             class="bg-dark p-3 m-auto text-center"
             {% endif %}
     >
-        <h1 class=""> {{ include.header.title }}</h1>
+        <h1 class=""> {{ include.header.title | default: include.title }}</h1>
         {% if include.header.description %}
-        <p class="mt-3">{{include.header.description}}</p>
+        <p class="mt-3">{{include.header.description | default: include.description }}</p>
         {% endif %}
     </div>
 </header>
