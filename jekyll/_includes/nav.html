@@ -1,60 +1,49 @@
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="/">{{ site.title }}</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
+{% assign colab = include.colab %}
+<nav class="navbar navbar-expand-sm navbar-light bg-light p-3 sticky-top">
+    {% if site.data.index.nav.brand %}
+    {% include link.html link=site.data.index.nav.brand class="navbar-brand" %}
+    {% endif %}
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
+        <ul class="navbar-nav  mb-lg-0">
+             <li class="nav-item active">
                 <a class="nav-link" href="{{ '/' | prepend: site.baseurl }}">
-                    {% if site.title %}
-                    {{site.title}}
+                    {% if site.data.index.title %}
+                    {{site.data.index.title}}
                     {% else %}
-                    Home
+                    Index
                     {% endif %}
-                    <span class="sr-only">(current)</span></a>
-            </li>
-            {% for chapter in site.data.content %}
-            {% assign found = false %}
-            {% for note in chapter.notes %}
-                {% if note.notebook %}
-                    {% assign found = true %}
-                {% endif %}
-            {% endfor %}
-            {% if found %}
-            <li class="nav-item dropdown">
-                <a
-                    class="nav-link dropdown-toggle"
-                    href="#" id="navbarDropdown-{{ chapter.id }}"
-                    role="button"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                >
-                    {{ chapter.title }}
                 </a>
-                <div class="dropdown-menu" aria-labelledby="-{{ chapter.id }}">
-                    {% assign found = false %}
-                    {% for note in chapter.notes %}
-                        {% if note.notebook %}
-                        {% assign found = true %}
-                        <a
-                            class="dropdown-item {% unless note.notebook %}disabled{% endunless %}"
-                            href="{{ '/notebooks' | prepend: site.baseurl }}/{{chapter.id}}/{{ note.notebook }}"
-                        >
-                        {{ note.title }}
-                        </a>
-                        {% endif %}
-                    {% endfor %}
-                    {% unless found %}
-                        <a class="dropdown-item disabled">Empty</a>
-                    {% endunless %}
-                </div>
             </li>
-            {% endif %}
+            {% assign links = site.data.index.nav.content | site.data.index.nav %}
+            {% for link in links %}
+            <li class="nav-item active">
+                {% include link.html link=link class="nav-link" %}
+            </li>
             {% endfor %}
         </ul>
+    </div>
+    <div class="d-flex">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            {% if colab %}
+            {% comment %}
+            <!--todo: add automatic table of content for notebooks-->
+            <!--<button class="nav-link btn">-->
+            <!--    <i class="fas fa-list"></i>-->
+            <!--</button>-->
+
+            <!--todo: add printing functionality to notebooks-->
+            <!--<button class="nav-link btn" onclick="window.print();">-->
+            <!--    <i class="fas fa-print"></i>-->
+            <!--</button>-->
+            {% endcomment %}
+            <a class="nav-link" href="{{ colab }}">
+                <img src="{{ '/assets/images/colab-badge.svg' | prepend: site.baseurl }}" height="15px"
+                     alt="Open in colab">
+            </a>
+            {% endif %}
     </div>
 </nav>
