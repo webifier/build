@@ -100,6 +100,7 @@ def create_jekyll_file(target, text):
     basedir = '/'.join(target.split('/')[:-1])
     if basedir:
         os.makedirs(basedir, exist_ok=True)
+    print('Writing jekyll file to', target)
     with open(target, 'w') as jekyll_file:
         jekyll_file.write(text)
 
