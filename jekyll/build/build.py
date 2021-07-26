@@ -27,7 +27,8 @@ def process_file(src, target, src_dir=None, target_dir=None, baseurl=None):
         os.makedirs(f'{target_dir}{base_dir}', exist_ok=True)
     target = f'{target_dir}{target}'
     shutil.copy2(src, target)
-    return target if baseurl is None else f'{baseurl}/{target}'
+    return target if baseurl is None else (f'{baseurl}/{target}' if not baseurl.endswith(
+        '/') else f'{baseurl}{target}')
 
 
 def build_notebook(src, build_dir, assets_dir):
@@ -191,7 +192,8 @@ def process_notebook(link):
             colab_url=get_colab_url(notebook)
         )
     )
-
+    link['link'] = notebook if baseurl is None else (f'{baseurl}/{notebook}' if not baseurl.endswith(
+        '/') else f'{baseurl}{notebook}')
     if remove_source:
         shutil.rmtree(notebook_dir)
     return link

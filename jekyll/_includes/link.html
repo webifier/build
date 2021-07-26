@@ -4,7 +4,7 @@
 {% if include.link.pdf contains "://" %}
 {% assign link_url = include.link.pdf | prepend: "http://docs.google.com/gview?url=" %}
 {% else %}
-{% assign link_url = include.link.pdf %}
+{% assign link_url = "/" | append: include.link.pdf | prepend: site.baseurl %}
 {% endif %}
 {% endunless %}
 {% endif %}
@@ -15,7 +15,7 @@
 {% assign link_text = site.data.notebooks[metadata_name].title %}
 {% assign link_description = site.data.notebooks[metadata_name].description %}
 {% unless include.link.link %}
-{% assign link_url = include.link.notebook | prepend: site.baseurl   %}
+{% assign link_url = "/" | append: include.link.notebook | prepend: site.baseurl   %}
 {% endunless %}
 {% endif %}
 
@@ -23,9 +23,9 @@
 {% assign index_tag = include.link.index | replace: "/", "_" | remove: " " %}
 {% assign link_kind = "Page" %}
 {% assign link_text = site.data[index_tag].title %}
-{% assign link_description = site.data[index_tag].description.content | default: site.data[index_tag].description | default: site.data[index_tag].header.description | default: site.data[index_tag].header  %}
+{% assign link_description = site.data[index_tag].description.content | default: site.data[index_tag].description | default: site.data[index_tag].header.description %}
 {% unless include.link.link %}
-{% assign link_url = include.link.index | prepend: site.baseurl | append: ".html" %}
+{% assign link_url = "/" | append: include.link.index | prepend: site.baseurl | append: ".html" %}
 {% endunless %}
 {% endif %}
 
