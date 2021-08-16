@@ -12,11 +12,6 @@
           background-size: cover;"
         {% endif %}
 >
-    {% if label %}
-    <div class="text-white  text-muted mb-2 mt-3 text-center">
-        <span class="bg-white p-3 px-5"><strong>{{label | capitalize}}</strong></span>
-    </div>
-    {% endif %}
     <div class="row pb-0 mb-0 d-flex justify-content-center">
         {% for person in content %}
         {% include person.html person=person %}

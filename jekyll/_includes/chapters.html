@@ -1,4 +1,4 @@
-<div class="shadow accordion px-0" id="accordion-{{include.level}}-{{index_tag}}">
+<div class="shadow accordion accordion-flush px-0" id="accordion-{{include.level}}-{{index_tag}}">
     {% for chapter in include.content %}
     {% assign tag = chapter.title | remove: " " %}
     {% assign index_tag = include.index.title | remove: " " %}
@@ -14,7 +14,7 @@
         </h{{include.level}}>
         <div id="collapse-{{include.level}}-{{index_tag}}-{{tag}}" class="accordion-collapse collapse"
              aria-labelledby="heading-{{include.level}}-{{index_tag}}-{{tag}}">
-            <div class="accordion-body py-0 m-0 container-fluid rounded" >
+            <div class="accordion-body py-0 m-0 border-box px-3 container-fluid rounded" >
                 {% assign next_level = include.level | plus:1 %}
                 {% include toc.html index=chapter level=next_level%}
             </div>
