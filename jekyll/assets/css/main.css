@@ -22,10 +22,8 @@ body {
 }
 .hover-shadow:hover {
     filter: drop-shadow(0 0.1rem 0.3rem rgba(0,0,0, 0.5));
-    top: -0.1rem;
 }
 .hover-shadow {
-    position: relative;
     transition: all 0.1s ease;
 }
 footer {
