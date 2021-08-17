@@ -83,8 +83,18 @@ def build_notebook(src, assets_dir):
     return body
 
 
-def build_markdown(raw: str, assets_dir):
+def build_markdown(raw: str, assets_dir=None):
     body = markdown.markdown(raw, extensions=['md_in_html', 'codehilite', 'fenced_code', 'tables', 'attr_list'])
+
+    # move assets to `assets_dir`
+    asset_remap = dict()
+    for result in re.finditer('src=\"(?P<url>((http|ftp)s?:\/\/)?(-\.)?[\w\d\S]+)\"', body):
+        remap = process_file(result.group('url'), result.group('url'), target_dir=assets_dir, baseurl=baseurl)
+        if remap:
+            asset_remap[result.group('url')] = remap
+    for src, remap in asset_remap.items():
+        print('remapping', src, 'to', remap)
+        body = re.sub(f'src="{src}"', f'src="{remap}"', body)
     return body
 
 
@@ -109,7 +119,7 @@ def create_jekyll_file(target, header, body=None):
             jekyll_file.write(body)
 
 
-def process_person(person, image_src_dir=None, image_target_dir=None):
+def process_person(person, assets_src_dir=None, assets_target_dir=None):
     assert isinstance(person, dict), \
         f'person objects, are expected to be dictionaries, {type(person)} provided instead!'
     image = person.get('image', None)
@@ -121,8 +131,8 @@ def process_person(person, image_src_dir=None, image_target_dir=None):
             image = f"{contact_info['link']}.png"
     if 'image' in person:
         # copy person's static profile image into assets
-        src = person['image'] if image_src_dir is None else f'{image_src_dir}/{person["image"]}'
-        target = person['image'] if image_target_dir is None else f'{image_target_dir}/{person["image"]}'
+        src = person['image'] if assets_src_dir is None else f'{assets_src_dir}/{person["image"]}'
+        target = person['image'] if assets_target_dir is None else f'{assets_target_dir}/{person["image"]}'
         image = process_file(src, target, baseurl=baseurl)
     else:
         for contact_info in person.get('contact', []):
@@ -135,7 +145,7 @@ def process_person(person, image_src_dir=None, image_target_dir=None):
 
     # process bio markdown
     if 'bio' in person:
-        person['bio'] = build_markdown(person['bio'], image_target_dir)
+        person['bio'] = build_markdown(person['bio'], assets_target_dir)
     return person
 
 
@@ -178,7 +188,7 @@ def build_link(link, image_key=None, assets_src_dir=None, assets_target_dir='ass
     if 'notebook' in link:
         link = process_notebook(link)  # in case some data was added to link descriptor later
     elif 'kind' in link and link['kind'] == 'person':
-        link = process_person(link, image_src_dir=assets_src_dir, image_target_dir=assets_target_dir)
+        link = process_person(link, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
     elif 'index' in link:
         index = build_index(index_file=link['index'])
         if 'text' not in link:
