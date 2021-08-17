@@ -11,9 +11,9 @@
 {% assign person_image = include.person.image | default: include.image %}
 <div
         {% if include.person.bio== null %}
-        class="col-xl-2 col-lg-3 col-md-3 col-sm-8 col-10 mb-1 mb-lg-0"
+        class="col-xl-2 col-lg-3 col-md-3 col-sm-8 col-11 mb-1 mb-lg-0"
         {% else %}
-        class="col-xl-8 col-lg-8 col-md-11 col-sm-8 col-10 mb-1 mb-lg-0"
+        class="col-xl-9 col-lg-9 col-md-11 col-sm-8 col-11 mb-1 mb-lg-0"
         {% endif %}
         style="position: relative;"
 >
@@ -31,33 +31,33 @@
                     class="col-lg-12 card"
                     {% else %}
                     {% if include.person.bio !=null and person_image== null %}
-                    class="col-md-3 col-lg-12 card"
+                    class="col-12 card"
                     {% else %}
                     class="col-md-9 col-lg-8 card"
                     {% endif %}
                     {% endif %}
                     style="border: none;"
             >
-                <div class="card-body p-0 h-100">
+                <div class="card-body p-0 h-100 overflow-auto">
                     <!--image-->
                     {% if include.person.bio == null and include.person.image or include.image %}
                     <img alt="" class="w-100 card-img-top"
                          src="{{ include.image | default: include.person.image  }}"
                     >
                     {% endif %}
-                    <div class="p-0 d-flex flex-column justify-content-end">
+                    <div class="p-0 d-flex flex-column">
                         <!--name-->
-                        <div class="d-block w-100 mh-100 mw-100 mt-3">
+                        <div class="d-block w-100 mh-100 mw-100 mt-3 text-center">
                             <h5 class="card-title">{{ include.person.name }}</h5>
                         </div>
 
                         <!--role-->
                         {% if include.person.role %}
-                        <div class="card-text small text-muted d-block w-100 mh-100 mw-100">{{ include.person.role }}
+                        <div class="card-text small text-muted d-block w-100 mh-100 mw-100 text-center">{{ include.person.role }}
                         </div>
                         {% else %}
                         {% if include.person.roles %}
-                        <div class="card-text small text-muted list-inline d-block w-100">
+                        <div class="card-text small text-muted list-inline d-block w-100 text-center">
                             {% for role in include.person.roles %}
                             <span class="list-inline-item">{{ role }}</span>
                             {% endfor %}
@@ -66,7 +66,7 @@
                         {% endif %}
                         <!--bio-->
                         {% if include.person.bio %}
-                        <div class="card-text d-block w-100 h-100 pt-3 pb-2">
+                        <div class="card-text d-block w-100 h-100 pt-3 pb-2 px-3">
                             {{ include.person.bio }}
                         </div>
                         {% endif %}
@@ -76,7 +76,7 @@
 
                 <!--contact-->
                 {% if include.person.contact %}
-                <div class="card-footer social p-0"
+                <div class="card-footer social p-1 text-center"
                      style="background-color: inherit; border-top: none;">
                     <ul class=" list-inline mx-0 my-1">
                         {% for contact in include.person.contact %}

@@ -21,7 +21,7 @@
             {% endif %}
     >
         <h1 class=""> {{ include.header.title | default: include.title }}</h1>
-        {% if include.header.description %}
+        {% if include.header.description or include.description %}
         <p class="mt-3">{{include.header.description | default: include.description }}</p>
         {% endif %}
     </div>

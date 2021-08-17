@@ -1,5 +1,6 @@
 import typing as th
 import collections, yaml
+import os
 
 YamlNode = th.Union[th.Dict[str, 'YamlNode'], th.List['YamlNode'], str]
 
@@ -25,5 +26,8 @@ def read_yaml(path: str) -> YamlNode:
 
 
 def save_yaml(data: dict, path: str) -> None:
+    basedir = '/'.join(path.split('/')[:-1])
+    if basedir:
+        os.makedirs(basedir, exist_ok=True)
     with open(path, 'w') as outfile:
         yaml.dump(data, outfile, default_flow_style=False)

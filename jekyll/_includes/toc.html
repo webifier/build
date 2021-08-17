@@ -4,8 +4,7 @@
 
     <!--generic content spaces-->
     {% for pair in include.index %}
-    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" or
-    include.skip_description and pair[0] == "description" %}
+    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" %}
     {% continue %}
     {% endif %}
 
@@ -52,7 +51,7 @@
         {% if include.inline != null %}
         class="row align-items-center p-0 py-2"
         {% else %}
-        class="{{section_shadow}} shadow-sm row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
+        class="shadow-sm row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
         p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
         style="
           min-height: 5vh;

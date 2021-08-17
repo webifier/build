@@ -2,7 +2,7 @@
 {% assign content = include.people.content | default: include.people %}
 {% assign label = include.label | default: include.people.label %}
 <div
-        class="container-fluid bg-white align-center px-0 text-center my-0 py-0"
+        class="container-fluid bg-white align-center px-0 my-0 py-0"
         {% if include.people.background or include.background %}
         style="
           background-image: url('{{ include.people.background | default: include.background }}');

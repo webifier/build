@@ -9,11 +9,12 @@
 {% endunless %}
 {% endif %}
 
+<!--todo: md -->
 {% if include.link.notebook %}
 {% assign link_kind = "Notebook" %}
-{% assign metadata_name = include.link.notebook | replace: "/", "_" | remove: " " %}
-{% assign link_text = site.data.notebooks[metadata_name].title %}
-{% assign link_description = site.data.notebooks[metadata_name].description %}
+{% assign metadata_name = include.link.notebook | replace: "/", "_" | remove: " " | append: "_metadata" %}
+{% assign link_text = site.data[metadata_name].header.title | default: site.data[metadata_name].title %}
+{% assign link_description = site.data[metadata_name].header.description %}
 {% unless include.link.link %}
 {% assign link_url = "/" | append: include.link.notebook | prepend: site.baseurl   %}
 {% endunless %}

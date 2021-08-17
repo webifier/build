@@ -8,12 +8,12 @@
 <!---->
 {% endcomment %}
 {% if page.metadata %}
-{% assign metadata = site.data.notebooks[page.metadata] %}
+{% assign metadata = site.data[page.metadata] %}
 {% endif %}
 
 <html>
 <head>
-    <title>{{ page.title }}</title>
+    <title>{{ metadata.title | default: metadata.header.title | default: "Content" }}</title>
     <!-- Local CSS Stylesheets -->
     <link rel="stylesheet" href="{{ '/assets/css/jupyter.css' | prepend: site.baseurl }}">
     {% include head.html %}
@@ -21,12 +21,13 @@
 
 <body class="bg-secondary">
 <div class="app-content container-fluid px-0">
-    {% include header.html header=metadata background=metadata.header.background title=metadata.header.title
+    {% assign page_title = metadata.header.title | default: metadata.title %}
+    {% include header.html background=metadata.header.background title=page_title
     description=metadata.header.description %}
     {% include nav.html colab=page.colab %}
     <div class="container-fluid bg-white shadow app-body">
-        {% include {{ page.notebook }} %}
-        {% include toc.html index=metadata skip_description=true level=1 %}
+        {{ content }}
+        {% include toc.html index=metadata level=1 %}
     </div>
 
     {% include footer.html background=metadata.footer.background  %}

@@ -9,6 +9,8 @@ body {
     animation: gradient 15s ease infinite;
 }
 
+* > p:last-child { margin-bottom: 0 !important; }
+
 @keyframes gradient {
     0% {
         background-position: 0% 50%;
