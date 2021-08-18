@@ -1,6 +1,12 @@
+{% assign to_remove = "`,~,!,@,#,$,%,^,&,*,(,),_,-,=,+,[,{,],},\,|,;,:,',<,>" | split: "," %}
 <div class="shadow accordion accordion-flush px-0" id="accordion-{{include.level}}-{{index_tag}}">
     {% for chapter in include.content %}
-    {% assign tag = chapter.title | remove: " " %}
+    {% assign tag = chapter.title | remove: " " | remove: "," | remove: """ %}
+
+    {% for rem in to_remove %}
+    {% assign tag = tag | remove: rem %}
+    {% endfor %}
+
     {% assign index_tag = include.index.title | remove: " " %}
     <div class="accordion-item px-0" style="position: relative;">
         <h{{include.level}}
@@ -11,7 +17,7 @@
                 aria-expanded="false" aria-controls="collapse-{{include.level}}-{{index_tag}}-{{tag}}"
             {% if chapter.size <= 1 %}disabled{% endif %}
         >
-            {{chapter.title}}
+        <span>{{chapter.title}}</span>
         </button>
         </h{{include.level}}>
         <div id="collapse-{{include.level}}-{{index_tag}}-{{tag}}" class="accordion-collapse collapse"
