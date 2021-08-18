@@ -29,7 +29,7 @@
     {% assign content = pair[1].content | default: pair[1] %}
 
     <!--setting dynamic style (padding/margins)-->
-    {% if content.first %}
+    {% if content[0] %}
     {% assign spacing = "p-0" %}
     {% else %}
     {% assign spacing = "p-4" %}
@@ -63,7 +63,7 @@
         {% endif %}
         {% else %}
         {% if include.inline != null %}
-        class="row align-items-center p-0 py-1 list-inline"
+        class="row align-items-center p-0 py-1"
         {% else %}
         class="{{section_shadow}} row align-items-center my-2 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0 p{{pad_direction}}-md-1
          p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
@@ -101,27 +101,25 @@
             {% endif %}
         >
             {% case pair[1].kind %}
-            <!--chapters-->
+
             {% when "chapters" %}
+            <!--chapters-->
             {% include chapters.html index=include.index content=content level=include.level %}
+
             {% when "people" %}
+            <!--people-->
             {% include people.html people=value %}
             <!--generic media links-->
             {% else %}
+            <!--generic media links-->
             {% if content[0] %}
-            {% for link in content %}
-            {% if include.inline != null %}
-            {% include link.html link=link class="list-inline-item" %}
-            {% else %}
-            {% include link.html grouped=true link=link %}
-            {% endif %}
-            {% endfor %}
+            {% include links.html links=content inline=include.inline %}
 
             {% else %}
-            {% if pair[1].content %}
+            {% if value.first %}
             {% include toc.html index=value inline=true level=include.level %}
             {% else %}
-            {{ content }}
+            {{value}}
             {% endif %}
             {% endif %}
             {% endcase %}
