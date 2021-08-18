@@ -1,0 +1,16 @@
+{% if include.inline == null %}
+<div class="list-group">
+{% else %}
+<div class="list-inline">
+{% endif %}
+    {% for link in include.links %}
+
+    {% if include.inline != null %}
+    {% include link.html link=link class="list-inline-item" %}
+    {% else %}
+    {% include link.html grouped=true link=link %}
+    {% endif %}
+
+    {% endfor %}
+</div>
+
