@@ -4,7 +4,7 @@
 
     <!--generic content spaces-->
     {% for pair in include.index %}
-    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" %}
+    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" or pair[0] == "meta" %}
     {% continue %}
     {% endif %}
 
@@ -109,7 +109,12 @@
             {% when "people" %}
             <!--people-->
             {% include people.html people=value %}
-            <!--generic media links-->
+
+            {% when "comments" %}
+            <!--comments-->
+            {% include comments.html comments=value %}
+            </div>
+
             {% else %}
             <!--generic media links-->
             {% if content[0] %}

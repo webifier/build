@@ -1,0 +1,12 @@
+{% if site.data.index.meta.comments.repo or include.comments.repo %}
+<div class="p-2">
+    <script src="https://utteranc.es/client.js"
+            repo="{{include.comments.repo | default: site.data.index.meta.comments.repo}}"
+            issue-term="{{include.comments.issue_term | default: site.data.index.meta.comments.issue_term | default: "pathname"}}"
+            label="{{include.comments.issue_label | default: site.data.index.meta.comments.issue_label | default: "comments"}}"
+            theme="{{include.comments.theme | default: site.data.index.meta.comments.theme | default: "preferred-color-scheme"}}"
+            crossorigin="{{include.comments.crossorigin | default: site.data.index.meta.comments.crossorigin | default: "anonymous"}}"
+            async>
+    </script>
+</div>
+{% endif %}
