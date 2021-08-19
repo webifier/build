@@ -51,7 +51,7 @@
         {% if include.inline != null %}
         class="row align-items-center p-0 py-2"
         {% else %}
-        class="shadow-sm row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
+        class="row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
         p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
         style="
           min-height: 5vh;
@@ -113,7 +113,6 @@
             {% when "comments" %}
             <!--comments-->
             {% include comments.html comments=value %}
-            </div>
 
             {% else %}
             <!--generic media links-->

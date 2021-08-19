@@ -73,40 +73,51 @@ def data_name(index_file: str, index_type: str):
 
 
 def patch(obj=None):
+    patch_keys = []
+    patched = obj
+    if obj is not None and isinstance(obj, dict):
+        for key in obj:
+            if key.startswith('patch'):
+                patch_keys.append(key)
+        for key in patch_keys:
+            patched = patch_with_key(key, patched)
+    return patched
+
+
+def patch_with_key(patch_key, obj=None):
     """Patch object with patch file if any provided"""
     patched = obj
-    if obj is not None and isinstance(obj, dict) and 'patch' in obj:
-        result = []
-        for path in obj['patch'] if isinstance(obj['patch'], list) else [obj['patch']]:
-            if path.endswith('.yml') or path.endswith('.yaml'):
-                patch_result = read_yaml(path)
-            else:
-                patch_result = read_file(path)
-            result.append(patch_result)
-
-        if len(obj) > 1 and not isinstance(obj['patch'], list):
-            patched = collections.OrderedDict()
-            for key, value in obj.items():
-                if key == 'patch':
-                    if isinstance(result[0], dict):
-                        for patched_key, patched_value in result[0].items():
-                            patched[patched_key] = patched_value
-                    else:
-                        assert 'content' not in obj, 'cannot patch to existing content'
-                        patched['content'] = result[0]
-                    continue
-                patched[key] = value
-        elif isinstance(obj['patch'], list) and isinstance(obj.get('content', None), list):
-            idxs = {key: idx for idx, key in enumerate(obj)}
-            patched['content'] = result + obj['content'] if idxs['patch'] < idxs['content'] \
-                else obj['content'] + result
-            del patched['patch']
-        elif isinstance(obj['patch'], list) and len(obj) > 1:
-            assert 'content' not in obj, 'cannot patch list to none list content'
-            patched['content'] = result
-            del patched['patch']
+    result = []
+    for path in obj[patch_key] if isinstance(obj[patch_key], list) else [obj[patch_key]]:
+        if path.endswith('.yml') or path.endswith('.yaml'):
+            patch_result = read_yaml(path)
         else:
-            patched = result if isinstance(obj['patch'], list) else result[0]
+            patch_result = read_file(path)
+        result.append(patch_result)
+
+    if len(obj) > 1 and not isinstance(obj[patch_key], list):
+        patched = collections.OrderedDict()
+        for key, value in obj.items():
+            if key == patch_key:
+                if isinstance(result[0], dict):
+                    for patched_key, patched_value in result[0].items():
+                        patched[patched_key] = patched_value
+                else:
+                    assert 'content' not in obj, 'cannot patch to existing content'
+                    patched['content'] = result[0]
+                continue
+            patched[key] = value
+    elif isinstance(obj[patch_key], list) and isinstance(obj.get('content', None), list):
+        idxs = {key: idx for idx, key in enumerate(obj)}
+        patched['content'] = result + obj['content'] if idxs[patch_key] < idxs['content'] \
+            else obj['content'] + result
+        del patched[patch_key]
+    elif isinstance(obj[patch_key], list) and len(obj) > 1:
+        assert 'content' not in obj, 'cannot patch list to none list content'
+        patched['content'] = result
+        del patched[patch_key]
+    else:
+        patched = result if isinstance(obj[patch_key], list) else result[0]
     return patched
 
 
