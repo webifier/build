@@ -4,145 +4,151 @@
 
     <!--generic content spaces-->
     {% for pair in include.index %}
-    {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header" or pair[0] == "meta" %}
-    {% continue %}
-    {% endif %}
+        {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header"
+            or pair[0] == "meta" or pair[0] == "config" %}
+            {% continue %}
+        {% endif %}
 
-    {% if include.inline != null  %}
-    {% if pair[0] == "kind" or pair[0] =="background" or pair[0] =="label" %}
-    {% continue %}
-    {% endif %}
-
-    {% if pair[0] == "content" %}
-    {% unless pair[1].content %}
-    {{ pair[1] }}
-    {% continue %}
-    {% endunless %}
-    {% endif %}
-    {% endif %}
-
-    {% assign label = pair[1].label.text | pair[1].label |default: pair[0] %}
-    {% if label.first %}
-    {% assign label = default: pair[0] %}
-    {% endif %}
-    {% assign value = pair[1] %}
-    {% assign content = pair[1].content | default: pair[1] %}
-
-    <!--setting dynamic style (padding/margins)-->
-    {% if content[0] %}
-    {% assign spacing = "p-0" %}
-    {% else %}
-    {% assign spacing = "px-5 p-4" %}
-    {% endif %}
-    {% if pair[1].label != false and pair[1].label.position != "top" and pair[1].label.position != "bottom" %}
-    {% assign pad_direction = "e" %}
-    {% else %}
-    {% assign pad_direction = "x" %}
-    {% endif %}
-    {% if pair[1].label.position == "top" or pair[1].label.position == "bottom" %}
-    {% assign section_shadow = "hover-shadow" %}
-    {% assign section_content_shadow = "" %}
-    {% else %}
-    {% assign section_shadow = "" %}
-    {% assign section_content_shadow = "hover-shadow" %}
-    {% endif %}
-    <div
-        {% if pair[1].background %}
-        {% if include.inline != null %}
-        class="row align-items-center p-0 py-2"
-        {% else %}
-        class="row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
-        p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
-        style="
-          min-height: 5vh;
-          background-image: url('{{ pair[1].background }}');
-          background-attachment: fixed;
-          background-position: center;
-          background-repeat: no-repeat;
-          background-size: cover;"
-        {% endif %}
-        {% else %}
-        {% if include.inline != null %}
-        class="row align-items-center p-0 py-1"
-        {% else %}
-        class="{{section_shadow}} row align-items-center my-2 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0 p{{pad_direction}}-md-1
-         p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
-        style="min-height: 5vh;"
-        {% endif %}
-        {% endif %}
-    >
-        {% if pair[1].label != false and include.inline == null %}
-        {% if pair[1].label.position == null or pair[1].label.position == "left" %}
-        <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2  col-xxl-2 p-2 d-flex text-muted justify-content-center">
-            <strong>{{label | capitalize }}</strong>
-        </div>
-        {% else %}
-        {% if pair[1].label.position != null and pair[1].label.position == "top" %}
-        <div class="text-white  text-muted text-center col-12 bg-dark py-3">
-            <span class="bg-dark shadow-lg bg-dark p-3 px-5 w-100"><strong>{{label | capitalize}}</strong></span>
-        </div>
-        {% endif %}
-        {% endif %}
-        {% endif %}
-        {% if include.inline != null and pair[1].label != false %}
-        <span class="text-muted pt-2 pb-1">
-            <strong>{{label | capitalize }}</strong>
-        </span>
-        {% endif %}
-        <div
-            {% if pair[1].label != false and include.inline == null and pair[1].label.position != "top" and  pair[1].label.position != "bottom" %}
-            class="rounded {{section_content_shadow}} bg-white shadow col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center"
-            {% else %}
-            {% if include.inline ==null %}
-            class="rounded {{section_content_shadow}} bg-white shadow col-12 {{spacing}} justify-content-center"
-            {% else %}
-            class="px-4"
+        {% if include.inline != null  %}
+            {% if pair[0] == "kind" or pair[0] =="background" or pair[0] =="label" %}
+                {% continue %}
             {% endif %}
+
+            {% if pair[0] == "content" %}
+                {% unless pair[1].content %}
+                    {{ pair[1] }}
+                    {% continue %}
+                {% endunless %}
             {% endif %}
-        >
-            {% case pair[1].kind %}
+        {% endif %}
 
-            {% when "chapters" %}
-            <!--chapters-->
-            {% include chapters.html index=include.index content=content level=include.level %}
-
-            {% when "people" %}
-            <!--people-->
-            {% include people.html people=value %}
-
-            {% when "comments" %}
-            <!--comments-->
-            {% include comments.html comments=value %}
-
-            {% else %}
-            <!--generic media links-->
-            {% if content[0] %}
-            {% include links.html links=content inline=include.inline %}
-
-            {% else %}
-            {% if value.first %}
-            {% include toc.html index=value inline=true level=include.level %}
-            {% else %}
-            {{value}}
-            {% endif %}
-            {% endif %}
-            {% endcase %}
-        </div>
-
-        {% if pair[1].label.position != null and pair[1].label.position == "bottom" %}
         {% assign label = pair[1].label.text | pair[1].label |default: pair[0] %}
         {% if label.first %}
-        {% assign label = default: pair[0] %}
+            {% assign label = default: pair[0] %}
         {% endif %}
-        <div class="text-white  text-muted text-center col-12 bg-dark py-3">
-            <span class="bg-dark shadow-lg bg-dark p-3 px-5 w-100"><strong>{{label | capitalize}}</strong></span>
+        {% assign value = pair[1] %}
+        {% assign content = pair[1].content | default: pair[1] %}
+
+        <!--setting dynamic style (padding/margins)-->
+        {% if content[0] %}
+            {% assign spacing = "p-0" %}
+        {% else %}
+            {% assign spacing = "px-5 p-4" %}
+        {% endif %}
+        {% if pair[1].label != false and pair[1].label.position != "top" and pair[1].label.position != "bottom" %}
+            {% assign pad_direction = "e" %}
+        {% else %}
+            {% assign pad_direction = "x" %}
+        {% endif %}
+        {% if pair[1].label.position == "top" or pair[1].label.position == "bottom" %}
+            {% assign section_shadow = "hover-shadow" %}
+            {% assign section_content_shadow = "" %}
+        {% else %}
+            {% assign section_shadow = "" %}
+            {% assign section_content_shadow = "hover-shadow" %}
+        {% endif %}
+        <div
+            {% if pair[1].background %}
+                {% if include.inline != null %}
+                    class="row align-items-center p-0 py-2"
+                {% else %}
+                    class="row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
+                    p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
+                    style="
+                      min-height: 5vh;
+                      background-image: url('{{ pair[1].background }}');
+                      background-attachment: fixed;
+                      background-position: center;
+                      background-repeat: no-repeat;
+                      background-size: cover;"
+                {% endif %}
+            {% else %}
+                {% if include.inline != null %}
+                    class="row align-items-center p-0 py-1"
+                {% else %}
+                    class="{{section_shadow}} row align-items-center my-2 p{{pad_direction}}-xs-0
+                        p{{pad_direction}}-sm-0 p{{pad_direction}}-md-1
+                     p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
+                    style="min-height: 5vh;"
+                {% endif %}
+            {% endif %}
+        >
+            {% if pair[1].label != false and include.inline == null %}
+                {% if pair[1].label.position == null or pair[1].label.position == "left" %}
+                    <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2
+                        col-xxl-2 p-2 d-flex text-muted justify-content-center"
+                    >
+                        <strong>{{label | capitalize }}</strong>
+                    </div>
+                {% else %}
+                    {% if pair[1].label.position != null and pair[1].label.position == "top" %}
+                        <div class="text-white  text-muted text-center col-12 bg-dark py-3">
+                            <span class="bg-dark shadow-lg bg-dark p-3 px-5 w-100"><strong>
+                                {{label | capitalize}}</strong>
+                            </span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            {% if include.inline != null and pair[1].label != false %}
+                <span class="text-muted pt-2 pb-1">
+                    <strong>{{label | capitalize }}</strong>
+                </span>
+            {% endif %}
+            <div
+                {% if pair[1].label != false and include.inline == null and pair[1].label.position != "top" and
+                    pair[1].label.position != "bottom" %}
+                    class="rounded {{section_content_shadow}} bg-white shadow col-12 col-sm-12
+                        col-md-10 col-lg-10 col-xl-10  col-xxl-10  {{spacing}} justify-content-center"
+                {% else %}
+                    {% if include.inline ==null %}
+                        class="rounded {{section_content_shadow}} bg-white shadow col-12 {{spacing}}
+                        justify-content-center"
+                    {% else %}
+                        class="px-4"
+                    {% endif %}
+                {% endif %}
+            >
+                {% case pair[1].kind %}
+
+                    {% when "chapters" %}
+                        <!--chapters-->
+                        {% include chapters.html index=include.index content=content level=include.level %}
+
+                    {% when "people" %}
+                        <!--people-->
+                        {% include people.html people=value %}
+
+                    {% when "comments" %}
+                        <!--comments-->
+                        {% include comments.html comments=value %}
+
+                    {% else %}
+                        <!--generic media links-->
+                        {% if content[0] %}
+                            {% include links.html links=content inline=include.inline %}
+                        {% else %}
+                            {% if value.first %}
+                                {% include toc.html index=value inline=true level=include.level %}
+                            {% else %}
+                                {{value}}
+                            {% endif %}
+                        {% endif %}
+                {% endcase %}
+            </div>
+
+            {% if pair[1].label.position != null and pair[1].label.position == "bottom" %}
+                {% assign label = pair[1].label.text | pair[1].label |default: pair[0] %}
+                {% if label.first %}
+                    {% assign label = default: pair[0] %}
+                {% endif %}
+                <div class="text-white  text-muted text-center col-12 bg-dark py-3">
+                    <span class="bg-dark shadow-lg bg-dark p-3 px-5 w-100"><strong>
+                        {{label | capitalize}}
+                    </strong></span>
+                </div>
+            {% endif %}
         </div>
-        {% endif %}
-    </div>
     {% endfor %}
 </div>
-
-
-
-
 
