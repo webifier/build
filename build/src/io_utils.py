@@ -3,6 +3,7 @@ import shutil
 import collections
 import yaml
 import os
+import functools
 
 YamlNode = th.Union[th.Dict[str, 'YamlNode'], th.List['YamlNode'], str]
 
@@ -25,6 +26,12 @@ yaml.add_constructor(_mapping_tag, dict_constructor)
 def read_yaml(path: str) -> YamlNode:
     with open(path) as file:
         return yaml.full_load(file)
+
+
+def read_file(path: str) -> str:
+    """Read contents of the file and return them as a string"""
+    with open(path) as file:
+        return file.read()
 
 
 def save_yaml(data: dict, path: str) -> None:
@@ -63,3 +70,54 @@ def process_file(
 def data_name(index_file: str, index_type: str):
     """Generates the file name of yml files with regards to their type"""
     return index_file.replace('/', '_').replace(' ', '')
+
+
+def patch(obj=None):
+    """Patch object with patch file if any provided"""
+    patched = obj
+    if obj is not None and isinstance(obj, dict) and 'patch' in obj:
+        result = []
+        for path in obj['patch'] if isinstance(obj['patch'], list) else [obj['patch']]:
+            if path.endswith('.yml') or path.endswith('.yaml'):
+                patch_result = read_yaml(path)
+            else:
+                patch_result = read_file(path)
+            result.append(patch_result)
+
+        if len(obj) > 1 and not isinstance(obj['patch'], list):
+            patched = collections.OrderedDict()
+            for key, value in obj.items():
+                if key == 'patch':
+                    if isinstance(result[0], dict):
+                        for patched_key, patched_value in result[0].items():
+                            patched[patched_key] = patched_value
+                    else:
+                        assert 'content' not in obj, 'cannot patch to existing content'
+                        patched['content'] = result[0]
+                    continue
+                patched[key] = value
+        elif isinstance(obj['patch'], list) and isinstance(obj.get('content', None), list):
+            idxs = {key: idx for idx, key in enumerate(obj)}
+            patched['content'] = result + obj['content'] if idxs['patch'] < idxs['content'] \
+                else obj['content'] + result
+            del patched['patch']
+        elif isinstance(obj['patch'], list) and len(obj) > 1:
+            assert 'content' not in obj, 'cannot patch list to none list content'
+            patched['content'] = result
+            del patched['patch']
+        else:
+            patched = result if isinstance(obj['patch'], list) else result[0]
+    return patched
+
+
+def patch_decorator(func):
+    """Patch the input object if any patching option were provided"""
+
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        patched = patch(None if not args else args[0])
+        if patched is not None:
+            return func(self, patched, *args[1:], **kwargs)
+        return func(self, *args, **kwargs)
+
+    return wrapper

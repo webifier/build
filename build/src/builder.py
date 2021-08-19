@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from .io_utils import process_file, save_yaml, read_yaml, data_name
+from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch
 from .md import build_markdown
 from .notebook import process_notebook
 from .jekyll import create_jekyll_home_header, create_jekyll_file
@@ -16,10 +16,16 @@ class Builder:
         'md_in_html', 'codehilite', 'fenced_code', 'tables', 'attr_list')
     checked_indices: set = field(default_factory=set)
 
+    @patch_decorator
     def build_person(self, person, assets_src_dir=None, assets_target_dir=None):
         assert isinstance(person, dict), \
             f'person objects, are expected to be dictionaries, {type(person)} provided instead!'
+        # patching
+        for key, value in person.items():
+            person[key] = patch(value)
+
         image = person.get('image', None)
+
         # build contact links
         for idx, contact_info in enumerate(person.get('contact', [])):
             person['contact'][idx] = self.build_link(contact_info, None)
@@ -45,8 +51,12 @@ class Builder:
             person['bio'] = build_markdown(builder=self, raw=person['bio'], extensions=self.markdown_extensions)
         return person
 
+    @patch_decorator
     def build_link(self, link, image_key=None, assets_src_dir=None, assets_target_dir=None):
         assets_target_dir = self.assets_dir if assets_target_dir is None else assets_target_dir
+        # patching
+        for key, value in link.items():
+            link[key] = patch(value)
         if 'notebook' in link:
             link = process_notebook(builder=self, link=link)  # in case some data was added to link descriptor later
         elif 'kind' in link and link['kind'] == 'person':
@@ -54,10 +64,10 @@ class Builder:
         elif 'index' in link:
             index = self.build_index(index_file=link['index'])
             if 'text' not in link:
-                if 'title' in index:
-                    link['text'] = index['title']
-                elif 'header' in index and 'title' in index['header']:
+                if 'header' in index and 'title' in index['header']:
                     link['text'] = index['header']['title']
+                elif 'title' in index:
+                    link['text'] = index['title']
             if 'description' not in link and 'header' in index and 'description' in index['header']:
                 link['description'] = index['header']['description']
             link['link'] = f'{self.base_url}/{link["index"]}.html' if not link["index"].endswith('index') else \
@@ -73,6 +83,7 @@ class Builder:
                                                      extensions=self.markdown_extensions)
         return link
 
+    @patch_decorator
     def build_object(self, obj, image_key=None, assets_src_dir=None, assets_target_dir=None):
         """Process the self replicating structure of objects in `index.yml`
         """
@@ -114,6 +125,7 @@ class Builder:
 
         # building object (background) image
         if image_key is not None and image_key in obj:
+            obj[image_key] = patch(obj[image_key])
             target_path = process_file(obj[image_key], obj[image_key], src_dir=assets_src_dir,
                                        target_dir=assets_target_dir,
                                        baseurl=self.base_url)
@@ -121,6 +133,7 @@ class Builder:
                 obj[image_key] = target_path
         return obj
 
+    @patch_decorator
     def build_index(self, index: dict = None, index_file: str = None, target_data_file: str = None, index_type='index'):
         """Process the self replicating structure of `index.yml` and look for notebook links and render them.
         """
@@ -133,6 +146,7 @@ class Builder:
                 return index
             print(f'Processing {index_type}', index_file)
             self.checked_indices.add(index_file)
+            return self.build_index(index, target_data_file=target_data_file, index_type=index_type)
 
         assert isinstance(index, dict), \
             f'index is supposed to be an object, got {type(index)}'
@@ -144,14 +158,19 @@ class Builder:
                 continue
             index[key] = self.build_object(value, image_key='background')
 
-        if index_file is not None:
+        if index_file is not None or target_data_file is not None:
             # save data file
             save_yaml(
                 index,
-                f'_data/{data_name(index_file, index_type)}.yml' if target_data_file is None else target_data_file
+                f'_data/{data_name(index_file, index_type)}.yml' if target_data_file is None \
+                    else f'_data/{target_data_file}.yml'
             )
             # create and save html file
             if index_type == 'index':
-                create_jekyll_file(f'{index_file}.html', create_jekyll_home_header(data_name(index_file, index_type)))
+                create_jekyll_file(
+                    f'{index_file if target_data_file is None else target_data_file}.html',
+                    create_jekyll_home_header(
+                        data_name(index_file, index_type) if target_data_file is None else target_data_file)
+                )
 
         return index

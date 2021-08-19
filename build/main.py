@@ -2,7 +2,7 @@ from src import Builder
 import argparse
 
 BASE_INDEX_FILE = 'index'
-TARGET_INDEX_FILE = '_data/index.yml'
+TARGET_INDEX_FILE = 'index'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build index.')
