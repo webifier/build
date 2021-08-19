@@ -19,7 +19,7 @@ def create_jekyll_content_header(metadata_path: th.Optional[str] = None, colab_u
     """
     metadata = f'metadata: {metadata_path}\n' if metadata_path is not None else ''
     colab = f'colab: {colab_url}\n' if colab_url is not None else ''
-    return f'---\nlayout: content\n{metadata}{colab}---'
+    return f'---\nlayout: content\n{metadata}{colab}---\n'
 
 
 def create_jekyll_home_header(index):

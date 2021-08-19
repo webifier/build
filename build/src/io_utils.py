@@ -69,7 +69,7 @@ def process_file(
 
 def data_name(index_file: str, index_type: str):
     """Generates the file name of yml files with regards to their type"""
-    return index_file.replace('/', '_').replace(' ', '')
+    return index_file.replace('.html', '').replace('.yml', '').replace('.yaml', '').replace('/', '_').replace(' ', '')
 
 
 def patch(obj=None):

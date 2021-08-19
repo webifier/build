@@ -14,7 +14,7 @@ def build_markdown(
     """Process raw markdown str and process its local assets if necessary
 
     """
-    body = markdown.markdown(raw, extensions=extensions)
+    body = markdown.markdown(raw, extensions=extensions if extensions else builder.markdown_extensions)
 
     # move assets to `assets_dir`
     asset_remap = dict()

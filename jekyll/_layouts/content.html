@@ -25,7 +25,7 @@
     {% include header.html background=metadata.header.background title=page_title
     description=metadata.header.description %}
     {% include nav.html colab=page.colab %}
-    <div class="container-fluid bg-white shadow app-body">
+    <div class="container-fluid bg-white shadow app-body {% unless page.colab %}p-5{% endunless %}">
         {{ content }}
         {% include toc.html index=metadata level=1 %}
     </div>

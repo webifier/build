@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch
 from .md import build_markdown
-from .notebook import process_notebook
+from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
 import typing as th
 import os
@@ -58,7 +58,9 @@ class Builder:
         for key, value in link.items():
             link[key] = patch(value)
         if 'notebook' in link:
-            link = process_notebook(builder=self, link=link)  # in case some data was added to link descriptor later
+            link = process_content(builder=self, link=link, kind='notebook')
+        elif 'md' in link:
+            link = process_content(builder=self, link=link, kind='md')
         elif 'kind' in link and link['kind'] == 'person':
             link = self.build_person(link, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
         elif 'index' in link:
@@ -139,9 +141,10 @@ class Builder:
         """
         assert index_file is not None or index is not None, f'Either index or index_file should be specified!'
         if index is None:
-            assert os.path.isfile(f'{index_file}.yml'), \
+            index_file = f'{index_file}{"" if index_file.endswith(".yml") or index_file.endswith(".yaml") else ".yml"}'
+            assert os.path.isfile(index_file), \
                 f"{index_type.capitalize()} file {f'{index_file}.yml'} could not be found!"
-            index = read_yaml(f'{index_file}.yml')
+            index = read_yaml(index_file)
             if index_file in self.checked_indices:
                 return index
             print(f'Processing {index_type}', index_file)
