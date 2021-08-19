@@ -5,6 +5,7 @@
 <head>
     <title>{{ index.title | default: "Index" }}</title>
     {% include head.html %}
+    {% include meta.html meta=index.meta %}
 </head>
 
 <body class="bg-secondary">

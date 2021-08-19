@@ -1,0 +1,9 @@
+{% if include.meta[0] %}
+    {% for tag in include.meta %}
+        <meta
+        {% for item in tag %}
+            {{item[0]}}="{{item[1]}}"
+        {% endfor %}
+        >
+    {% endfor %}
+{% endif %}
