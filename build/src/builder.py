@@ -61,8 +61,6 @@ class Builder:
             link = process_content(builder=self, link=link, kind='notebook')
         elif 'md' in link:
             link = process_content(builder=self, link=link, kind='md')
-        elif 'kind' in link and link['kind'] == 'person':
-            link = self.build_person(link, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
         elif 'index' in link:
             index = self.build_index(index_file=link['index'])
             if 'text' not in link:
@@ -78,11 +76,25 @@ class Builder:
             file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=self.base_url)
             if file_path:
                 link['pdf'] = file_path
+        elif 'kind' in link and link['kind'] == 'person':
+            link = self.build_person(link, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
         else:
             # processing markdown syntax
             if 'description' in link:
                 link['description'] = build_markdown(builder=self, raw=link['description'],
                                                      extensions=self.markdown_extensions)
+        if 'image' in link and not ('kind' in link and link['kind'] == 'person'):
+            assert not isinstance(link['image'], dict) or 'src' in link['image'], \
+                'no source was specified for link image'
+            image_src = link['image']['src'] if isinstance(link['image'], dict) else link['image']
+
+            image_src = process_file(image_src, image_src, src_dir=assets_src_dir, target_dir=assets_target_dir,
+                                     baseurl=self.base_url)
+            if image_src:
+                if isinstance(link['image'], dict):
+                    link['image']['src'] = image_src
+                else:
+                    link['image'] = image_src
         return link
 
     @patch_decorator
