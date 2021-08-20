@@ -78,11 +78,10 @@ class Builder:
                 link['pdf'] = file_path
         elif 'kind' in link and link['kind'] == 'person':
             link = self.build_person(link, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
-        else:
+        if 'description' in link and 'index' not in link:
             # processing markdown syntax
-            if 'description' in link:
-                link['description'] = build_markdown(builder=self, raw=link['description'],
-                                                     extensions=self.markdown_extensions)
+            link['description'] = build_markdown(builder=self, raw=link['description'],
+                                                 extensions=self.markdown_extensions)
         if 'image' in link and not ('kind' in link and link['kind'] == 'person'):
             assert not isinstance(link['image'], dict) or 'src' in link['image'], \
                 'no source was specified for link image'
@@ -184,7 +183,7 @@ class Builder:
                 create_jekyll_file(
                     f'{data_name(index_file if target_data_file is None else target_data_file, index_type)}.html',
                     create_jekyll_home_header(
-                        data_name(index_file, index_type) if target_data_file is None else target_data_file)
+                        data_name(index_file if target_data_file is None else target_data_file, index_type))
                 )
 
         return index
