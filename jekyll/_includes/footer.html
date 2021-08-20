@@ -20,9 +20,10 @@
             {% endif %}
     >
         {% if site.data.index.footer.first %}
-         {{ site.data.index.footer.text | default: "© Copyright 2021" }}
+        {{ site.data.index.footer.text }}
         {% else %}
-        {{  site.data.index.footer | default: "© Copyright 2021" }}
+        {{  site.data.index.footer }}
         {% endif %}
+        © Copyright <a class="link-primary" href="https://webifier.github.io">Webifier</a>
     </div>
 </footer>
