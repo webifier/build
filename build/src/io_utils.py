@@ -44,9 +44,14 @@ def save_yaml(data: dict, path: str) -> None:
 
 
 def prepend_baseurl(url, baseurl=None):
+    """Prepend base url to url and remove the redundant [index][.html] ending"""
     prepend = f'/{baseurl}' if baseurl is not None else ''
-    return url if baseurl is None else (f'{prepend}/{url}' if not prepend.endswith(
+    result = url if baseurl is None else (f'{prepend}/{url}' if not prepend.endswith(
         '/') else f'{prepend}{url}')
+    result = result if result.endswith('.html') else f'{result}.html'
+    if baseurl is not None:
+        result = result if not result.endswith('index.html') else result.rsplit('index.html', 1)[0]
+    return result
 
 
 def process_file(
