@@ -1,19 +1,8 @@
-_site/
+jekyll/_site/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata
 **/.DS_Store
-
-# built notebooks
-_includes/notebooks
-_data/authors
-assets/notebooks
-assets/images/people
-notebooks/**/*.html
-!assets/**/*.html
-!_includes/*.html
-!_layouts/*.html
-
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
