@@ -1,0 +1,35 @@
+name: 'Webifier Build'
+description: 'GitHub Action to process repository contents for jekyll deployment on github pages'
+author: 'webifier'
+branding:
+  color: 'blue'
+  icon: 'cloud'
+
+inputs:
+  repo:
+    description: 'GitHub repository of website material (default: $GITHUB_REPOSITORY)'
+    default: ${{ github.repository }}
+    required: false
+  baseurl:
+    description: 'Base URL (slug) of website (default: name of repository)'
+    default: ${{ github.event.repository.name }}
+    required: false
+  index:
+    description: 'Entry index file (default: index.yml)'
+    default: 'index.yml'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: source ${{ github.action_path }}/scripts/extract_template_files.sh ${{ github.action_path }} .
+      shell: bash
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - run: pip install -r ${{ github.action_path }}/build/requirements.txt
+      shell: bash
+    - run: python ${{ github.action_path }}/build/main.py --repo_full_name ${{ inputs.repo }} --baseurl ${{ inputs.baseurl }} --index ${{ inputs.index }}
+      shell: bash
+
+
