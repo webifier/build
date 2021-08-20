@@ -22,7 +22,7 @@
             {% endif %}
         {% endif %}
 
-        {% assign label = pair[1].label.text | pair[1].label |default: pair[0] %}
+        {% assign label = pair[1].label.text | default: pair[1].label |default: pair[0] %}
         {% if label.first %}
             {% assign label = default: pair[0] %}
         {% endif %}
