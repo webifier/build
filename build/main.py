@@ -1,8 +1,8 @@
 from src import Builder
 import argparse
 
-BASE_INDEX_FILE = 'index'
-TARGET_INDEX_FILE = 'index'
+BASE_INDEX_FILE = 'index.yml'
+TARGET_INDEX_FILE = 'index.yml'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build index.')

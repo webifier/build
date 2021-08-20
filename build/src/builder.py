@@ -177,13 +177,12 @@ class Builder:
             # save data file
             save_yaml(
                 index,
-                f'_data/{data_name(index_file, index_type)}.yml' if target_data_file is None \
-                    else f'_data/{target_data_file}.yml'
+                f'_data/{data_name(index_file if target_data_file is None else target_data_file, index_type)}.yml'
             )
             # create and save html file
             if index_type == 'index':
                 create_jekyll_file(
-                    f'{index_file if target_data_file is None else target_data_file}.html',
+                    f'{data_name(index_file if target_data_file is None else target_data_file, index_type)}.html',
                     create_jekyll_home_header(
                         data_name(index_file, index_type) if target_data_file is None else target_data_file)
                 )
