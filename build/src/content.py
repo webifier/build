@@ -26,8 +26,9 @@ def process_content(builder, link, kind):
     metadata_path = \
         f'{metadata_path}{"" if metadata_path.endswith(".yml") or metadata_path.endswith(".yaml") else ".yml"}'
     if os.path.isfile(metadata_path):
-        metadata = builder.build_index(index_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
-                                       index_type='content')
+        metadata = builder.build_index(
+            index_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
+            assets_src_dir=content_dir, assets_target_dir=builder.assets_dir, index_type='content')
         metadata_path = data_name(index_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
                                   index_type='content')
         if 'text' not in link:

@@ -52,7 +52,7 @@ class Builder:
         return person
 
     @patch_decorator
-    def build_link(self, link, image_key=None, assets_src_dir=None, assets_target_dir=None):
+    def build_link(self, link, assets_src_dir=None, assets_target_dir=None):
         assets_target_dir = self.assets_dir if assets_target_dir is None else assets_target_dir
         # patching
         for key, value in link.items():
@@ -100,40 +100,29 @@ class Builder:
         """Process the self replicating structure of objects in `index.yml`
         """
         assets_target_dir = self.assets_dir if assets_target_dir is None else assets_target_dir
-        # objects are either have descriptors or a list of link objects
-        content = obj if isinstance(obj, dict) and 'content' not in obj else (
-            obj.get('content', obj) if isinstance(obj, dict) else obj)
-
         # building object content
-        if isinstance(content, list):
+        if isinstance(obj, list):
             # if object is a list of other objects
-            for idx, item in enumerate(content):
+            for idx, item in enumerate(obj):
                 if 'kind' in obj and obj['kind'] == 'people':
                     item['kind'] = 'person'
                 if 'kind' in obj and obj['kind'] == 'chapters':
-                    content[idx] = self.build_index(item)
+                    obj[idx] = self.build_index(item, assets_src_dir=assets_src_dir,
+                                                assets_target_dir=assets_target_dir)
                 else:
-                    content[idx] = self.build_link(item, assets_src_dir=assets_src_dir,
-                                                   assets_target_dir=assets_target_dir)
-        elif isinstance(obj, dict) and 'content' in obj:
+                    obj[idx] = self.build_link(item, assets_src_dir=assets_src_dir,
+                                               assets_target_dir=assets_target_dir)
+        elif isinstance(obj, dict):
             for key, value in obj.items():
-                if key in ['label']:
+                if key in ['label', 'kind'] + [image_key] if image_key is not None else []:
                     continue
-                if key == 'content':
-                    content = self.build_object(
-                        obj['content'], image_key, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
-                    continue
+
                 obj[key] = self.build_object(
                     value, image_key, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
         elif isinstance(obj, str):
             return build_markdown(builder=self, raw=obj, extensions=self.markdown_extensions)
         else:
             return obj
-        # processing markdown
-        if 'content' in obj:
-            obj['content'] = content
-        else:
-            obj = content
 
         # building object (background) image
         if image_key is not None and image_key in obj:
@@ -146,7 +135,8 @@ class Builder:
         return obj
 
     @patch_decorator
-    def build_index(self, index: dict = None, index_file: str = None, target_data_file: str = None, index_type='index'):
+    def build_index(self, index: dict = None, index_file: str = None, assets_src_dir=None, assets_target_dir=None,
+                    target_data_file: str = None, index_type='index'):
         """Process the self replicating structure of `index.yml` and look for notebook links and render them.
         """
         assert index_file is not None or index is not None, f'Either index or index_file should be specified!'
@@ -159,17 +149,33 @@ class Builder:
                 return index
             print(f'Processing {index_type}', index_file)
             self.checked_indices.add(index_file)
-            return self.build_index(index, target_data_file=target_data_file, index_type=index_type)
-
+            return self.build_index(index, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
+                                    target_data_file=target_data_file if target_data_file is not None else index_file,
+                                    index_type=index_type)
         assert isinstance(index, dict), \
             f'index is supposed to be an object, got {type(index)}'
+        # processing special keys in index
         if 'title' not in index and 'header' in index and 'title' in index['header']:
             index['title'] = index['header']['title']
+
+        if 'nav' in index:
+            if isinstance(index['nav'], dict) and 'brand' in index['nav']:
+                index['nav']['brand'] = self.build_link(index['nav']['brand'], assets_src_dir=assets_src_dir,
+                                                        assets_target_dir=assets_target_dir)
+            else:
+                index['nav'] = self.build_object(index['nav'], assets_src_dir=assets_src_dir,
+                                                 assets_target_dir=assets_target_dir)
+
+            if isinstance(index['nav'], dict) and 'content' in index['nav']:
+                index['nav']['content'] = self.build_object(index['nav']['content'], assets_src_dir=assets_src_dir,
+                                                            assets_target_dir=assets_target_dir)
+            # print('nav', index['nav'])
         index['title'] = index.get('title', index_type.capitalize())
         for key, value in index.items():
-            if key in ['title']:
+            if key in ['title', 'nav', 'meta', 'config']:
                 continue
-            index[key] = self.build_object(value, image_key='background')
+            index[key] = self.build_object(value, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
+                                           image_key='background')
 
         if index_file is not None or target_data_file is not None:
             # save data file
@@ -184,5 +190,4 @@ class Builder:
                     create_jekyll_home_header(
                         data_name(index_file if target_data_file is None else target_data_file, index_type))
                 )
-
         return index
