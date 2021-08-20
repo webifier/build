@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch
+from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch, prepend_baseurl
 from .md import build_markdown
 from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
@@ -70,8 +70,7 @@ class Builder:
                     link['text'] = index['title']
             if 'description' not in link and 'header' in index and 'description' in index['header']:
                 link['description'] = index['header']['description']
-            link['link'] = f'{self.base_url}/{link["index"]}.html' if not link["index"].endswith('index') else \
-                f'{self.base_url}/{"/".join(link["index"].split("/")[:-1])}'
+            link['link'] = prepend_baseurl(link["index"], baseurl=self.base_url)
         elif 'pdf' in link:
             file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=self.base_url)
             if file_path:

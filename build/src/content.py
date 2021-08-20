@@ -1,5 +1,5 @@
 import os
-from .io_utils import read_file, data_name
+from .io_utils import read_file, data_name, prepend_baseurl
 from .jekyll import create_jekyll_file, create_jekyll_content_header, get_colab_url
 from .notebook import generate_notebook_html
 from .md import build_markdown
@@ -30,7 +30,6 @@ def process_content(builder, link, kind):
                                        index_type='content')
         metadata_path = data_name(index_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
                                   index_type='content')
-        print(metadata_path)
         if 'text' not in link:
             if 'header' in metadata and 'title' in metadata['header']:
                 link['text'] = metadata['header']['title']
@@ -53,9 +52,8 @@ def process_content(builder, link, kind):
             base_url=builder.base_url
         ) if kind == 'notebook' else build_markdown(builder, read_file(filename))
     )
-    link['link'] = jekyll_target_file if builder.base_url is None else (
-        f'{builder.base_url}/{jekyll_target_file}' if not builder.base_url.endswith(
-            '/') else f'{builder.base_url}{jekyll_target_file}')
+
+    link['link'] = prepend_baseurl(jekyll_target_file, builder.base_url)
     link['kind'] = kind
 
     return link

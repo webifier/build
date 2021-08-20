@@ -43,6 +43,12 @@ def save_yaml(data: dict, path: str) -> None:
         yaml.dump(data, outfile, default_flow_style=False)
 
 
+def prepend_baseurl(url, baseurl=None):
+    prepend = f'/{baseurl}' if baseurl is not None else ''
+    return url if baseurl is None else (f'{prepend}/{url}' if not prepend.endswith(
+        '/') else f'{prepend}{url}')
+
+
 def process_file(
         src: str,
         target: str,
@@ -63,8 +69,7 @@ def process_file(
         os.makedirs(f'{target_dir}{base_dir}', exist_ok=True)
     target = f'{target_dir}{target}'
     shutil.copy2(src, target)
-    return target if baseurl is None else (f'{baseurl}/{target}' if not baseurl.endswith(
-        '/') else f'{baseurl}{target}')
+    return prepend_baseurl(target, baseurl)
 
 
 def data_name(index_file: str, index_type: str):
