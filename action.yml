@@ -29,7 +29,7 @@ runs:
         python-version: 3.8
     - run: pip install -r ${{ github.action_path }}/build/requirements.txt
       shell: bash
-    - run: python ${{ github.action_path }}/build/main.py --repo_full_name ${{ inputs.repo }} --baseurl ${{ inputs.baseurl }} --index ${{ inputs.index }}
+    - run: python ${{ github.action_path }}/build/main.py --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }}
       shell: bash
 
 
