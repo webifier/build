@@ -104,21 +104,23 @@ class Builder:
         if isinstance(obj, list):
             # if object is a list of other objects
             for idx, item in enumerate(obj):
-                if 'kind' in obj and obj['kind'] == 'people':
-                    item['kind'] = 'person'
-                if 'kind' in obj and obj['kind'] == 'chapters':
+                obj[idx] = self.build_link(item, assets_src_dir=assets_src_dir,
+                                           assets_target_dir=assets_target_dir)
+        elif isinstance(obj, dict):
+            if 'kind' in obj and obj['kind'] == 'chapters':
+                for idx, item in enumerate(obj['content']):
                     obj[idx] = self.build_index(item, assets_src_dir=assets_src_dir,
                                                 assets_target_dir=assets_target_dir)
-                else:
-                    obj[idx] = self.build_link(item, assets_src_dir=assets_src_dir,
-                                               assets_target_dir=assets_target_dir)
-        elif isinstance(obj, dict):
-            for key, value in obj.items():
-                if key in ['label', 'kind'] + [image_key] if image_key is not None else []:
-                    continue
+            else:
+                if 'kind' in obj and obj['kind'] == 'people':
+                    for item in obj['content']:
+                        item['kind'] = 'person'
+                for key, value in obj.items():
+                    if key in ['label', 'kind'] + [image_key] if image_key is not None else []:
+                        continue
 
-                obj[key] = self.build_object(
-                    value, image_key, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
+                    obj[key] = self.build_object(
+                        value, image_key, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
         elif isinstance(obj, str):
             return build_markdown(builder=self, raw=obj, extensions=self.markdown_extensions)
         else:
