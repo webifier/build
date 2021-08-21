@@ -158,8 +158,11 @@ class Builder:
         if 'title' not in index and 'header' in index and 'title' in index['header']:
             index['title'] = index['header']['title']
 
+        # patching special keys
+        for key in ['title', 'nav', 'meta', 'config']:
+            if key in index:
+                index[key] = patch(index[key])
         if 'nav' in index:
-            index['nav'] = patch(index['nav'])
             if isinstance(index['nav'], dict) and 'brand' in index['nav']:
                 index['nav']['brand'] = self.build_link(index['nav']['brand'], assets_src_dir=assets_src_dir,
                                                         assets_target_dir=assets_target_dir)
@@ -170,7 +173,7 @@ class Builder:
             if isinstance(index['nav'], dict) and 'content' in index['nav']:
                 index['nav']['content'] = self.build_object(index['nav']['content'], assets_src_dir=assets_src_dir,
                                                             assets_target_dir=assets_target_dir)
-            # print('nav', index['nav'])
+
         index['title'] = index.get('title', index_type.capitalize())
         for key, value in index.items():
             if key in ['title', 'nav', 'meta', 'config']:
