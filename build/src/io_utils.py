@@ -43,6 +43,14 @@ def save_yaml(data: dict, path: str) -> None:
         yaml.dump(data, outfile, default_flow_style=False)
 
 
+def remove_ending(string, ending):
+    if isinstance(ending, list):
+        for end in ending:
+            string = remove_ending(string, end)
+        return string
+    return string if not string.endswith(ending) else string.rsplit(ending, 1)[0]
+
+
 def prepend_baseurl(url, baseurl=None):
     """Prepend base url to url and remove the redundant [index][.html] ending"""
     prepend = f'/{baseurl}' if baseurl is not None else ''
@@ -50,7 +58,7 @@ def prepend_baseurl(url, baseurl=None):
         '/') else f'{prepend}{url}')
     result = result if result.endswith('.html') else f'{result}.html'
     if baseurl is not None:
-        result = result if not result.endswith('index.html') else result.rsplit('index.html', 1)[0]
+        result = remove_ending(result, 'index.html')
     return result
 
 

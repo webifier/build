@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch, prepend_baseurl
+from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch, prepend_baseurl, \
+    remove_ending
 from .md import build_markdown
 from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
@@ -192,7 +193,7 @@ class Builder:
             # create and save html file
             if index_type == 'index':
                 create_jekyll_file(
-                    f'{index_file if target_data_file is None else target_data_file}.html',
+                    f'{remove_ending(index_file if target_data_file is None else target_data_file, [".yml", ".yaml"])}.html',
                     create_jekyll_home_header(
                         data_name(index_file if target_data_file is None else target_data_file, index_type))
                 )
