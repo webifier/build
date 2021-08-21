@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Webify
-        uses: webifier/build@v0.0.2
+        uses: webifier/build@v0.0.4
         #with:
         # baseurl: '' # if you are webifying a `<name>.github.io` repository or don't wish to have the content of this 
         #              # repository to be referred to with a "<repository-name>/" slug
