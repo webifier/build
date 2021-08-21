@@ -11,11 +11,15 @@ inputs:
     default: ${{ github.repository }}
     required: false
   baseurl:
-    description: 'Base URL (slug) of website (default: name of repository)'
+    description: >
+      Base URL (slug) of website (default: name of repository). You should set this field to "" if you are using
+      Webifier for building a github.io repository itself (in a `<username/organization>.github.io` repository ).
     default: ${{ github.event.repository.name }}
     required: false
   index:
-    description: 'Entry index file (default: index.yml)'
+    description: >
+      Entry index file (default: index.yml) change this if your entry index file is not named "index.yml" or is not
+      located in the root of your repository.
     default: 'index.yml'
     required: false
 
