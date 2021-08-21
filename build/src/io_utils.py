@@ -83,14 +83,13 @@ def data_name(index_file: str, index_type: str):
 
 
 def patch(obj=None):
-    patch_keys = []
     patched = obj
     if obj is not None and isinstance(obj, dict):
-        for key in obj:
-            if key.startswith('patch'):
-                patch_keys.append(key)
-        for key in patch_keys:
+        patch_keys = [key for key in obj if key.startswith('patch')]
+        while patch_keys:
+            key = patch_keys[0]
             patched = patch_with_key(key, patched)
+            patch_keys = [key for key in patched if key.startswith('patch')]
     return patched
 
 
