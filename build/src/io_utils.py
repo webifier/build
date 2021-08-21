@@ -89,7 +89,7 @@ def patch(obj=None):
         while patch_keys:
             key = patch_keys[0]
             patched = patch_with_key(key, patched)
-            patch_keys = [key for key in patched if key.startswith('patch')]
+            patch_keys = [key for key in patched if key.startswith('patch')] if isinstance(patched, dict) else []
     return patched
 
 
