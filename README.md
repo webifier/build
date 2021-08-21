@@ -1,12 +1,11 @@
 # Webifier Build
 
-________________
-
 <p align="center">
   <a href="#how-to-use">How to Use</a> •
   <a href="https://webifier.github.io/">Docs</a> •
   <a href="#license">License</a>
 </p>
+________________
 
 Webifier Build is a stand-alone build tool for converting any repository into a
 deployable [jekyll](https://jekyllrb.com/) website. You can define your pages as `yaml` files and provide notebooks,
@@ -69,6 +68,7 @@ functionalities.
 
 ## License
 MIT License, see [webifier/build/LICENSE](https://github.com/webifier/build/blob/master/LICENSE).
+
 ## Todo
 
 There are a number of improvements that can enlarge Webifier's usability. What follows is a list of the ideas that we
