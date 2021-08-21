@@ -192,7 +192,7 @@ class Builder:
             # create and save html file
             if index_type == 'index':
                 create_jekyll_file(
-                    f'{data_name(index_file if target_data_file is None else target_data_file, index_type)}.html',
+                    f'{index_file if target_data_file is None else target_data_file}.html',
                     create_jekyll_home_header(
                         data_name(index_file if target_data_file is None else target_data_file, index_type))
                 )
