@@ -159,6 +159,7 @@ class Builder:
             index['title'] = index['header']['title']
 
         if 'nav' in index:
+            index['nav'] = patch(index['nav'])
             if isinstance(index['nav'], dict) and 'brand' in index['nav']:
                 index['nav']['brand'] = self.build_link(index['nav']['brand'], assets_src_dir=assets_src_dir,
                                                         assets_target_dir=assets_target_dir)
