@@ -5,7 +5,6 @@
   <a href="https://webifier.github.io/">Docs</a> •
   <a href="#license">License</a>
 </p>
-________________
 
 Webifier Build is a stand-alone build tool for converting any repository into a
 deployable [jekyll](https://jekyllrb.com/) website. You can define your pages as `yaml` files and provide notebooks,
