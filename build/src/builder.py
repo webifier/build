@@ -14,7 +14,7 @@ class Builder:
     repo_full_name: str
     assets_dir: str = 'assets'
     markdown_extensions: th.Optional[th.Iterable[str]] = (
-        'md_in_html', 'codehilite', 'fenced_code', 'tables', 'attr_list')
+        'md_in_html', 'codehilite', 'fenced_code', 'tables', 'attr_list', 'footnotes', 'def_list')
     checked_indices: set = field(default_factory=set)
 
     @patch_decorator
@@ -146,7 +146,7 @@ class Builder:
         if index is None:
             index_file = f'{index_file}{"" if index_file.endswith(".yml") or index_file.endswith(".yaml") else ".yml"}'
             assert os.path.isfile(index_file), \
-                f"{index_type.capitalize()} file {f'{index_file}.yml'} could not be found!"
+                f"{index_type.capitalize()} file {index_file} could not be found!"
             index = read_yaml(index_file)
             if index_file in self.checked_indices:
                 return index
