@@ -51,14 +51,15 @@ def remove_ending(string, ending):
     return string if not string.endswith(ending) else string.rsplit(ending, 1)[0]
 
 
-def prepend_baseurl(url, baseurl=None):
+def prepend_baseurl(url, baseurl=None, handle_html=True):
     """Prepend base url to url and remove the redundant [index][.html] ending"""
     prepend = f'/{baseurl}' if baseurl is not None else ''
     result = url if baseurl is None else (f'{prepend}/{url}' if not prepend.endswith(
         '/') else f'{prepend}{url}')
-    result = result if result.endswith('.html') else f'{result}.html'
-    if baseurl is not None:
-        result = remove_ending(result, 'index.html')
+    if handle_html:
+        result = result if result.endswith('.html') else f'{result}.html'
+        if baseurl is not None:
+            result = remove_ending(result, 'index.html')
     return result
 
 
@@ -67,7 +68,7 @@ def process_file(
         target: str,
         src_dir: th.Optional[str] = None,
         target_dir: th.Optional[str] = None,
-        baseurl: th.Optional[str] = None
+        baseurl: th.Optional[str] = None,
 ):
     """
     Process file and move it to target dir only if it is located locally. Returns new path upon move.
@@ -82,7 +83,7 @@ def process_file(
         os.makedirs(f'{target_dir}{base_dir}', exist_ok=True)
     target = f'{target_dir}{target}'
     shutil.copy2(src, target)
-    return prepend_baseurl(target, baseurl)
+    return prepend_baseurl(target, baseurl, handle_html=False)
 
 
 def data_name(index_file: str, index_type: str):
