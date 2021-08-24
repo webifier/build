@@ -1,4 +1,3 @@
-
 <!-- Local CSS Stylesheets -->
 
 <link rel="stylesheet" href="{{ '/assets/css/jupyter.css' | prepend: site.baseurl }}">
@@ -41,6 +40,7 @@
             }
         });
 
+
 </script>
 <link rel="stylesheet" href="{{ '/assets/css/codehilite.css' | prepend: site.baseurl }}">
 <link rel="stylesheet" href="{{ '/assets/css/main.css' | prepend: site.baseurl }}">
@@ -54,5 +54,9 @@
   gtag('js', new Date());
 
   gtag('config', '{{site.data.index.config.google_analytics_id}}');
+
 </script>
 {% endif %}
+
+<!--viewport meta-tag for responsiveness-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
