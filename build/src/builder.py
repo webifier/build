@@ -172,11 +172,12 @@ class Builder:
             else:
                 index['nav'] = self.build_object(index['nav'], assets_src_dir=assets_src_dir,
                                                  assets_target_dir=assets_target_dir)
-
             if isinstance(index['nav'], dict) and 'content' in index['nav']:
                 index['nav']['content'] = self.build_object(index['nav']['content'], assets_src_dir=assets_src_dir,
                                                             assets_target_dir=assets_target_dir)
-
+            if isinstance(index['nav'], dict) and 'fixed' in index['nav']:
+                index['nav']['fixed'] = self.build_object(index['nav']['fixed'], assets_src_dir=assets_src_dir,
+                                                          assets_target_dir=assets_target_dir)
         index['title'] = index.get('title', index_type.capitalize())
         for key, value in index.items():
             if key in ['title', 'nav', 'meta', 'config']:

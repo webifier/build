@@ -4,8 +4,8 @@
     {% include link.html link=site.data.index.nav.brand class="btn navbar-brand" %}
     {% endif %}
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav  mb-lg-0">
-            {% assign links = site.data.index.nav.content | site.data.index.nav %}
+        <ul class="navbar-nav  mb-0">
+            {% assign links = site.data.index.nav.content | default: site.data.index.nav %}
             {% assign page_url = page.url | prepend: site.baseurl %}
             {% for link in links %}
             <li class="nav-item">
@@ -25,6 +25,12 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            {% assign fixed_links = include.fixed | default: include.nav.fixed | default: site.data.index.nav.fixed %}
+            {% for link in fixed_links %}
+                {% include link.html link=link class="btn nav-link" %}
+            {% endfor %}
+
             {% if colab %}
             {% comment %}
             <!--todo: add automatic table of content for notebooks-->
