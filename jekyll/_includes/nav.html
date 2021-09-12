@@ -5,69 +5,73 @@
 {% assign links = site.data.index.nav %}
 {% endif %}
 <nav class="px-2 navbar navbar-expand-lg navbar-light bg-light m-0 p-2 sticky-top shadow">
-        {% if site.data.index.nav.brand %}
-        {% include link.html link=site.data.index.nav.brand class="btn navbar-brand" %}
-        {% endif %}
-        <div
-                {% if links or site.data.index.config.search != null %}
-                class="collapse navbar-collapse p-0 m-0"
-                id="navbarSupportedContent"
+    {% if site.data.index.nav.brand %}
+    {% include link.html link=site.data.index.nav.brand class="btn navbar-brand" %}
+    {% endif %}
+    <div
+            {% if links or site.data.index.config.search !=null %}
+            class="collapse navbar-collapse p-0 m-0"
+            id="navbarSupportedContent"
+            {% else %}
+            class="p-0 m-0 navbar-collapse"
+            {% endif %}
+    >
+        <ul class="navbar-nav me-auto my-1 p-0">
+            {% assign page_url = page.url | prepend: site.baseurl %}
+            {% for link in links %}
+            <li class="nav-item">
+                {% assign cur_url = link.link | remove: "index.html" %}
+                {% if page_url == link.link or page_url == cur_url %}
+                {% include link.html link=link class="btn nav-link active" %}
                 {% else %}
-                class="p-0 m-0 navbar-collapse"
+                {% include link.html link=link class="btn nav-link" %}
                 {% endif %}
-        >
-            <ul class="navbar-nav me-auto my-1 p-0">
-                {% assign page_url = page.url | prepend: site.baseurl %}
-                {% for link in links %}
-                <li class="nav-item">
-                    {% assign cur_url = link.link | remove: "index.html" %}
-                    {% if page_url == link.link or page_url == cur_url %}
-                    {% include link.html link=link class="btn nav-link active" %}
-                    {% else %}
-                    {% include link.html link=link class="btn nav-link" %}
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-            {% if site.data.index.config.search != null %}
-            <form class="ms-auto d-flex my-0 p-0 py-0" action="/search" method="get" target="_blank">
-                <div class="input-group input-group-sm no-border p-0">
-                    <input type="text" class="form-control no-border py-0 form-control-sm" placeholder="Search" aria-label="search"
-                           aria-describedby="basic-addon1"  name="q">
-                    <button class="input-group-text btn btn-secondary"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-            {% endif %}
-        </div>
-        <div class="d-flex my-1 ms-auto">
-            {% if links or site.data.index.config.search != null %}
-            <button class="navbar-toggler btn" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            {% endif %}
-            {% assign fixed_links = include.fixed | default: include.nav.fixed | default: site.data.index.nav.fixed %}
-            {% for link in fixed_links %}
-            {% include link.html link=link class="btn nav-item mt-1" %}
+            </li>
             {% endfor %}
-
-            {% if colab %}
-            {% comment %}
-            <!--todo: add automatic table of content for notebooks-->
-            <!--<button class="nav-link btn">-->
-            <!--    <i class="fas fa-list"></i>-->
-            <!--</button>-->
-
-            <!--todo: add printing functionality to notebooks-->
-            <!--<button class="nav-link btn" onclick="window.print();">-->
-            <!--    <i class="fas fa-print"></i>-->
-            <!--</button>-->
-            {% endcomment %}
-            <a class="nav-link my-0" href="{{ colab }}">
-                <img src="{{ '/assets/images/colab-badge.svg' | prepend: site.baseurl }}" height="15px"
-                     alt="Open in colab">
-            </a>
-            {% endif %}
+        </ul>
+        {% if site.data.index.config.search != null %}
+        <div class="ms-auto d-flex my-0 p-0 py-0">
+            <div class="input-group input-group-sm no-border p-0">
+                <input type="text" class="form-control no-border py-0 form-control-sm" placeholder="Search"
+                       aria-label="search"
+                       aria-describedby="basic-addon1" name="q" id="search-input">
+                <button class="input-group-text btn btn-secondary"><i class="fas fa-search"></i></button>
+            </div>
         </div>
+        {% endif %}
+    </div>
+    <div class="d-flex my-1 ms-auto">
+        {% if links or site.data.index.config.search != null %}
+        <button class="navbar-toggler btn" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        {% endif %}
+        {% assign fixed_links = include.fixed | default: include.nav.fixed | default: site.data.index.nav.fixed %}
+        {% for link in fixed_links %}
+        {% include link.html link=link class="btn nav-item mt-1" %}
+        {% endfor %}
+
+        {% if colab %}
+        {% comment %}
+        <!--todo: add automatic table of content for notebooks-->
+        <!--<button class="nav-link btn">-->
+        <!--    <i class="fas fa-list"></i>-->
+        <!--</button>-->
+
+        <!--todo: add printing functionality to notebooks-->
+        <!--<button class="nav-link btn" onclick="window.print();">-->
+        <!--    <i class="fas fa-print"></i>-->
+        <!--</button>-->
+        {% endcomment %}
+        <a class="nav-link my-0" href="{{ colab }}">
+            <img src="{{ '/assets/images/colab-badge.svg' | prepend: site.baseurl }}" height="15px"
+                 alt="Open in colab">
+        </a>
+        {% endif %}
+    </div>
 </nav>
+{% if site.data.index.config.search != null %}
+{% include search.html %}
+{% endif %}

@@ -1,0 +1,19 @@
+---
+layout: none
+---
+[
+  {% for item in site.data.search %}
+    {% assign value = item[1] %}
+    {
+      "title"    : "{{ value.title | strip_html | escape }}",
+      "url"      : "{{ value.url }}"
+      {% if value.category %}
+      ,"category" : "{{ value.category }}"
+      {% endif %}
+      {% if value.description %}
+      ,"description" : "{{value.description | strip_html | strip_newlines | escape }}"
+      ,"description_raw" : "{{value.description}}"
+      {% endif %}
+    } {% unless forloop.last %},{% endunless %}
+  {% endfor %}
+]

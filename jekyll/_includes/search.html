@@ -1,0 +1,51 @@
+<div
+        id="search-results-div"
+        class="w-100 bg-light p-3"
+        style="position: relative; top: 0%; left: 0%; display: none;"
+>
+    <div class="container">
+        <h5>Search Results:</h5>
+        <div class="list-group" id="search-results"></div>
+    </div>
+</div>
+<!-- Jekyll Instant Search Configuration -->
+<script>
+const searchInput =  document.getElementById('search-input');
+const resultsContainer = document.getElementById('search-results');
+const resultsContainerDiv = document.getElementById('search-results-div');
+const searchTemplateDes = `
+    <a href="{url}" class="list-group-item flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{title}</h5>
+            <small>{category}</small>
+        </div>
+        <p class="mb-1">{description_raw}</p>
+    </a>
+`;
+
+SimpleJekyllSearch({
+    searchInput: searchInput,
+    resultsContainer: resultsContainer,
+    searchResultTemplate: searchTemplateDes,
+    noResultsText: '<p>No results found!</p>',
+    templateMiddleware: function(prop, value, template) {
+        if( prop === "description_raw" && value === ""){
+            return "";
+        }
+
+  },
+    json: '/search.json'
+})
+searchInput.addEventListener('input', function () {
+    if( this.value ){
+        resultsContainerDiv.style.display = "block";
+    } else {
+        resultsContainerDiv.style.display = "none";
+    }
+
+});
+
+
+
+
+</script>

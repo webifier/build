@@ -45,17 +45,17 @@ def process_content(builder, link, kind):
     else:
         metadata_path = None
     builder.checked_content[filename] = link
-
+    content = generate_notebook_html(
+        builder=builder,
+        src=filename,
+        assets_dir=builder.assets_dir,  # where to move notebook assets
+    ) if kind == 'notebook' else build_markdown(builder, read_file(filename))
     create_jekyll_file(
         target=jekyll_target_file,
         header=create_jekyll_content_header(
             metadata_path=metadata_path,
             colab_url=get_colab_url(content, repo_full_name=builder.repo_full_name) if kind == 'notebook' else None
         ),
-        body=generate_notebook_html(
-            builder=builder,
-            src=filename,
-            assets_dir=builder.assets_dir,  # where to move notebook assets
-        ) if kind == 'notebook' else build_markdown(builder, read_file(filename))
+        body=content
     )
     return link

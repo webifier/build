@@ -17,7 +17,18 @@ class Builder:
         'md_in_html', 'codehilite', 'fenced_code', 'tables', 'attr_list', 'footnotes', 'def_list')
     checked_indices: set = field(default_factory=set)
     checked_content: set = field(default_factory=dict)
-    search_list: list = field(default_factory=list)
+    search_dict: list = field(default_factory=dict)
+
+    def add_search_item(self, slug, url, title, description=None, content=None, kind=None, ):
+        result = dict(title=title, url=url)
+        result['description'] = description if description else ''
+        result['content'] = content if content else ''
+        result['category'] = kind if kind else ''
+        self.search_dict[slug] = result
+
+    def save_search_list(self, path='_data/search.yml'):
+        print('Writing search dict to', path)
+        save_yaml(self.search_dict, path)
 
     @patch_decorator
     def build_person(self, person, assets_src_dir=None, assets_target_dir=None):
@@ -31,7 +42,7 @@ class Builder:
 
         # build contact links
         for idx, contact_info in enumerate(person.get('contact', [])):
-            person['contact'][idx] = self.build_link(contact_info, None)
+            person['contact'][idx] = self.build_link(contact_info, None, track_search=False)
             if 'github.com' in contact_info['link']:
                 # if no image was provided use person github profile picture instead
                 image = f"{contact_info['link']}.png"
@@ -55,15 +66,13 @@ class Builder:
         return person
 
     @patch_decorator
-    def build_link(self, link, assets_src_dir=None, assets_target_dir=None):
+    def build_link(self, link, assets_src_dir=None, assets_target_dir=None, track_search=True):
         assets_target_dir = self.assets_dir if assets_target_dir is None else assets_target_dir
         # patching
         for key, value in link.items():
             link[key] = patch(value)
-        if 'notebook' in link:
-            link = process_content(builder=self, link=link, kind='notebook')
-        elif 'md' in link:
-            link = process_content(builder=self, link=link, kind='md')
+        if 'notebook' in link or 'md' in link:
+            link = process_content(builder=self, link=link, kind='notebook' if 'notebook' in link else 'md')
         elif 'index' in link:
             index = self.build_index(index_file=link['index'])
             if 'text' not in link:
@@ -74,6 +83,7 @@ class Builder:
             if 'description' not in link and 'header' in index and 'description' in index['header']:
                 link['description'] = index['header']['description']
             link['link'] = prepend_baseurl(link["index"], baseurl=self.base_url)
+            link['kind'] = 'Page'
         elif 'pdf' in link:
             file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=self.base_url)
             if file_path:
@@ -96,6 +106,13 @@ class Builder:
                     link['image']['src'] = image_src
                 else:
                     link['image'] = image_src
+        if track_search and ('kind' not in link or link['kind'] != 'person') and not link['link'].startswith('#'):
+            if 'kind' not in link and link['link'].endswith('.pdf'):
+                link['kind'] = 'PDF'
+            self.add_search_item(
+                slug=link['link'], url=link['link'], title=link.get('text', link.get('kind', 'External link')),
+                description=link.get('description', None), kind=link.get('kind', 'External'))  # todo: add full search
+
         return link
 
     @patch_decorator
