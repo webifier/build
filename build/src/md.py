@@ -1,7 +1,7 @@
 import markdown
-from .io_utils import process_file
 import typing as th
 import re
+from .html import process_html
 
 URL_REGEX = re.compile('src=\"(?P<url>((http|ftp)s?:\/\/)?(-\.)?[\w\d\S]+)\"')
 
@@ -9,20 +9,12 @@ URL_REGEX = re.compile('src=\"(?P<url>((http|ftp)s?:\/\/)?(-\.)?[\w\d\S]+)\"')
 def build_markdown(
         builder,
         raw: str,
+        assets_src_dir=None,
+        assets_target_dir=None,
         extensions: th.Optional[th.Iterable[str]] = None
 ):
     """Process raw markdown str and process its local assets if necessary
-
     """
+    assets_target_dir = builder.assets_dir if assets_target_dir is None else assets_target_dir
     body = markdown.markdown(raw, extensions=extensions if extensions else builder.markdown_extensions)
-
-    # move assets to `assets_dir`
-    asset_remap = dict()
-    for result in re.finditer(URL_REGEX, body):
-        remap = process_file(result.group('url'), result.group('url'), target_dir=builder.assets_dir,
-                             baseurl=builder.base_url)
-        if remap:
-            asset_remap[result.group('url')] = remap
-    for src, remap in asset_remap.items():
-        body = re.sub(f"src=\"{src}\"", f'src="{remap}"', body)
-    return body
+    return process_html(builder, body, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)

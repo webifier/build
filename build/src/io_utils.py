@@ -73,7 +73,7 @@ def process_file(
     """
     Process file and move it to target dir only if it is located locally. Returns new path upon move.
     """
-    if '://' in src:
+    if '://' in src or src.startswith('data:'):
         return False
     base_dir = '/'.join(target.split('/')[:-1])
     target_dir = '' if not target_dir else (target_dir if target_dir.endswith('/') else f'{target_dir}/')

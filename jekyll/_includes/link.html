@@ -8,7 +8,6 @@
         {% endif %}
     {% endunless %}
 {% endif %}
-
 {% if include.link.md %}
     {% assign link_kind = "Markdown" %}
     {% assign metadata_name = include.link.md | replace: "/", "_" | remove: " " | append: "_metadata" %}
@@ -18,7 +17,6 @@
         {% assign link_url = "/" | append: include.link.md | prepend: site.baseurl   %}
     {% endunless %}
 {% endif %}
-
 {% if include.link.notebook %}
     {% assign link_kind = "Notebook" %}
     {% assign metadata_name = include.link.notebook | replace: "/", "_" | remove: " " | append: "_metadata" %}
@@ -28,7 +26,6 @@
         {% assign link_url = "/" | append: include.link.notebook | prepend: site.baseurl   %}
     {% endunless %}
 {% endif %}
-
 {% if include.link.index %}
     {% assign index_tag = include.link.index | replace: "/", "_" | remove: " " %}
     {% assign link_kind = "Page" %}
@@ -38,14 +35,11 @@
         {% assign link_url = "/" | append: include.link.index | prepend: site.baseurl | append: ".html" %}
     {% endunless %}
 {% endif %}
-
-
 {% assign link_url = include.url | default : include.link.link | default: link_url  %}
 {% assign link_text = include.text | default: include.link.text | default: link_text %}
 {% assign link_icon = include.icon | default: include.link.icon %}
 {% assign link_description = include.description | default: include.link.description | default: link_description %}
 {% assign link_kind = include.kind | default: include.link.kind | default: link_kind %}
-
 {% unless include.grouped %}
     <a href="{{ link_url }}" class="{{include.class}}"
        {% if include.description or include.link.description %}
@@ -59,7 +53,6 @@
     {% if include.icon or include.link.icon %}
         <i class="{{ include.icon | default: include.link.icon }}" aria-hidden="true"></i>
     {% endif %}
-
     {% if include.image or include.link.image %}
         <img
             src="{{include.link.image.src | default: include.link.image | default: include.image.src | default: include.image }}"
@@ -68,7 +61,6 @@
             class="{{include.link.image.class |  default: "d-inline-block" }}"
         >
     {% endif %}
-
     {% if include.text or include.link.text %}
         {{ include.text | default: include.link.text  }}
     {% else %}
@@ -84,7 +76,6 @@
                 {% if include.icon or include.link.icon %}
                     <i class="{{ include.icon | default: include.link.icon }}" aria-hidden="true"></i>
                 {% endif %}
-
                 {% if include.image or include.link.image %}
                     <img
                         src="{{include.link.image.src | default: include.link.image | default: include.image.src | default: include.image }}"
@@ -93,7 +84,6 @@
                         class="{{include.link.image.class |  default: "d-inline-block" }}"
                     >
                 {% endif %}
-
                 {% if include.text or include.link.text %}
                     {{ include.text | default: include.link.text  }}
                 {% else %}
@@ -112,7 +102,6 @@
                 {% endif %}
             {% endif %}
         </div>
-
         {% if include.description or include.link.description  %}
             <div class="mb-1">
                 {{ include.description | default: include.link.description }}

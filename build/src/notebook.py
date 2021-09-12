@@ -3,12 +3,11 @@ from bs4 import BeautifulSoup
 import nbconvert
 import nbformat
 import os
-import re
 import typing as th
-from .io_utils import process_file
+from .html import process_html
 
 
-def generate_notebook_html(src: str, assets_dir: th.Optional[str] = None, base_url: th.Optional[str] = None):
+def generate_notebook_html(builder, src: str, assets_dir: th.Optional[str] = None):
     """Generates notebook html body and move its assets to `assets_dir`
 
     Arguments:
@@ -34,31 +33,5 @@ def generate_notebook_html(src: str, assets_dir: th.Optional[str] = None, base_u
 
     soup = BeautifulSoup(body, 'html.parser')
     body = "".join(map(str, soup.select('#notebook-container')[0].contents))
-
-    # find & move resource files
     notebook_dir, _ = os.path.split(src)
-    all_files = glob.glob(os.path.join(
-        notebook_dir, '**', '*.*'), recursive=True)
-    for asset in filter(lambda name: name != src, all_files):
-        _, filename = os.path.split(asset)
-
-        pattern = r'src=".*' + filename + r'"'
-        if not re.search(pattern, body):
-            continue
-
-        target_file = process_file(asset, asset, target_dir=assets_dir, baseurl=base_url)
-        if target_file:
-            body = re.sub(pattern, f'src="{target_file}"', body)
-    # replace attachment sources
-    images = {}
-    for cell in notebook['cells']:
-        if 'attachments' in cell:
-            attachments = cell['attachments']
-            for filename, attachment in attachments.items():
-                for mime, base64 in attachment.items():
-                    images[f'attachment:{filename}'] = f'data:{mime};base64,{base64}'
-    for src, base64 in images.items():
-        body = body.replace(f'src="{src}"', f'src="{base64}"')
-
-    return body
-
+    return process_html(builder, body, assets_target_dir=assets_dir, assets_src_dir=notebook_dir)
