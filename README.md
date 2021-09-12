@@ -73,9 +73,9 @@ MIT License, see [webifier/build/LICENSE](https://github.com/webifier/build/blob
 There are a number of improvements that can enlarge Webifier's usability. What follows is a list of the ideas that we
 have in mind, feel free to suggest your ideas by opening up a feature request issue.
 
-* [ ] **Inline Link Definition**: enable automatic processing of index/content links mentioned in markdown or notebook
+* [x] **Inline Link Definition**: enable automatic processing of index/content links mentioned in markdown or notebook
   texts.
-* [ ] **Search**: add automatic (full-text) search functionality for index and content (markdown/notebook) pages.
+* [x] **Search**: add automatic (full-text) search functionality for index and content (markdown/notebook) pages.
 * [ ] **Print content**: add automatic print (and export as pdf) functionality for content content (markdown/notebook)
   pages.
 * [ ] **Table of Content**: add automatic creation of a customizable multi-level table of content for all pages.
