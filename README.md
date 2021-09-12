@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Webify
-        uses: webifier/build@v0.0.9
+        uses: webifier/build@master # in order to get the last code specify branch name or else specify intended version
         #with:
         # baseurl: '' # if you are webifying a `<name>.github.io` repository or don't wish to have the content of this 
         #              # repository to be referred to with a "<repository-name>/" slug
