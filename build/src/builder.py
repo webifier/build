@@ -16,6 +16,8 @@ class Builder:
     markdown_extensions: th.Optional[th.Iterable[str]] = (
         'md_in_html', 'codehilite', 'fenced_code', 'tables', 'attr_list', 'footnotes', 'def_list')
     checked_indices: set = field(default_factory=set)
+    checked_content: set = field(default_factory=dict)
+    search_list: list = field(default_factory=list)
 
     @patch_decorator
     def build_person(self, person, assets_src_dir=None, assets_target_dir=None):

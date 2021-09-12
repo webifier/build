@@ -20,7 +20,11 @@ def process_content(builder, link, kind):
     content_dir = '/'.join(content.split('/')[:-1]) if os.path.isfile(content) else content
     filename = os.path.join(content_dir, f'index.{"ipynb" if kind == "notebook" else "md"}') if not os.path.isfile(
         content) else content
-
+    if filename in builder.checked_content:
+        return builder.checked_content[filename]
+    jekyll_target_file = os.path.join(filename.replace(".ipynb" if kind == "notebook" else ".md", '.html'))
+    link['link'] = prepend_baseurl(jekyll_target_file, builder.base_url)
+    link['kind'] = kind
     # if metadata is not available don't copy it
     metadata_path = link.get('metadata', os.path.join(content_dir, 'metadata.yml'))
     metadata_path = \
@@ -40,7 +44,8 @@ def process_content(builder, link, kind):
             link['description'] = metadata['header']['description']
     else:
         metadata_path = None
-    jekyll_target_file = os.path.join(filename.replace(".ipynb" if kind == "notebook" else ".md", '.html'))
+    builder.checked_content[filename] = link
+
     create_jekyll_file(
         target=jekyll_target_file,
         header=create_jekyll_content_header(
@@ -53,8 +58,4 @@ def process_content(builder, link, kind):
             assets_dir=builder.assets_dir,  # where to move notebook assets
         ) if kind == 'notebook' else build_markdown(builder, read_file(filename))
     )
-
-    link['link'] = prepend_baseurl(jekyll_target_file, builder.base_url)
-    link['kind'] = kind
-
     return link
