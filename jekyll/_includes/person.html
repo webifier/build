@@ -11,18 +11,19 @@
 {% assign person_image = include.person.image | default: include.image %}
 <div
         {% if include.person.bio== null %}
-            class="col-xl-2 col-lg-3 col-md-3 col-sm-8 col-11 mb-1 mb-lg-0"
+            class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-1 mb-lg-0"
         {% else %}
-            class="col-xl-9 col-lg-9 col-md-11 col-sm-8 col-11 mb-1 mb-lg-0"
+            class="col-xl-11 col-lg-11 col-md-12 col-sm-12 col-12 mb-1 mb-lg-0"
         {% endif %}
         style="position: relative;"
 >
     <div class="hover-shadow card shadow-sm border-0  rounded mx-5 mx-sm-0 mx-md-0 mx-lg-0 mx-xl-0 mx-xxl-0 my-2 my-sm-3 my-md-3 my-lg-3 my-xl-3 my-xxl-3">
         <div class="row g-0">
             {% if include.person.bio != null and person_image != null %}
-                <div class="col-md-3 col-lg-4">
-                    <img alt="" class="img-fluid rounded-start"
+                <div class="col-md-3 col-lg-4 text-center">
+                    <img alt="" class="img-fluid rounded"
                          src="{{ include.image | default: include.person.image  }}"
+                         style="max-height: 300px;"
                     >
                 </div>
             {% endif %}
