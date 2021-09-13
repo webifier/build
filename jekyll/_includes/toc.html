@@ -126,7 +126,12 @@
                     {% else %}
                         <!--generic media links-->
                         {% if content[0] %}
-                            {% include links.html links=content inline=include.inline %}
+                            {% if value.kind == "block" %}
+                            {% assign kind_block = true %}
+                            {% else %}
+                            {% assign kind_block = false %}
+                            {% endif %}
+                            {% include links.html links=content inline=include.inline kind_block=kind_block %}
                         {% else %}
                             {% if value.first %}
                                 {% include toc.html index=value inline=true level=include.level %}
