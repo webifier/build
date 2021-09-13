@@ -4,7 +4,7 @@ import collections
 import yaml
 import os
 import functools
-
+import copy
 YamlNode = th.Union[th.Dict[str, 'YamlNode'], th.List['YamlNode'], str]
 
 # preserve ordering in loading and saving yml
@@ -104,9 +104,9 @@ def patch(obj=None):
 
 def patch_with_key(patch_key, obj=None):
     """Patch object with patch file if any provided"""
-    patched = obj
+    patched = copy.deepcopy(obj)
     result = []
-    for path in obj[patch_key] if isinstance(obj[patch_key], list) else [obj[patch_key]]:
+    for path in patched[patch_key] if isinstance(patched[patch_key], list) else [patched[patch_key]]:
         if path.endswith('.yml') or path.endswith('.yaml'):
             patch_result = read_yaml(path)
         else:
@@ -115,22 +115,23 @@ def patch_with_key(patch_key, obj=None):
 
     if len(obj) > 1 and not isinstance(obj[patch_key], list):
         patched = collections.OrderedDict()
-        for key, value in obj.items():
+        for key, value in copy.deepcopy(obj).items():
             if key == patch_key:
                 if isinstance(result[0], dict):
                     for patched_key, patched_value in result[0].items():
                         patched[patched_key] = patched_value
+
                 else:
-                    assert 'content' not in obj, 'cannot patch to existing content'
+                    assert 'content' not in obj, f'cannot patch to existing content, {obj}'
                     patched['content'] = result[0]
                 continue
             patched[key] = value
     elif isinstance(obj[patch_key], list) and isinstance(obj.get('content', None), list):
         idxs = {key: idx for idx, key in enumerate(obj)}
-        patched['content'] = result + obj['content'] if idxs[patch_key] < idxs['content'] \
-            else obj['content'] + result
+        patched['content'] = result + copy.deepcopy(obj['content']) if idxs[patch_key] < idxs['content'] \
+            else copy.deepcopy(obj['content']) + result
         del patched[patch_key]
-    elif isinstance(obj[patch_key], list) and len(obj) > 1:
+    elif isinstance(obj[patch_key], list) and ('content' not in obj or isinstance(obj['content'], list)):
         assert 'content' not in obj, 'cannot patch list to none list content'
         patched['content'] = result
         del patched[patch_key]

@@ -6,6 +6,7 @@ from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
 import typing as th
 import os
+import copy
 
 
 @dataclass
@@ -119,6 +120,7 @@ class Builder:
     def build_object(self, obj, image_key=None, assets_src_dir=None, assets_target_dir=None):
         """Process the self replicating structure of objects in `index.yml`
         """
+        obj = copy.deepcopy(obj)
         assets_target_dir = self.assets_dir if assets_target_dir is None else assets_target_dir
         # building object content
         if isinstance(obj, list):
@@ -129,8 +131,8 @@ class Builder:
         elif isinstance(obj, dict):
             if 'kind' in obj and obj['kind'] == 'chapters':
                 for idx, item in enumerate(obj['content']):
-                    obj[idx] = self.build_index(item, assets_src_dir=assets_src_dir,
-                                                assets_target_dir=assets_target_dir)
+                    obj['content'][idx] = self.build_index(item, assets_src_dir=assets_src_dir,
+                                                           assets_target_dir=assets_target_dir)
             else:
                 if 'kind' in obj and obj['kind'] == 'people':
                     for item in obj['content']:
