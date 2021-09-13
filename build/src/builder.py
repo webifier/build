@@ -89,6 +89,7 @@ class Builder:
             file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=self.base_url)
             if file_path:
                 link['pdf'] = file_path
+            link['link'] = file_path if file_path else link['pdf']
         elif 'kind' in link and link['kind'] == 'person':
             link = self.build_person(link, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
         if 'description' in link and 'index' not in link:
