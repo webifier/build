@@ -54,7 +54,7 @@ def process_content(builder, link, kind):
         target=jekyll_target_file,
         header=create_jekyll_content_header(
             metadata_path=metadata_path,
-            colab_url=get_colab_url(content, repo_full_name=builder.repo_full_name) if kind == 'notebook' else None
+            colab_url=get_colab_url(content_dir, repo_full_name=builder.repo_full_name) if kind == 'notebook' else None
         ),
         body=content
     )
