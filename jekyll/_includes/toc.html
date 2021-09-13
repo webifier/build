@@ -78,13 +78,13 @@
                     <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2
                         col-xxl-2 p-2 d-flex text-muted justify-content-center"
                     >
-                        <strong>{{label | capitalize }}</strong>
+                        <strong>{{label}}</strong>
                     </div>
                 {% else %}
                     {% if pair[1].label.position != null and pair[1].label.position == "top" %}
                         <div class="text-white  text-muted text-center col-12 bg-dark py-3">
                             <span class="bg-dark shadow-lg bg-dark p-3 px-5 w-100"><strong>
-                                {{label | capitalize}}</strong>
+                                {{label}}</strong>
                             </span>
                         </div>
                     {% endif %}
@@ -92,7 +92,7 @@
             {% endif %}
             {% if include.inline != null and pair[1].label != false %}
                 <span class="text-muted pt-2 pb-1">
-                    <strong>{{label | capitalize }}</strong>
+                    <strong>{{label}}</strong>
                 </span>
             {% endif %}
             <div
@@ -144,7 +144,7 @@
                 {% endif %}
                 <div class="text-white  text-muted text-center col-12 bg-dark py-3">
                     <span class="bg-dark shadow-lg bg-dark p-3 px-5 w-100"><strong>
-                        {{label | capitalize}}
+                        {{label}}
                     </strong></span>
                 </div>
             {% endif %}
