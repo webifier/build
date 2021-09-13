@@ -25,14 +25,14 @@ def process_html(builder, raw_html, assets_src_dir=None, assets_target_dir=None)
 
 
 def process_html_anchor(builder, soup, anchor, assets_src_dir=None, assets_target_dir=None):
-    assert 'href' in anchor.attrs, 'no link specified for anchor!'
     link = {key: anchor[key] for key in anchor.attrs if key not in ['href', 'class']}
     if anchor.text:
         link['text'] = anchor.text
-    match_dict = re.match(HREF_REGEX, anchor['href']).groupdict()
-    link[match_dict['type'] or 'link'] = match_dict['url']
-    link = builder.build_link(link, assets_src_dir=assets_src_dir)
-    anchor['href'] = link['link']
+    if 'href' in anchor.attrs:
+        match_dict = re.match(HREF_REGEX, anchor['href']).groupdict()
+        link[match_dict['type'] or 'link'] = match_dict['url']
+        link = builder.build_link(link, assets_src_dir=assets_src_dir)
+        anchor['href'] = link['link']
     if 'text' in link:
         anchor.string = link['text']
     if 'icon' in link:
