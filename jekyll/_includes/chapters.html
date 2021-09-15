@@ -1,4 +1,4 @@
-{% assign to_remove = "`,~,!,@,#,$,%,^,&,*,(,),_,-,=,+,[,{,],},\,|,;,:,',<,>" | split: "," %}
+{% assign to_remove = "`,~,!,@,#,$,%,^,&,*,(,),_,-,=,+,[,{,],},\,|,;,:,',<,>,." | split: "," %}
 <div class="shadow accordion accordion-flush px-0" id="accordion-{{include.level}}-{{index_tag}}">
     {% for chapter in include.content %}
     {% assign tag = chapter.title | remove: " " | remove: "," | remove: """ %}
