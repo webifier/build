@@ -1,7 +1,7 @@
 <div
         id="search-results-div"
-        class="w-100 bg-light p-3"
-        style="position: relative; top: 0%; left: 0%; display: none;"
+        class="w-100 bg-light p-4 overflow-auto"
+        style="position: relative; top: 0%; left: 0%; display: none; max-height: 90vh;"
 >
     <div class="container">
         <h5>Search Results:</h5>
@@ -28,13 +28,14 @@ SimpleJekyllSearch({
     resultsContainer: resultsContainer,
     searchResultTemplate: searchTemplateDes,
     noResultsText: '<p>No results found!</p>',
+    limit: 999,
     templateMiddleware: function(prop, value, template) {
         if( prop === "description_raw" && value === ""){
             return "";
         }
 
   },
-    json: '/search.json'
+    json: '{{ site.baseurl }}/search.json'
 })
 searchInput.addEventListener('input', function () {
     if( this.value ){
