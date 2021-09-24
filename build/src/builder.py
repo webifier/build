@@ -60,7 +60,7 @@ class Builder:
 
         # build contact links
         for idx, contact_info in enumerate(person.get('contact', [])):
-            person['contact'][idx] = self.build_link(contact_info, None, track_search=False)
+            person['contact'][idx] = self.build_link(contact_info, None, add_search_item=False)
             if 'github.com' in contact_info['link']:
                 # if no image was provided use person github profile picture instead
                 image = f"{contact_info['link']}.png"
