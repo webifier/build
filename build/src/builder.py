@@ -86,7 +86,7 @@ class Builder:
             link['link'] = prepend_baseurl(link["index"], baseurl=self.base_url)
             link['kind'] = 'Page'
         elif 'pdf' in link:
-            file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', baseurl=self.base_url)
+            file_path = process_file(link['pdf'], link['pdf'], target_dir='assets')
             if file_path:
                 link['pdf'] = file_path
             link['link'] = file_path if file_path else link['pdf']
