@@ -19,5 +19,5 @@ if __name__ == '__main__':
     print(f'baseurl: {args.base_url}, repo_full_name: {args.repo_full_name}')
 
     builder = Builder(base_url=args.base_url, repo_full_name=args.repo_full_name)
-    builder.build_index(index_file=args.index, target_data_file=TARGET_INDEX_FILE)
+    builder.build_index(index_file=args.index, target_data_file=TARGET_INDEX_FILE, init_index=True)
     builder.save_search_list()

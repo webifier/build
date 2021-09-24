@@ -4,8 +4,8 @@
 
     <!--generic content spaces-->
     {% for pair in include.index %}
-        {% if pair[0] == "title" or pair[0] == "nav" or pair[0] =="footer" or pair[0] =="header"
-            or pair[0] == "meta" or pair[0] == "config" %}
+        {% if pair[0] == "title" or pair[0] == "nav" or pair[0] == "footer" or pair[0] =="header"
+            or pair[0] == "meta" or pair[0] == "config" or pair[0] == "search" %}
             {% continue %}
         {% endif %}
 
