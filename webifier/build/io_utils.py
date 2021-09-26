@@ -157,7 +157,7 @@ def patch_decorator(func):
 
 
 def mix_folders(root_src_dir, root_target_dir):
-    if root_target_dir == root_src_dir:
+    if root_src_dir == root_target_dir:
         return
     for src_dir, dirs, files in os.walk(root_src_dir):
         dst_dir = src_dir.replace(root_src_dir, root_target_dir, 1)
