@@ -11,9 +11,9 @@
 {% assign person_image = include.person.image | default: include.image %}
 <div
         {% if include.person.bio == null %}
-            class="col-xl-3 col-lg-3 col-md-3 col-sm-4 col-12 mb-1 mb-lg-0"
+            class="{{ include.style.normal_class | default: "col-xl-3 col-lg-3 col-md-3 col-sm-4 col-12 mb-1 mb-lg-0"}}"
         {% else %}
-            class="col-xl-11 col-lg-11 col-md-12 col-sm-12 col-12 mb-1 mb-lg-0"
+            class="{{ include.style.bio_class | default: "col-xl-11 col-lg-11 col-md-12 col-sm-12 col-12 mb-1 mb-lg-0"}}"
         {% endif %}
         style="position: relative;"
 >
