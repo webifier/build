@@ -1,7 +1,8 @@
+{% if site.data.index.config.search.content or site.data.index.config.search.links %}
 <div
         id="search-results-div"
         class="w-100 bg-light p-4 overflow-auto"
-        style="position: relative; top: 0%; left: 0%; display: none; max-height: 90vh;"
+        style="position: relative; top: 0%; left: 0%; display: none; max-height: 40vh;"
 >
     <div class="container">
         <h5>Search Results:</h5>
@@ -33,6 +34,9 @@ SimpleJekyllSearch({
         if( prop === "description_raw" && value === ""){
             return "";
         }
+        if( prop === "category" && value === ""){
+            return "";
+        }
   },
     json: '{{ site.baseurl }}/search.json'
 })
@@ -44,3 +48,4 @@ searchInput.addEventListener('input', function () {
     }
 });
 </script>
+{% endif %}

@@ -9,7 +9,7 @@
     {% include link.html link=site.data.index.nav.brand class="btn navbar-brand" %}
     {% endif %}
     <div
-            {% if links or site.data.index.config.search !=null %}
+            {% if links or site.data.index.config.search.links or site.data.index.config.search.content %}
             class="collapse navbar-collapse p-0 m-0"
             id="navbarSupportedContent"
             {% else %}
@@ -29,7 +29,7 @@
             </li>
             {% endfor %}
         </ul>
-        {% if site.data.index.config.search != null %}
+        {% if site.data.index.config.search.content or site.data.index.config.search.links %}
         <div class="ms-auto d-flex my-0 p-0 py-0">
             <div class="input-group input-group-sm no-border p-0">
                 <input type="text" class="form-control no-border py-0 form-control-sm" placeholder="Search"
@@ -41,7 +41,7 @@
         {% endif %}
     </div>
     <div class="d-flex my-1 ms-auto">
-        {% if links or site.data.index.config.search != null %}
+        {% if links or site.data.index.config.search.links or site.data.index.config.search.content %}
         <button class="navbar-toggler btn" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,4 @@
         {% endif %}
     </div>
 </nav>
-{% if site.data.index.config.search != null %}
 {% include search.html %}
-{% endif %}
