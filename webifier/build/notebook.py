@@ -6,7 +6,7 @@ import typing as th
 from .html import process_html
 
 
-def generate_notebook_html(builder, src: str, assets_dir: th.Optional[str] = None):
+def generate_notebook_html(builder, src: str, assets_dir: th.Optional[str] = None, search_links=False):
     """Generates notebook html body and move its assets to `assets_dir`
 
     Arguments:
@@ -33,4 +33,5 @@ def generate_notebook_html(builder, src: str, assets_dir: th.Optional[str] = Non
     soup = BeautifulSoup(body, 'html.parser')
     body = "".join(map(str, soup.select('#notebook-container')[0].contents))
     notebook_dir, _ = os.path.split(src)
-    return process_html(builder, body, assets_target_dir=assets_dir, assets_src_dir=notebook_dir)
+    return process_html(builder, body, assets_target_dir=assets_dir, assets_src_dir=notebook_dir,
+                        search_links=search_links)

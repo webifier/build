@@ -1,5 +1,6 @@
 from webifier.build import Builder
 from webifier.build.io_utils import mix_folders
+from .__version__ import __version__
 import argparse
 import os
 
@@ -10,8 +11,9 @@ TARGET_INDEX_FILE = 'index.yml'
 
 def main():
     parser = argparse.ArgumentParser(
-        description='''
-        Webify current working directory starting from `index` and spit out the results in `output` directory.
+        description=f'''
+        Webify ({__version__}) current working directory starting from `index` and spit out the results in 
+        `output` directory.
         '''
     )
     parser.add_argument('--remove-source', dest='remove_source',
@@ -24,7 +26,6 @@ def main():
                         dest='index', help='initial page (default: index.yml)', default=BASE_INDEX_FILE)
     parser.add_argument('--output',
                         dest='output', help='build target directory (default: "webified")', default=DEFAULT_OUTPUT_DIR)
-
     args = parser.parse_args()
 
     print(f'baseurl: {args.base_url}, repo_full_name: {args.repo_full_name}')
