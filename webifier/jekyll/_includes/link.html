@@ -93,7 +93,7 @@
                 {% endif %}
             </h5>
             {% if include.kind or include.link.kind %}
-                <small>{{include.kind | default: include.link.kind | capitalize}}</small>
+                <small>{{include.kind | default: include.link.kind }}</small>
             {% else %}
                 {% if include.link.index or include.link.md or include.link.notebook or include.link.pdf %}
                     {% if link_kind %}
