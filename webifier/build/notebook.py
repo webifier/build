@@ -1,4 +1,3 @@
-import glob
 from bs4 import BeautifulSoup
 import nbconvert
 import nbformat

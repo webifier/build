@@ -5,6 +5,7 @@ import yaml
 import os
 import functools
 import copy
+
 YamlNode = th.Union[th.Dict[str, 'YamlNode'], th.List['YamlNode'], str]
 
 # preserve ordering in loading and saving yml
@@ -69,26 +70,28 @@ def process_file(
         src_dir: th.Optional[str] = None,
         target_dir: th.Optional[str] = None,
         baseurl: th.Optional[str] = None,
+        base_output_dir: th.Optional[str] = ''
 ):
     """
     Process file and move it to target dir only if it is located locally. Returns new path upon move.
     """
     if '://' in src or src.startswith('data:'):
         return False
-    base_dir = '/'.join(target.split('/')[:-1])
-    target_dir = '' if not target_dir else (target_dir if target_dir.endswith('/') else f'{target_dir}/')
-    src = src if not src_dir else (f'{src_dir}{src}' if src_dir.endswith('/') else f'{src_dir}/{src}')
+    base_dir = os.path.join(*os.path.split(target)[:-1])
+    src = src if not src_dir else os.path.join(src_dir, src)
     assert os.path.isfile(src), f'{src} file does not exist!'
-    if f'{target_dir}{base_dir}':
-        os.makedirs(f'{target_dir}{base_dir}', exist_ok=True)
-    target = f'{target_dir}{target}'
+    output_dir = os.path.join(base_output_dir, target_dir)
+    if os.path.join(output_dir, base_dir):
+        os.makedirs(os.path.join(output_dir, base_dir), exist_ok=True)
+    target = os.path.join(output_dir, target)
     shutil.copy2(src, target)
     return prepend_baseurl(target, baseurl, handle_html=False)
 
 
 def data_name(index_file: str, index_type: str):
     """Generates the file name of yml files with regards to their type"""
-    return index_file.replace('.html', '').replace('.yml', '').replace('.yaml', '').replace('/', '_').replace(' ', '')
+    return "_".join(os.path.split(index_file)).replace('.html', '').replace('.yml', '').replace('.yaml', '').replace(
+        ' ', '')
 
 
 def patch(obj=None):
@@ -151,3 +154,16 @@ def patch_decorator(func):
         return func(self, *args, **kwargs)
 
     return wrapper
+
+
+def mix_folders(root_src_dir, root_target_dir):
+    for src_dir, dirs, files in os.walk(root_src_dir):
+        dst_dir = src_dir.replace(root_src_dir, root_target_dir, 1)
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+        for file_ in files:
+            src_file = os.path.join(src_dir, file_)
+            dst_file = os.path.join(dst_dir, file_)
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+            shutil.copy(src_file, dst_dir)

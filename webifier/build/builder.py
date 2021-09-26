@@ -13,6 +13,7 @@ import copy
 class Builder:
     base_url: str
     repo_full_name: str
+    output_dir: str = ''
     assets_dir: str = 'assets'
     init_index: tuple = None
     markdown_extensions: th.Optional[th.Iterable[str]] = (
@@ -39,7 +40,9 @@ class Builder:
         result['category'] = kind if kind else ''
         self.search_dict[slug] = result
 
-    def save_search_list(self, path='_data/search.yml'):
+    def save_search_list(self, path=None):
+        path = os.path.join(self.output_dir if self.output_dir is not None else '', '_data',
+                            'search.yml') if path is None else path
         print('Writing search dict to', path)
         for key in self.search_dict:
             self.search_dict[key]['content'] = " ".join(self.search_dict[key]['content']) \
@@ -66,9 +69,10 @@ class Builder:
                 image = f"{contact_info['link']}.png"
         if 'image' in person:
             # copy person's static profile image into assets
-            src = person['image'] if assets_src_dir is None else f'{assets_src_dir}/{person["image"]}'
-            target = person['image'] if assets_target_dir is None else f'{assets_target_dir}/{person["image"]}'
-            image = process_file(src, target, baseurl=self.base_url)
+            src = person['image'] if assets_src_dir is None else os.path.join(f'{assets_src_dir}', f'{person["image"]}')
+            target = person['image'] if assets_target_dir is None else os.path.join(
+                f'{assets_target_dir}', f'{person["image"]}')
+            image = process_file(src, target, baseurl=self.base_url, base_output_dir=self.output_dir)
         else:
             for contact_info in person.get('contact', []):
                 if 'github.com' in contact_info['link']:
@@ -105,7 +109,7 @@ class Builder:
                                            baseurl=self.base_url if self.init_index[1] != index_link else None)
             link['kind'] = 'Page'
         elif 'pdf' in link:
-            file_path = process_file(link['pdf'], link['pdf'], target_dir='assets')
+            file_path = process_file(link['pdf'], link['pdf'], target_dir='assets', base_output_dir=self.output_dir)
             if file_path:
                 link['pdf'] = file_path
             link['kind'] = link['kind'] if 'kind' in link else 'PDF'
@@ -123,7 +127,7 @@ class Builder:
             image_src = link['image']['src'] if isinstance(link['image'], dict) else link['image']
 
             image_src = process_file(image_src, image_src, src_dir=assets_src_dir, target_dir=assets_target_dir,
-                                     baseurl=self.base_url)
+                                     baseurl=self.base_url, base_output_dir=self.output_dir)
             if image_src:
                 if isinstance(link['image'], dict):
                     link['image']['src'] = image_src
@@ -181,7 +185,7 @@ class Builder:
         if image_key is not None and image_key in obj:
             obj[image_key] = patch(obj[image_key])
             target_path = process_file(obj[image_key], obj[image_key], src_dir=assets_src_dir,
-                                       target_dir=assets_target_dir,
+                                       target_dir=assets_target_dir, base_output_dir=self.output_dir,
                                        baseurl=self.base_url)
             if target_path:
                 obj[image_key] = target_path
@@ -282,13 +286,17 @@ class Builder:
         if index_file is not None or target_data_file is not None:
             # save data file
             save_yaml(
-                index,
-                f'_data/{data_name(index_file if target_data_file is None else target_data_file, index_type)}.yml'
+                index, os.path.join(
+                    self.output_dir if self.output_dir is not None else '', '_data',
+                    f'{data_name(index_file if target_data_file is None else target_data_file, index_type)}.yml')
             )
             # create and save html file
             if index_type == 'index':
                 create_jekyll_file(
-                    f'{remove_ending(index_file if target_data_file is None else target_data_file, [".yml", ".yaml"])}.html',
+                    os.path.join(
+                        self.output_dir if self.output_dir is not None else '',
+                        f'{remove_ending(index_file if target_data_file is None else target_data_file, [".yml", ".yaml"])}.html'
+                    ),
                     create_jekyll_home_header(
                         data_name(index_file if target_data_file is None else target_data_file, index_type))
                 )

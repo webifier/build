@@ -27,6 +27,7 @@ def create_jekyll_home_header(index):
 
 
 def create_jekyll_file(target, header, body=None):
+    # todo: rewrite with os.path
     basedir = '/'.join(target.split('/')[:-1])
     if basedir:
         os.makedirs(basedir, exist_ok=True)

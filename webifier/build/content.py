@@ -17,7 +17,7 @@ def process_content(builder, link, kind):
         Processed link object (now holding description and other information of the md and a static link)
     """
     content = link[kind]  # path to content `{folder_name}`
-    content_dir = '/'.join(content.split('/')[:-1]) if os.path.isfile(content) else content
+    content_dir = '/'.join(content.split('/')[:-1]) if os.path.isfile(content) else content # todo: rewrite with os.path
     filename = os.path.join(content_dir, f'index.{"ipynb" if kind == "notebook" else "md"}') if not os.path.isfile(
         content) else content
     if filename in builder.checked_content:

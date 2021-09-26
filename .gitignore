@@ -1,4 +1,4 @@
-jekyll/_site/
+webifier/jekyll/_site/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata

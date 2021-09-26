@@ -26,14 +26,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: source ${{ github.action_path }}/scripts/extract_template_files.sh ${{ github.action_path }} .
-      shell: bash
     - uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - run: pip install -r ${{ github.action_path }}/build/requirements.txt
+    - run: pip install webifier
       shell: bash
-    - run: python ${{ github.action_path }}/build/main.py --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }}
+    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }}
       shell: bash
 
 
