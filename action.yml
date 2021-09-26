@@ -31,7 +31,7 @@ runs:
         python-version: 3.8
     - run: pip install webifier
       shell: bash
-    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }}
+    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="."
       shell: bash
 
 
