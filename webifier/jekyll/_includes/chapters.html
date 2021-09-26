@@ -1,13 +1,17 @@
 {% assign to_remove = "`,~,!,@,#,$,%,^,&,*,(,),_,-,=,+,[,{,],},\,|,;,:,',<,>,." | split: "," %}
 <div class="shadow accordion accordion-flush px-0" id="accordion-{{include.level}}-{{index_tag}}">
     {% for chapter in include.content %}
-    {% assign tag = chapter.title | remove: " " | remove: "," | remove: """ %}
 
+    {% assign tag = chapter.title | remove: " " | remove: "," | remove: """ %}
     {% for rem in to_remove %}
     {% assign tag = tag | remove: rem %}
     {% endfor %}
 
-    {% assign index_tag = include.index.title | remove: " " %}
+    {% assign index_tag = include.index.title | remove: " " | remove: "," | remove: """ %}
+    {% for rem in to_remove %}
+    {% assign index_tag = index_tag | remove: rem %}
+    {% endfor %}
+
     <div class="accordion-item px-0" style="position: relative;">
         <h{{include.level}}
         class="accordion-header"
