@@ -1,6 +1,6 @@
 nbconvert==5.6.1
-beautifulsoup4==4.9.1
-pyyaml==5.3.1
-ipython==7.26.0
-Pygments==2.9.0
-Markdown==3.3.4
+beautifulsoup4
+pyyaml
+ipython
+Pygments
+Markdown
