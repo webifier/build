@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch, prepend_baseurl, \
-    remove_ending
+    remove_ending, find_key
 from .md import build_markdown
 from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
@@ -159,33 +159,28 @@ class Builder:
         return link
 
     @patch_decorator
-    def process_template(self, obj, assets_src_dir=None, assets_target_dir=None, search_slug=None,
-                         search_links=False):
-        template = obj.pop('template')
-        template_apply = obj.pop('template-apply', 'whole')
-        template_kind = obj.pop('template-kind', 'jinja2')  # todo: add liquid as well
-
+    def process_template(self, obj, template, template_apply: str = 'whole', template_kind: str = 'jinja2',
+                         assets_src_dir=None, assets_target_dir=None, search_slug=None, search_links=False):
         if template_apply == 'value':
             for key, value in obj.items():
                 if key in SPECIAL_OBJECT_KEYS:
                     continue
-                value['template'] = template
-                value['template-apply'] = 'whole'
-                value['template-kind'] = template_kind
-                obj[key] = self.process_template(value, assets_src_dir=assets_src_dir, search_links=search_links,
+                obj[key] = self.process_template(value, template=template, template_apply='whole',
+                                                 template_kind=template_kind, assets_src_dir=assets_src_dir,
+                                                 search_links=search_links,
                                                  assets_target_dir=assets_target_dir, search_slug=search_slug)
             result = copy.deepcopy(obj)
         elif template_apply == 'whole':
             result = {key: value for key, value in obj.items() if key in SPECIAL_OBJECT_KEYS}
             result_content = self.templates_environment.get_template(template).render(
-                build_markdown=functools.partial(build_markdown, builder=self, extensions=self.markdown_extensions,
-                                                 process_html=False), **obj)
+                markdown=functools.partial(build_markdown, builder=self, extensions=self.markdown_extensions,
+                                           process_html=False), obj=obj)
             result['content'] = process_html(builder=self, raw_html=result_content, assets_src_dir=assets_src_dir,
                                              assets_target_dir=assets_target_dir, search_links=search_links)
             if search_slug is not None:
                 self.add_search_content(slug=search_slug, content=result['content'])
         else:
-            raise NotImplemented(f'Template appliance type {template_apply} not available.')
+            raise Exception(f'Template appliance type {template_apply} not available.')
         return result
 
     @patch_decorator
@@ -203,8 +198,24 @@ class Builder:
                                            assets_target_dir=assets_target_dir, add_search_item=search_links,
                                            search_slug=search_slug)
         elif isinstance(obj, dict):
-            if 'template' in obj:
-                obj = self.process_template(obj, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
+            template_dict = find_key(obj, query='template', pop=True)
+            subs = find_key(obj, 'sub', pop=True)
+            if subs and (len(subs) > 1 or 'apply' not in subs):
+                for key in [i for i in obj if
+                            i not in SPECIAL_OBJECT_KEYS + ([image_key] if image_key is not None else [])]:
+                    obj[key] = obj[key] if isinstance(obj[key], dict) else dict(content=obj[key])
+                    for item in [i for i in subs if i != 'apply']:
+                        if subs.get('apply', 'ignore') == 'ignore':
+                            obj[key][item] = obj[key].get(item, subs[item])
+                        elif subs.get('apply', 'ignore') == 'replace':
+                            obj[key][item] = subs[item]
+                        else:
+                            raise Exception(f'Subs apply type {subs["apply"]} is not available')
+            if template_dict:
+                obj = self.process_template(obj, template=template_dict.get('template'),
+                                            template_apply=template_dict.get('apply', 'whole'),
+                                            template_kind=template_dict.get('kind', 'jinja2'),  # todo: add liquid
+                                            assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
                                             search_slug=search_slug, search_links=search_links)
             elif 'kind' in obj and obj['kind'] == 'chapters':
                 for idx, item in enumerate(obj['content']):
@@ -216,7 +227,7 @@ class Builder:
                     for item in obj['content']:
                         item['kind'] = 'person'
                 for key, value in obj.items():
-                    if key in SPECIAL_OBJECT_KEYS + [image_key] if image_key is not None else []:
+                    if key in SPECIAL_OBJECT_KEYS + ([image_key] if image_key is not None else []):
                         continue
 
                     obj[key] = self.build_object(

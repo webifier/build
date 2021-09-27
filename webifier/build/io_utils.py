@@ -170,3 +170,19 @@ def mix_folders(root_src_dir, root_target_dir):
             dst_file = os.path.join(dst_dir, file_)
             if not os.path.exists(dst_file):
                 shutil.copy(src_file, dst_dir)
+
+
+def find_key(obj: dict, query: str, pop: bool = False):
+    result = dict() if query not in obj else (
+        copy.deepcopy(getattr(obj, 'pop' if pop else 'get')(query)) if isinstance(obj[query], dict) else {
+            query: copy.deepcopy(getattr(obj, 'pop' if pop else 'get')(query))})
+    to_remove = []
+    for key in obj:
+        if key.startswith(f'{query}-'):
+            tag = "-".join(key.split('-')[1:])
+            result[tag if tag else query] = obj.get(key)
+            if pop:
+                to_remove.append(key)
+    for key in to_remove:
+        obj.pop(key)
+    return result
