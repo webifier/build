@@ -7,7 +7,7 @@ import os
 BASE_INDEX_FILE = 'index.yml'
 DEFAULT_OUTPUT_DIR = 'webified'
 TARGET_INDEX_FILE = 'index.yml'
-
+DEFAULT_TEMPLATES_DIR = "."
 
 def main():
     parser = argparse.ArgumentParser(
@@ -16,8 +16,6 @@ def main():
         `output` directory.
         '''
     )
-    parser.add_argument('--remove-source', dest='remove_source',
-                        action='store_true', default=False, help='Remove source notebook files')
     parser.add_argument('--baseurl', dest='base_url', default="",
                         help='Baseurl of deploying site')
     parser.add_argument('--repo_full_name',
@@ -26,6 +24,8 @@ def main():
                         dest='index', help='initial page (default: index.yml)', default=BASE_INDEX_FILE)
     parser.add_argument('--output',
                         dest='output', help='build target directory (default: "webified")', default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument('--templates-dir',
+                        dest='templates_dir', help='templates base directory (default: ".")', default=DEFAULT_TEMPLATES_DIR)
     args = parser.parse_args()
 
     print(f'baseurl: {args.base_url}, repo_full_name: {args.repo_full_name}')
@@ -33,6 +33,7 @@ def main():
     mix_folders(root_src_dir='.', root_target_dir=args.output)  # todo: get file map
     mix_folders(root_src_dir=os.path.join(os.path.join(*os.path.split(__file__)[:-1], 'jekyll')),
                 root_target_dir=args.output)
-    builder = Builder(base_url=args.base_url, repo_full_name=args.repo_full_name, output_dir=args.output)
+    builder = Builder(base_url=args.base_url, repo_full_name=args.repo_full_name, output_dir=args.output,
+                      templates_dir=args.templates_dir)
     builder.build_index(index_file=args.index, target_data_file=TARGET_INDEX_FILE, init_index=True)
     builder.save_search_list()

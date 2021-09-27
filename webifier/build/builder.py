@@ -7,6 +7,8 @@ from .jekyll import create_jekyll_home_header, create_jekyll_file
 import typing as th
 import os
 import copy
+import jinja2
+import functools
 
 SPECIAL_INDEX_KEYS = ['title', 'nav', 'meta', 'config', 'search', 'kind']
 SPECIAL_OBJECT_KEYS = ['label', 'kind', 'background', 'style']
@@ -25,6 +27,13 @@ class Builder:
     checked_content: dict = field(default_factory=dict)
     search_dict: dict = field(default_factory=dict)
     config: dict = field(default_factory=dict)
+    templates_dir: th.Optional[str] = None
+    templates_environment = None
+
+    def __post_init__(self):
+        if self.templates_dir is not None:
+            file_loader = jinja2.FileSystemLoader(self.templates_dir)
+            self.templates_environment = jinja2.Environment(loader=file_loader)
 
     def add_search_content(self, slug, content, title=None, description=None, kind=None):
         slug = remove_ending(slug, [".yml", ".yaml", ".html", ".md"])
@@ -149,6 +158,35 @@ class Builder:
         return link
 
     @patch_decorator
+    def process_template(self, obj, assets_src_dir=None, assets_target_dir=None, search_slug=None,
+                         search_links=False):
+        template = obj.pop('template')
+        template_apply = obj.pop('template-apply', 'whole')
+        template_kind = obj.pop('template-kind', 'jinja2')  # todo: add liquid as well
+
+        if template_apply == 'value':
+            for key, value in obj.items():
+                if key in SPECIAL_OBJECT_KEYS:
+                    continue
+                value['template'] = template
+                value['template-apply'] = 'whole'
+                value['template-kind'] = template_kind
+                obj[key] = self.process_template(value, assets_src_dir=assets_src_dir, search_links=search_links,
+                                                 assets_target_dir=assets_target_dir, search_slug=search_slug)
+            result = copy.deepcopy(obj)
+        elif template_apply == 'whole':
+            result = {key: value for key, value in obj.items() if key in SPECIAL_OBJECT_KEYS}
+            result['content'] = self.templates_environment.get_template(template).render(
+                build_markdown=functools.partial(build_markdown, builder=self, assets_src_dir=assets_src_dir,
+                                                 assets_target_dir=assets_target_dir, search_links=search_links,
+                                                 extensions=self.markdown_extensions), **obj)
+            if search_slug is not None:
+                self.add_search_content(slug=search_slug, content=result['content'])
+        else:
+            raise NotImplemented(f'Template appliance type {template_apply} not available.')
+        return result
+
+    @patch_decorator
     def build_object(self, obj, image_key=None, assets_src_dir=None, assets_target_dir=None, search_slug=None,
                      search_links=False):
         """Process the self replicating structure of objects in `index.yml`
@@ -163,7 +201,10 @@ class Builder:
                                            assets_target_dir=assets_target_dir, add_search_item=search_links,
                                            search_slug=search_slug)
         elif isinstance(obj, dict):
-            if 'kind' in obj and obj['kind'] == 'chapters':
+            if 'template' in obj:
+                obj = self.process_template(obj, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
+                                            search_slug=search_slug, search_links=search_links)
+            elif 'kind' in obj and obj['kind'] == 'chapters':
                 for idx, item in enumerate(obj['content']):
                     obj['content'][idx] = self.build_index(
                         item, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
