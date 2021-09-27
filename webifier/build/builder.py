@@ -9,6 +9,7 @@ import os
 import copy
 
 SPECIAL_INDEX_KEYS = ['title', 'nav', 'meta', 'config', 'search', 'kind']
+SPECIAL_OBJECT_KEYS = ['label', 'kind', 'background', 'style']
 
 
 @dataclass
@@ -172,14 +173,15 @@ class Builder:
                     for item in obj['content']:
                         item['kind'] = 'person'
                 for key, value in obj.items():
-                    if key in ['label', 'kind', 'style'] + [image_key] if image_key is not None else []:
+                    if key in SPECIAL_OBJECT_KEYS + [image_key] if image_key is not None else []:
                         continue
 
                     obj[key] = self.build_object(
                         value, image_key, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
                         search_slug=search_slug, search_links=search_links)
         elif isinstance(obj, str):
-            content = build_markdown(builder=self, raw=obj, extensions=self.markdown_extensions)
+            content = build_markdown(builder=self, raw=obj, extensions=self.markdown_extensions,
+                                     assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir)
             if search_slug:
                 self.add_search_content(search_slug, content)
             return content
@@ -199,7 +201,6 @@ class Builder:
     @patch_decorator
     def process_config(self, config: dict):
         # search
-        self.config = copy.deepcopy(config)
         self.config['search'] = dict()
         if 'search' in config and isinstance(config['search'], bool):
             self.config['search']['content'] = config['search']
@@ -210,12 +211,13 @@ class Builder:
         elif 'search' not in config:
             self.config['search']['content'] = True
             self.config['search']['links'] = False
+        self.config = {**config, **self.config}
         return self.config
 
     @patch_decorator
     def build_index(self, index: dict = None, index_file: str = None, assets_src_dir=None, assets_target_dir=None,
                     target_data_file: str = None, index_type='index', search_slug: str = None,
-                    search_links: bool = False, search_content: bool = False, init_index=False):
+                    search_links: th.Optional[bool] = False, search_content: th.Optional[bool] = False, init_index=False):
         """Process the self replicating structure of `index.yml` and look for notebook links and render them.
         """
         assert index_file is not None or index is not None, f'Either index or index_file should be specified!'
@@ -239,27 +241,33 @@ class Builder:
                 self.init_index = (
                     remove_ending(index_file if target_data_file is None else target_data_file,
                                   [".yml", ".yaml"]), remove_ending(index_file, [".yml", ".yaml"]))
-                index['config'] = self.process_config(config=index['config'] if 'config' in index else dict())
-            # search config
+
+            return self.build_index(index, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
+                                    target_data_file=target_data_file if target_data_file is not None else index_file,
+                                    index_type=index_type, init_index=init_index, search_slug=search_slug,
+                                    search_links=None, search_content=None)
+        assert isinstance(index, dict), \
+            f'index is supposed to be an object, got {type(index)}'
+        # page info
+        if 'title' not in index and 'header' in index and 'title' in index['header']:
+            index['title'] = index['header']['title']
+        index['kind'] = index.get('kind', index_type.capitalize())
+        if init_index:
+            index['config'] = self.process_config(config=index['config'] if 'config' in index else dict())
+        # search config
+        if search_links is None and search_content is None:
             index['search'] = self.config['search'] if 'search' not in index else index['search']
-            index['kind'] = index.get('kind', index_type.capitalize())
+
             if isinstance(index['search'], bool):
                 index['search'] = dict(content=index['search'], links=index['search'])
-
+            search_content = index['search']['content']
+            search_links = index['search']['links']
             if index['search']['content'] or index['search']['links']:
                 title = index['header']['title'] if 'header' in index and 'title' in index['header'] else \
                     index.get('title', index_type.capitalize())
                 description = index.get('header', dict()).get('description', None)
-                self.add_search_item(search_slug, search_slug, title=title, description=description)
-            return self.build_index(index, assets_src_dir=assets_src_dir, assets_target_dir=assets_target_dir,
-                                    target_data_file=target_data_file if target_data_file is not None else index_file,
-                                    index_type=index_type, init_index=init_index, search_slug=search_slug,
-                                    search_links=index['search']['links'], search_content=index['search']['content'])
-        assert isinstance(index, dict), \
-            f'index is supposed to be an object, got {type(index)}'
-        # processing special keys in index
-        if 'title' not in index and 'header' in index and 'title' in index['header']:
-            index['title'] = index['header']['title']
+                self.add_search_item(search_slug, search_slug, title=title, description=description,
+                                     kind=index.get('kind', index_type.capitalize()))
 
         # patching special keys
         for key in SPECIAL_INDEX_KEYS:

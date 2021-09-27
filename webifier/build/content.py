@@ -58,7 +58,8 @@ def process_content(builder, link, kind):
         src=filename,
         assets_dir=builder.assets_dir,  # where to move notebook assets
         search_links=metadata['search']['links']
-    ) if kind == 'notebook' else build_markdown(builder, read_file(filename))
+    ) if kind == 'notebook' else build_markdown(builder=builder, raw=read_file(filename),
+                                                assets_target_dir=builder.assets_dir)
     if metadata['search']['content']:
         builder.add_search_content(
             jekyll_target_file, content=content_str, title=link.get('text', kind.capitalize()),
