@@ -22,6 +22,11 @@ inputs:
       located in the root of your repository.
     default: 'index.yml'
     required: false
+  templates_dir:
+    description: >
+      Base directory to lookup custom jinja2 templates in (default: ".").
+    default: "."
+    required: false
 
 runs:
   using: "composite"
@@ -31,7 +36,7 @@ runs:
         python-version: 3.8
     - run: pip install webifier
       shell: bash
-    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="."
+    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="." --templates-dir="${{ inputs.templates_dir }}"
       shell: bash
 
 
