@@ -22,9 +22,10 @@ piece of collaborative content creation on Github and is a great tool for sharin
 
 Webifier lets you communicate with your audience through comments with the help of [utterances](https://utteranc.es/)
 and track their engagement through [Google Analytics](https://analytics.google.com/). It also automatically creates a
-static search engine with the help of [Jekyll-Simple-Search](https://github.com/christian-fei/Simple-Jekyll-Search). You
-can change the behavior of the rendering stage of Webifier by providing your custom implementation of  `assets`
-, `_includes`, and `_layouts` in your repository.
+static search engine with the help of [Jekyll-Simple-Search](https://github.com/christian-fei/Simple-Jekyll-Search). And 
+as a cherry on the cake, you can provide custom [jinja2](https://jinja.palletsprojects.com/en/3.0.x/) templates if 
+the built-in ones do not satisfy your needs. Plus, you can change the behavior of the rendering stage of Webifier by 
+providing your custom implementation of  `assets`, `_includes`, and `_layouts` in your repository.
 
 ## How to Use
 
@@ -109,6 +110,5 @@ have in mind, feel free to suggest your ideas by opening up a feature request is
 * **Print content**: add automatic print (and export as pdf) functionality for content content (markdown/notebook)
   pages.
 * **Table of Content**: add automatic creation of a customizable multi-level table of content for all pages.
-* **Custom Jinja2 Templates**: sections can specify custom templates for to render their data.
 
   

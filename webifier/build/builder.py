@@ -4,6 +4,7 @@ from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decor
 from .md import build_markdown
 from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
+from .html import process_html
 import typing as th
 import os
 import copy
@@ -176,10 +177,11 @@ class Builder:
             result = copy.deepcopy(obj)
         elif template_apply == 'whole':
             result = {key: value for key, value in obj.items() if key in SPECIAL_OBJECT_KEYS}
-            result['content'] = self.templates_environment.get_template(template).render(
-                build_markdown=functools.partial(build_markdown, builder=self, assets_src_dir=assets_src_dir,
-                                                 assets_target_dir=assets_target_dir, search_links=search_links,
-                                                 extensions=self.markdown_extensions), **obj)
+            result_content = self.templates_environment.get_template(template).render(
+                build_markdown=functools.partial(build_markdown, builder=self, extensions=self.markdown_extensions,
+                                                 process_html=False), **obj)
+            result['content'] = process_html(builder=self, raw_html=result_content, assets_src_dir=assets_src_dir,
+                                             assets_target_dir=assets_target_dir, search_links=search_links)
             if search_slug is not None:
                 self.add_search_content(slug=search_slug, content=result['content'])
         else:
@@ -258,7 +260,8 @@ class Builder:
     @patch_decorator
     def build_index(self, index: dict = None, index_file: str = None, assets_src_dir=None, assets_target_dir=None,
                     target_data_file: str = None, index_type='index', search_slug: str = None,
-                    search_links: th.Optional[bool] = False, search_content: th.Optional[bool] = False, init_index=False):
+                    search_links: th.Optional[bool] = False, search_content: th.Optional[bool] = False,
+                    init_index=False):
         """Process the self replicating structure of `index.yml` and look for notebook links and render them.
         """
         assert index_file is not None or index is not None, f'Either index or index_file should be specified!'
