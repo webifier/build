@@ -186,3 +186,36 @@ def find_key(obj: dict, query: str, pop: bool = False):
     for key in to_remove:
         obj.pop(key)
     return result
+
+
+def mix_sub(sub, item, value):
+    if item == 'label':
+        old_label = sub.get(item, dict())
+        if isinstance(old_label, bool):
+            return sub
+        if isinstance(value, dict):
+            sub[item] = {**value, **old_label} if isinstance(old_label, dict) else {**value, "text": old_label}
+        elif isinstance(value, str):
+            sub[item] = {"text": value, **old_label} if isinstance(old_label, dict) else old_label
+        else:
+            sub[item] = sub.get(item, value)
+    else:
+        sub[item] = sub.get(item, value)
+    return sub
+
+
+def process_subs(obj, special_keys):
+    subs = find_key(obj, 'sub', pop=True)
+    if subs and (len(subs) > 1 or 'apply' not in subs):
+        for key in (i for i in obj if i not in special_keys):
+            obj[key] = obj[key] if isinstance(obj[key], dict) else dict(content=obj[key])
+            for item in [i for i in subs if i != 'apply']:
+                if subs.get('apply', 'ignore') == 'ignore':
+                    obj[key][item] = obj[key].get(item, subs[item])
+                elif subs.get('apply', 'ignore') == 'replace':
+                    obj[key][item] = subs[item]
+                elif subs.get('apply', 'ignore') == 'mix':
+                    obj[key] = mix_sub(obj[key], item, subs[item])
+                else:
+                    raise Exception(f'Subs apply type {subs["apply"]} is not available')
+    return obj

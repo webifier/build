@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from .io_utils import process_file, save_yaml, read_yaml, data_name, patch_decorator, patch, prepend_baseurl, \
-    remove_ending, find_key
+    remove_ending, find_key, process_subs
 from .md import build_markdown
 from .content import process_content
 from .jekyll import create_jekyll_home_header, create_jekyll_file
@@ -199,18 +199,8 @@ class Builder:
                                            search_slug=search_slug)
         elif isinstance(obj, dict):
             template_dict = find_key(obj, query='template', pop=True)
-            subs = find_key(obj, 'sub', pop=True)
-            if subs and (len(subs) > 1 or 'apply' not in subs):
-                for key in [i for i in obj if
-                            i not in SPECIAL_OBJECT_KEYS + ([image_key] if image_key is not None else [])]:
-                    obj[key] = obj[key] if isinstance(obj[key], dict) else dict(content=obj[key])
-                    for item in [i for i in subs if i != 'apply']:
-                        if subs.get('apply', 'ignore') == 'ignore':
-                            obj[key][item] = obj[key].get(item, subs[item])
-                        elif subs.get('apply', 'ignore') == 'replace':
-                            obj[key][item] = subs[item]
-                        else:
-                            raise Exception(f'Subs apply type {subs["apply"]} is not available')
+            obj = process_subs(obj, SPECIAL_OBJECT_KEYS + ([image_key] if image_key is not None else []))
+
             if template_dict:
                 obj = self.process_template(obj, template=template_dict.get('template'),
                                             template_apply=template_dict.get('apply', 'whole'),
@@ -306,6 +296,7 @@ class Builder:
         # page info
         if 'title' not in index and 'header' in index and 'title' in index['header']:
             index['title'] = index['header']['title']
+        index['title'] = index.get('title', index_type.capitalize())
         index['kind'] = index.get('kind', index_type.capitalize())
         if init_index:
             index['config'] = self.process_config(config=index['config'] if 'config' in index else dict())
@@ -349,7 +340,8 @@ class Builder:
                     index['nav']['fixed'], assets_src_dir=assets_src_dir,
                     assets_target_dir=assets_target_dir, search_slug=search_slug if search_content else None,
                     search_links=search_links)
-        index['title'] = index.get('title', index_type.capitalize())
+
+        index = process_subs(index, SPECIAL_INDEX_KEYS + ['header', 'footer'])
         for key, value in index.items():
             if key in SPECIAL_INDEX_KEYS:
                 continue
