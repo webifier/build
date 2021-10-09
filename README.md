@@ -88,7 +88,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           enable_jekyll: true
-          publish_dir: .
+          publish_dir: ./webified/
 ```
 
 Note that if you wish to webify a `<name>.github.io` repository or do not wish to have the content of your repository to
