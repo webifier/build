@@ -171,10 +171,13 @@ class Builder:
                                                  assets_target_dir=assets_target_dir, search_slug=search_slug)
             result = copy.deepcopy(obj)
         elif template_apply == 'whole':
+            # patching object
+            for key, value in obj.items():
+                obj[key] = patch(value)
             result = {key: value for key, value in obj.items() if key in SPECIAL_OBJECT_KEYS}
             result_content = self.templates_environment.get_template(template).render(
                 markdown=functools.partial(build_markdown, builder=self, extensions=self.markdown_extensions,
-                                           process_html=False), obj=obj)
+                                           process_html=False), obj=obj, patch=patch)
             result['content'] = process_html(builder=self, raw_html=result_content, assets_src_dir=assets_src_dir,
                                              assets_target_dir=assets_target_dir, search_links=search_links)
             if search_slug is not None:
