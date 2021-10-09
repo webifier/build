@@ -27,16 +27,20 @@ inputs:
       Base directory to lookup custom jinja2 templates in (default: ".").
     default: "."
     required: false
-
+  publish_dir:
+    description: >
+      Where should the webified results end up (default: "./webified/")
+    default: "./webified/"
+    required: false
 runs:
   using: "composite"
   steps:
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     - run: pip install webifier
       shell: bash
-    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="." --templates-dir="${{ inputs.templates_dir }}"
+    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="${{ inputs.publish_dir }}" --templates-dir="${{ inputs.templates_dir }}"
       shell: bash
 
 

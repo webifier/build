@@ -33,7 +33,8 @@ def main():
     print(f'webifier: {__version__}, baseurl: {args.base_url}, repo_full_name: {args.repo_full_name}')
 
     mix_folders(root_src_dir='.', root_target_dir=args.output,
-                file_map=['favicon.ico', '_includes', '_layouts', 'assets', 'search.json'])  # todo: improve file map
+                file_map=['favicon.ico', 'CNAME', '_includes', '_layouts', 'assets',
+                          'search.json'])  # todo: improve file map
     mix_folders(root_src_dir=os.path.join(os.path.join(*os.path.split(__file__)[:-1], 'jekyll')),
                 root_target_dir=args.output)
     builder = Builder(base_url=args.base_url, repo_full_name=args.repo_full_name, output_dir=args.output,
