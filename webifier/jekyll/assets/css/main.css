@@ -1,23 +1,11 @@
-
 body {
-    zoom: 130%;
+    zoom: 125%;
 }
 
 * > p:last-child { margin-bottom: 0 !important; }
 
 a { text-decoration: none; }
 
-@keyframes gradient {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
 .hover-shadow:hover {
     filter: drop-shadow(0 0.1rem 0.3rem rgba(0,0,0, 0.5));
 }
@@ -36,10 +24,7 @@ footer {
 
 .app-content {
     padding: 3vh 0;
-    max-width:80%;
-}
-
-.app-body {
+    max-width:85%;
 }
 
 .accordion-button:not(.collapsed) {
@@ -61,7 +46,13 @@ footer {
     background-color: white;
 }
 
-@media only screen and (max-width: 1300px) {
+@media only screen and (max-width: 1400px) {
+    .app-content {
+        max-width:95%;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
     .app-content {
         max-width:100%;
     }

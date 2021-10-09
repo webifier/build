@@ -1,6 +1,7 @@
 import os
 import pathlib
-from .io_utils import read_file, data_name, prepend_baseurl
+from .io_utils import read_file, data_name, prepend_baseurl, read_yaml
+import yaml
 from .jekyll import create_jekyll_file, create_jekyll_content_header, get_colab_url
 from .notebook import generate_notebook_html
 from .md import build_markdown
@@ -31,11 +32,26 @@ def process_content(builder, link, kind):
     metadata_path = link.get('metadata', os.path.join(content_dir, 'metadata.yml'))
     metadata_path = \
         f'{metadata_path}{"" if metadata_path.endswith(".yml") or metadata_path.endswith(".yaml") else ".yml"}'
+
+    metadata = None
+    if kind == 'md':
+        raw_str = read_file(filename)
+        lines = raw_str.splitlines()
+        if lines[0] == '---':
+            try:
+                idx = lines.index('---', 1)
+                metadata = yaml.full_load('\n'.join(lines[1:idx]))
+                raw_str = '\n'.join(lines[idx + 1:])
+            except ValueError:
+                pass
+        content_str = build_markdown(builder=builder, raw=raw_str,
+                                     assets_target_dir=builder.assets_dir)
     if os.path.isfile(metadata_path):
-        metadata = builder.build_index(
+        file_metadata = builder.build_index(
             index_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
             assets_src_dir=content_dir, assets_target_dir=builder.assets_dir, index_type='content',
             search_slug=jekyll_target_file)
+        metadata = file_metadata if metadata is None else {**metadata, **file_metadata}
         metadata_path = data_name(index_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
                                   index_type='content')
         if 'text' not in link:
@@ -47,19 +63,24 @@ def process_content(builder, link, kind):
             link['description'] = metadata['header']['description']
 
     else:
-        metadata = dict(search=builder.config['search'])
-        metadata_path = None
+        metadata_path = None if metadata is None else data_name(index_file=metadata_path.replace(
+            ".ipynb" if kind == "notebook" else ".md", ''), index_type='content')
+        metadata = dict(search=builder.config['search']) if metadata is None else builder.build_index(
+            index=metadata, target_data_file=metadata_path.replace(".ipynb" if kind == "notebook" else ".md", ''),
+            assets_src_dir=content_dir, assets_target_dir=builder.assets_dir, index_type='content',
+            search_slug=jekyll_target_file, search_links=None, search_content=None)
 
     link['kind'] = metadata.get('kind', kind.capitalize()) if 'kind' not in link else link['kind']
 
     builder.checked_content[filename] = link
-    content_str = generate_notebook_html(
-        builder=builder,
-        src=filename,
-        assets_dir=builder.assets_dir,  # where to move notebook assets
-        search_links=metadata['search']['links']
-    ) if kind == 'notebook' else build_markdown(builder=builder, raw=read_file(filename),
-                                                assets_target_dir=builder.assets_dir)
+    if kind == 'notebook':
+        content_str = generate_notebook_html(
+            builder=builder,
+            src=filename,
+            assets_dir=builder.assets_dir,  # where to move notebook assets
+            search_links=metadata['search']['links']
+        )
+
     if metadata['search']['content']:
         builder.add_search_content(
             jekyll_target_file, content=content_str, title=link.get('text', kind.capitalize()),

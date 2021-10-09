@@ -1,8 +1,8 @@
 {% assign colab = include.colab %}
-{% if site.data.index.nav.fixed != null or site.data.index.nav.brand != null %}
-{% assign links = site.data.index.nav.content %}
+{% if include.nav.fixed != null or include.nav.brand != null or site.data.index.nav.fixed != null or site.data.index.nav.brand != null %}
+{% assign links = include.nav.content | default: site.data.index.nav.content %}
 {% else %}
-{% assign links = site.data.index.nav %}
+{% assign links = include.nav.content | default: site.data.index.nav.content | default: site.data.index.nav %}
 {% endif %}
 <nav class="px-2 navbar navbar-expand-lg navbar-light bg-light m-0 p-2 sticky-top shadow">
     {% if site.data.index.nav.brand %}

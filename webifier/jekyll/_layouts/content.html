@@ -24,7 +24,7 @@
     {% assign page_title = metadata.header.title | default: metadata.title %}
     {% include header.html background=metadata.header.background title=page_title
     description=metadata.header.description %}
-    {% include nav.html colab=page.colab %}
+    {% include nav.html colab=page.colab nav=metadata.nav %}
     <div class="container-fluid bg-white shadow app-body {% unless page.colab %}px-5 p-4{% endunless %}">
         {{ content }}
     </div>
@@ -32,7 +32,7 @@
 
         {% include toc.html index=metadata level=1 %}
     </div>
-    {% include footer.html background=metadata.footer.background %}
+    {% include footer.html background=metadata.footer.background footer=metadata.footer %}
 </div>
 </body>
 </html>

@@ -9,6 +9,7 @@ DEFAULT_OUTPUT_DIR = 'webified'
 TARGET_INDEX_FILE = 'index.yml'
 DEFAULT_TEMPLATES_DIR = "."
 
+
 def main():
     parser = argparse.ArgumentParser(
         description=f'''
@@ -25,12 +26,14 @@ def main():
     parser.add_argument('--output',
                         dest='output', help='build target directory (default: "webified")', default=DEFAULT_OUTPUT_DIR)
     parser.add_argument('--templates-dir',
-                        dest='templates_dir', help='templates base directory (default: ".")', default=DEFAULT_TEMPLATES_DIR)
+                        dest='templates_dir', help='templates base directory (default: ".")',
+                        default=DEFAULT_TEMPLATES_DIR)
     args = parser.parse_args()
 
-    print(f'baseurl: {args.base_url}, repo_full_name: {args.repo_full_name}')
+    print(f'webifier: {__version__}, baseurl: {args.base_url}, repo_full_name: {args.repo_full_name}')
 
-    mix_folders(root_src_dir='.', root_target_dir=args.output)  # todo: get file map
+    mix_folders(root_src_dir='.', root_target_dir=args.output,
+                file_map=['favicon.ico', '_includes', '_layouts', 'assets', 'search.json'])  # todo: improve file map
     mix_folders(root_src_dir=os.path.join(os.path.join(*os.path.split(__file__)[:-1], 'jekyll')),
                 root_target_dir=args.output)
     builder = Builder(base_url=args.base_url, repo_full_name=args.repo_full_name, output_dir=args.output,
