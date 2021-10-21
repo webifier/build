@@ -149,9 +149,10 @@ class Builder:
                 else:
                     link['image'] = image_src
         # pdf links
-        if 'kind' not in link and link['link'].endswith('.pdf'):
+        if 'kind' not in link and ('link' in link and link['link'].endswith('.pdf')):
             link['kind'] = 'PDF'
-        if add_search_item and ('kind' not in link or link['kind'] != 'person') and not link['link'].startswith('#'):
+        if add_search_item and ('kind' not in link or link['kind'] != 'person') and (
+                'link' in link and not link['link'].startswith('#')):
             self.add_search_item(
                 slug=link['link'], url=link['link'], title=link.get('text', link.get('kind', 'External link')),
                 description=link.get('description', None), kind=link.get('kind', 'External'))  # todo: add full search

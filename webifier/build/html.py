@@ -29,7 +29,8 @@ def process_html_anchor(builder, soup, anchor, assets_src_dir=None, assets_targe
     link = {key: anchor[key] for key in anchor.attrs if key not in ['href', 'class']}
     if anchor.text:
         link['text'] = anchor.text
-    if 'href' in anchor.attrs:
+    if 'href' in anchor.attrs and anchor['href']:
+
         match_dict = re.match(HREF_REGEX, anchor['href']).groupdict()
         link[match_dict['type'] or 'link'] = match_dict['url']
         link = builder.build_link(link, assets_src_dir=assets_src_dir, add_search_item=add_search_item)
