@@ -47,11 +47,12 @@
             {% assign section_content_shadow = "hover-shadow" %}
         {% endif %}
         <div
+            id="{{pair[0]}}"
             {% if pair[1].background %}
                 {% if include.inline != null %}
                     class="row align-items-center p-0 py-2"
                 {% else %}
-                    class="row align-items-center py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
+                    class="row align-items-start py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
                     p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
                     style="
                       min-height: 5vh;
@@ -74,7 +75,7 @@
         >
             {% if pair[1].label != false and include.inline == null %}
                 {% if pair[1].label.position == null or pair[1].label.position == "left" %}
-                    <div class="shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2
+                    <div class="mt-4 mb-4 shadow-lg bg-dark col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2
                         col-xxl-2 p-2 d-flex text-muted justify-content-center"
                     >
                         <strong>{{label}}</strong>
