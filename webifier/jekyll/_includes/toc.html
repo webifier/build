@@ -50,7 +50,7 @@
             id="{{pair[0]}}"
             {% if pair[1].background %}
                 {% if include.inline != null %}
-                    class="row align-items-center p-0 py-2"
+                    class="row align-items-start p-0 py-2"
                 {% else %}
                     class="row align-items-start py-3 p{{pad_direction}}-xs-0 p{{pad_direction}}-sm-0
                     p{{pad_direction}}-md-1 p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
@@ -64,9 +64,9 @@
                 {% endif %}
             {% else %}
                 {% if include.inline != null %}
-                    class="row align-items-center p-0 py-1"
+                    class="row align-items-start p-0 py-1"
                 {% else %}
-                    class="{{section_shadow}} row align-items-center my-2 p{{pad_direction}}-xs-0
+                    class="{{section_shadow}} row align-items-start my-2 p{{pad_direction}}-xs-0
                         p{{pad_direction}}-sm-0 p{{pad_direction}}-md-1
                      p{{pad_direction}}-lg-2 p{{pad_direction}}-xlg-2 p{{pad_direction}}-xxlg-2"
                     style="min-height: 5vh;"
