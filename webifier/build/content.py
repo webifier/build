@@ -44,7 +44,7 @@ def process_content(builder, link, kind):
                 raw_str = '\n'.join(lines[idx + 1:])
             except ValueError:
                 pass
-        content_str = build_markdown(builder=builder, raw=raw_str,
+        content_str = build_markdown(builder=builder, raw=raw_str, assets_src_dir=content_dir,
                                      assets_target_dir=builder.assets_dir)
     if os.path.isfile(metadata_path):
         file_metadata = builder.build_index(
