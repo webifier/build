@@ -1,3 +1,4 @@
+ipython_genutils
 nbconvert==5.6.1
 beautifulsoup4
 pyyaml
