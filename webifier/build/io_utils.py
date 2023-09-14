@@ -163,12 +163,12 @@ def mix_folders(root_src_dir, root_target_dir, file_map=None):
         return
     for src_dir, dirs, files in os.walk(root_src_dir):
         dst_dir = src_dir.replace(root_src_dir, root_target_dir, 1)
-        if file_map and root_src_dir != src_dir and os.path.split(src_dir)[1] not in file_map:
+        if file_map and root_src_dir != src_dir and src_dir.split(os.sep)[1] not in file_map:
             continue
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
         for file_ in files:
-            if file_map and root_src_dir == src_dir and os.path.split(file_)[1] not in file_map:
+            if file_map and root_src_dir == src_dir and os.path.basename(file_) not in file_map:
                 continue
             src_file = os.path.join(src_dir, file_)
             dst_file = os.path.join(dst_dir, file_)
