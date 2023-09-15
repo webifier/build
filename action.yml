@@ -1,4 +1,4 @@
-name: 'Webifier Build'
+name: 'Webifier Build mahdi-jfri'
 description: 'GitHub Action to process repository contents for jekyll deployment on github pages'
 author: 'webifier'
 branding:
