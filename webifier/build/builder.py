@@ -12,7 +12,7 @@ import jinja2
 import functools
 
 SPECIAL_INDEX_KEYS = ['title', 'nav', 'meta', 'config', 'search', 'kind']
-SPECIAL_OBJECT_KEYS = ['label', 'kind', 'background', 'style']
+SPECIAL_OBJECT_KEYS = ['label', 'kind', 'background', 'style', 'inline']
 
 
 @dataclass
