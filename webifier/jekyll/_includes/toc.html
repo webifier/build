@@ -46,6 +46,7 @@
             {% assign section_shadow = "" %}
             {% assign section_content_shadow = "hover-shadow" %}
         {% endif %}
+        {% if pair[1].freeform != true %}
         <div
             id="{{pair[0]}}"
             {% if pair[1].background %}
@@ -154,6 +155,10 @@
                 </div>
             {% endif %}
         </div>
+        {% else %}
+            {{ pair[1].content }}
+        {% endif %}
+
     {% endfor %}
 </div>
 
