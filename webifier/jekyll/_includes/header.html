@@ -1,5 +1,5 @@
 {% if include.header or include.title or include.description or include.background %}
-<header class="container-fluid bg-dark text-white shadow text-center align-items-center p-0"
+<header class="container-fluid bg-white text-dark shadow text-center align-items-center p-0"
         {% if include.header.background or include.background %}
         style="
           min-height: 5vh;
@@ -17,7 +17,7 @@
             style="background-color:rgba(0, 0, 0, 0.5);"
             class="w-100 p-3 m-auto text-center"
             {% else %}
-            class="bg-dark p-3 m-auto text-center"
+            class="bg-white p-3 m-auto text-center"
             {% endif %}
     >
         <h1 class=""> {{ include.header.title | default: include.title }}</h1>

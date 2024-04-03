@@ -4,7 +4,7 @@
 {% else %}
 {% assign links = include.nav.content | default: site.data.index.nav.content | default: site.data.index.nav %}
 {% endif %}
-{% if site.data.index.nav != false %}
+{% if include.nav != null and include.nav != false %}
 <nav class="px-2 navbar navbar-expand-lg navbar-light bg-light m-0 p-2 sticky-top shadow">
     {% if site.data.index.nav.brand %}
     {% include link.html link=site.data.index.nav.brand class="btn navbar-brand" %}
