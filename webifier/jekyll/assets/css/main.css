@@ -49,11 +49,14 @@ footer {
 @media only screen and (max-width: 1400px) {
     .app-content {
         max-width:95%;
+        padding: 1vh 0;
     }
 }
 
 @media only screen and (max-width: 1200px) {
     .app-content {
         max-width:100%;
+        padding: 0;
+
     }
 }
