@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "webifier"
+dynamic = ["version"]
+description = "Cook up a fully functional static website from YAML and Markdown."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Vahid Zehtab", email = "vahid98zee@gmail.com" },
+    { name = "Ahmad Salimi", email = "ahsa9978@gmail.com" },
+]
+keywords = ["webifier", "jupyter notebook", "markdown", "jinja2", "static site"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "beautifulsoup4",
+    "jinja2>=3.0,<3.2",
+    "markdown",
+    "pygments",
+    "pyyaml",
+    "webifier-extensions>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[project.scripts]
+webify = "webifier.interface.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/webifier/build"
+Repository = "https://github.com/webifier/build"
+Issues = "https://github.com/webifier/build/issues"
+
+# --- Version: single source of truth from git tags ---
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+version_scheme = "no-guess-dev"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "webifier/_version.py"
+
+# --- Include non-Python assets in the wheel ---
+[tool.hatch.build.targets.wheel]
+packages = ["webifier"]
+
+[tool.hatch.build.targets.wheel.force-include]
+# Covered by package discovery, but explicit for clarity:
+# all assets (templates, css, images) under webifier/ are included
+
+# --- Ruff (replaces flake8 + isort + black) ---
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["webifier"]
+
+# --- Pytest ---
+[tool.pytest.ini_options]
+testpaths = ["tests"]

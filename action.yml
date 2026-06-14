@@ -1,5 +1,5 @@
 name: 'Webifier Build'
-description: 'GitHub Action to process repository contents for jekyll deployment on github pages'
+description: 'GitHub Action to build a static website and deploy on github pages'
 author: 'webifier'
 branding:
   color: 'blue'
@@ -35,12 +35,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: "3.12"
     - run: pip install webifier
       shell: bash
-    - run: webify --repo_full_name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="${{ inputs.publish_dir }}" --templates-dir="${{ inputs.templates_dir }}"
+    - run: webify --repo-full-name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="${{ inputs.publish_dir }}" --templates-dir="${{ inputs.templates_dir }}"
       shell: bash
-
-

@@ -1,8 +1,0 @@
-ipython_genutils
-nbconvert==5.6.1
-beautifulsoup4
-pyyaml
-ipython
-Pygments
-Markdown
-jinja2==3.0.3
