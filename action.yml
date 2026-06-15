@@ -38,7 +38,9 @@ runs:
     - uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-    - run: pip install webifier
+    - run: python -m pip install --upgrade pip
+      shell: bash
+    - run: python -m pip install --upgrade webifier webifier-extensions
       shell: bash
     - run: webify --repo-full-name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="${{ inputs.publish_dir }}" --templates-dir="${{ inputs.templates_dir }}"
       shell: bash

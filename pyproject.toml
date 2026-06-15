@@ -30,7 +30,7 @@ dependencies = [
     "markdown",
     "pygments",
     "pyyaml",
-    "webifier-extensions>=1.0.1",
+    "webifier-extensions>=1.0.4",
 ]
 
 [project.optional-dependencies]
