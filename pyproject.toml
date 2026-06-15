@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "Vahid Zehtab", email = "vahid98zee@gmail.com" },
+    { name = "Vahid Zehtab", email = "contact@vahidz.com" },
     { name = "Ahmad Salimi", email = "ahsa9978@gmail.com" },
 ]
 keywords = ["webifier", "jupyter notebook", "markdown", "jinja2", "static site"]
