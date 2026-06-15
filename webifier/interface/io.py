@@ -153,6 +153,7 @@ class FileManager:
         target_dir: str,
         *,
         allow_list: list[str] | None = None,
+        overwrite: bool = False,
     ) -> None:
         """Recursively copy *src_dir* into *target_dir*.
 
@@ -177,7 +178,7 @@ class FileManager:
                 if allow_list and rel == "." and fname not in allow_list:
                     continue
                 dst_file = os.path.join(dst, fname)
-                if not os.path.exists(dst_file):
+                if overwrite or not os.path.exists(dst_file):
                     shutil.copy(os.path.join(dirpath, fname), dst)
 
     # -- convenience -------------------------------------------------------

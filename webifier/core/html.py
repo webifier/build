@@ -4,7 +4,7 @@ import os
 import re
 from urllib.parse import unquote, urlsplit
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 # Matches optional type prefix (md=, index=, pdf=, notebook=) followed by a URL
 HREF_REGEX = re.compile(
@@ -22,6 +22,16 @@ def process_html(
     """Post-process HTML — resolve anchors and local asset paths."""
     assets_target_dir = assets_target_dir if assets_target_dir is not None else builder.assets_dir
     soup = BeautifulSoup(raw_html, features="html.parser")
+
+    for image in soup.find_all("img", src=True):
+        src = image["src"]
+        parsed = urlsplit(src)
+        if parsed.netloc == "render.githubusercontent.com" and parsed.path == "/render/math":
+            math = ""
+            if parsed.query.startswith("math="):
+                math = unquote(parsed.query.removeprefix("math="))
+            if math:
+                image.replace_with(NavigableString(f"\\({math}\\)"))
 
     # Resolve anchor hrefs (md=, index=, pdf=, notebook= prefixes)
     for anchor in soup.find_all("a"):

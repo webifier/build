@@ -124,6 +124,7 @@ class Builder:
             return {}
 
         entries = []
+        suffixes = self._content_suffixes() + [".yml", ".yaml"]
 
         def collect(items):
             for item in items or []:
@@ -133,12 +134,15 @@ class Builder:
                 if isinstance(child_items, list):
                     collect(child_items)
                 elif item.get("href") or item.get("link") or item.get("src"):
-                    href = item.get("href") or item.get("link") or item.get("src")
+                    href = item.get("href") or item.get("link")
+                    src = item.get("src", "")
+                    if not href and src:
+                        href = prepend_baseurl(strip_suffixes(src, suffixes), self.base_url)
                     entries.append(
                         {
                             "title": item.get("title") or item.get("text") or href,
                             "href": href,
-                            "src": item.get("src", ""),
+                            "src": src,
                         }
                     )
 
@@ -160,7 +164,6 @@ class Builder:
         if not current_values and ctx is not None and getattr(ctx, "page_url", None):
             current_values.append(ctx.page_url)
 
-        suffixes = self._content_suffixes() + [".yml", ".yaml"]
         normalized_current = {_normalize_page_nav_value(value, suffixes) for value in current_values}
         active_index = None
         for i, entry in enumerate(entries):
@@ -193,7 +196,7 @@ class Builder:
     def _copy_extension_assets(self) -> None:
         for mount in self.extensions.asset_mounts:
             if os.path.isdir(mount.source):
-                self.files.merge_dirs(mount.source, os.path.join(self.output_dir, mount.target))
+                self.files.merge_dirs(mount.source, os.path.join(self.output_dir, mount.target), overwrite=True)
 
     # ------------------------------------------------------------------
     # Core dispatch
@@ -371,7 +374,10 @@ class Builder:
         with open(src) as fh:
             raw = fh.read()
 
-        metadata, raw = split_yaml_front_matter(raw)
+        metadata_path = os.path.join(os.path.dirname(src), "metadata.yml")
+        metadata = read_yaml(metadata_path) if os.path.isfile(metadata_path) else {}
+        front_metadata, raw = split_yaml_front_matter(raw)
+        metadata.update(front_metadata)
 
         body_html = build_markdown(
             raw=raw,

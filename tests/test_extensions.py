@@ -86,6 +86,138 @@ docs:
     assert 'href="/nested/child.html"' in page_html
 
 
+def test_markdown_content_page_uses_sidecar_metadata_sections(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "notes").mkdir()
+    (tmp_path / "notes" / "page.md").write_text("# Body\n\nMarkdown content.", encoding="utf-8")
+    (tmp_path / "notes" / "metadata.yml").write_text(
+        """
+title: Markdown With Authors
+authors:
+  kind: people
+  content:
+    - name: Ada Lovelace
+      github: ada
+      role: Author
+comments:
+  label: false
+  kind: comments
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / "index.yml").write_text(
+        """
+title: Test Site
+config:
+  webifier:
+    extensions:
+      site:
+        uses: webifier.standard
+      markdown:
+        uses: webifier.markdown
+      people:
+        uses: webifier.people
+      comments:
+        uses: webifier.comments
+nav: false
+docs:
+  label: Docs
+  content:
+    - text: Page
+      src: notes/page.md
+""",
+        encoding="utf-8",
+    )
+
+    Builder(base_url="", output_dir="out", templates_dir=".").build()
+
+    html = (tmp_path / "out" / "notes" / "page.html").read_text(encoding="utf-8")
+    assert "Markdown With Authors" in html
+    assert "Ada Lovelace" in html
+    assert "https://github.com/ada.png" in html
+    assert ">GitHub<" in html
+
+
+def test_content_pages_can_add_default_comments(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "page.md").write_text("# Body\n\nMarkdown content.", encoding="utf-8")
+    (tmp_path / "index.yml").write_text(
+        """
+title: Test Site
+config:
+  webifier:
+    extensions:
+      site:
+        uses: webifier.standard
+      markdown:
+        uses: webifier.markdown
+      comments:
+        uses: webifier.comments
+  comments:
+    repo: owner/comments
+    issue_term: pathname
+  content_pages:
+    comments:
+      label: false
+      kind: comments
+nav: false
+docs:
+  label: Docs
+  content:
+    - text: Page
+      src: page.md
+""",
+        encoding="utf-8",
+    )
+
+    Builder(base_url="", output_dir="out", templates_dir=".").build()
+
+    html = (tmp_path / "out" / "page.html").read_text(encoding="utf-8")
+    assert "utteranc.es/client.js" in html
+    assert 'repo="owner/comments"' in html
+
+
+def test_page_navigation_src_entries_resolve_to_generated_urls(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "one.md").write_text("# One", encoding="utf-8")
+    (tmp_path / "two.md").write_text("# Two", encoding="utf-8")
+    (tmp_path / "index.yml").write_text(
+        """
+title: Test Site
+config:
+  webifier:
+    extensions:
+      site:
+        uses: webifier.standard
+      markdown:
+        uses: webifier.markdown
+  page_navigation:
+    home:
+      title: Home
+      href: /
+    items:
+      - title: One
+        src: one.md
+      - title: Two
+        src: two.md
+nav: false
+docs:
+  label: Docs
+  content:
+    - text: One
+      src: one.md
+    - text: Two
+      src: two.md
+""",
+        encoding="utf-8",
+    )
+
+    Builder(base_url="/site", output_dir="out", templates_dir=".").build()
+
+    html = (tmp_path / "out" / "one.html").read_text(encoding="utf-8")
+    assert 'href="/site/two.html"' in html
+
+
 def test_extension_registration_requires_explicit_override(monkeypatch):
     class RendererA(RendererModule):
         def render(self, data, ctx, builder):
@@ -372,3 +504,120 @@ header:
     assert metadata["header"]["title"] == "Notebook Header"
     assert parsed["cells"][0]["source"].startswith("# Visible Notebook Heading")
     assert "title: Notebook Title" not in parsed["cells"][0]["source"]
+
+
+def test_content_page_cleanup_normalizes_notebook_fragments():
+    from webifier_extensions.standard.content_page import ContentPageRenderer
+
+    html = """
+<body class="jp-Notebook">
+  <div align="center"><h1>AI - Test Page</h1><h2>Course header</h2></div>
+  <hr>
+  <h1>Test Page<a class="anchor-link" href="#test-page">¶</a></h1>
+  <h2>Table of Contents</h2>
+  <ul><li>Old contents</li></ul>
+  <h2><font color="red">##</font></h2>
+  <h2>Intro<a class="anchor-link" href="#intro">¶</a></h2>
+  <p>First section.</p>
+  <h2>Search</h2>
+  <p>Second section.</p>
+  <h2>Test Page</h2>
+  <p>Duplicate title section text should remain.</p>
+  <h3>Details</h3>
+  <p>Third section.</p>
+</body>
+"""
+
+    rendered = ContentPageRenderer().normalize_content(
+        html,
+        {"title": "Test Page", "metadata": {"header": {"title": "Test Page"}}},
+        cleanup=True,
+        toc=True,
+    )
+
+    assert "<body" not in rendered
+    assert "AI - Test Page" not in rendered
+    assert "Course header" not in rendered
+    assert "Old contents" not in rendered
+    assert "Table of Contents" in rendered
+    assert "<h2>Test Page</h2>" not in rendered
+    assert "Duplicate title section text should remain." in rendered
+    assert "anchor-link" not in rendered
+    assert "¶" not in rendered
+    assert "<font" not in rendered
+    assert "wf-content-toc" in rendered
+    assert 'href="#intro"' in rendered
+
+
+def test_content_page_cleanup_removes_old_course_cover_cells():
+    from webifier_extensions.standard.content_page import ContentPageRenderer
+
+    html = """
+<body class="jp-Notebook">
+<main>
+  <div class="jp-Cell jp-MarkdownCell">
+    <div><div align="center">
+      Decision Tree
+      Sharif University Of technology - Computer Engineering Depatment
+      Artifical Intelligence - Dr. MH Rohban
+      Spring 2021
+    </div></div>
+  </div>
+  <div class="jp-Cell jp-MarkdownCell"><h2>Overview</h2><p>Real content.</p></div>
+  <div class="jp-Cell jp-MarkdownCell"><h2>Operators</h2><p>More content.</p></div>
+  <div class="jp-Cell jp-MarkdownCell"><h2>Entropy</h2><p>More content.</p></div>
+</main>
+</body>
+"""
+
+    rendered = ContentPageRenderer().normalize_content(
+        html,
+        {"title": "LN | Learning a Decision Tree", "metadata": {"header": {"title": "Learning a Decision Tree"}}},
+        cleanup=True,
+        toc=True,
+    )
+
+    assert "Sharif University" not in rendered
+    assert "Artifical Intelligence" not in rendered
+    assert "Spring 2021" not in rendered
+    assert "Real content." in rendered
+    assert "wf-content-toc" in rendered
+
+
+def test_content_page_cleanup_demotes_slide_headings_and_excludes_math_headings():
+    from webifier_extensions.standard.content_page import ContentPageRenderer
+
+    html = """
+<body>
+  <main>
+    <h1>Example</h1>
+    <p>One.</p>
+    <h1>Entities</h1>
+    <p>Two.</p>
+    <h1>$ V^*(s) = max_aQ^*(s,a) $</h1>
+    <p>Math explanation.</p>
+    <h1>$               =              $</h1>
+    <h1>Preferences</h1>
+    <p>Three.</p>
+    <h1>Discounting</h1>
+    <p>Four.</p>
+    <h1>Optimal value functions</h1>
+    <p>Five.</p>
+    <h1>Comparing VI and PI</h1>
+    <p>Six.</p>
+  </main>
+</body>
+"""
+
+    rendered = ContentPageRenderer().normalize_content(
+        html,
+        {"title": "Markov Decision Processes", "metadata": {"header": {"title": "Markov Decision Processes"}}},
+        cleanup=True,
+        toc=True,
+    )
+
+    assert "<h1" not in rendered
+    assert "<h2" in rendered
+    assert 'class="wf-math-display"' in rendered
+    assert "max_aQ" in rendered
+    assert "href=\"#$-" not in rendered
