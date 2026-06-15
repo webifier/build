@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import re
+from urllib.parse import unquote, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -35,12 +37,29 @@ def process_html(
     # Resolve src attributes on media tags
     for tag in ["img", "audio", "embed", "iframe", "script", "source", "track", "video"]:
         for src_tag in soup.find_all(tag, src=True):
-            new_src = builder.files.copy_file(
-                src_tag["src"],
-                src_tag["src"],
-                src_dir=assets_src_dir,
-                target_dir=assets_target_dir,
-            )
+            src = src_tag["src"]
+            local_src = src
+            if "://" not in src and not src.startswith("data:"):
+                local_src = unquote(urlsplit(src).path)
+            try:
+                new_src = builder.files.copy_file(
+                    local_src,
+                    local_src,
+                    src_dir=assets_src_dir,
+                    target_dir=assets_target_dir,
+                )
+            except FileNotFoundError:
+                fallback_src = os.path.join("files", local_src)
+                if not assets_src_dir or local_src.startswith("files/") or not os.path.isfile(
+                    os.path.join(assets_src_dir, fallback_src)
+                ):
+                    raise
+                new_src = builder.files.copy_file(
+                    fallback_src,
+                    fallback_src,
+                    src_dir=assets_src_dir,
+                    target_dir=assets_target_dir,
+                )
             if new_src:
                 src_tag["src"] = new_src
 
