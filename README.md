@@ -1,5 +1,10 @@
 # Webifier
 
+[![Docs](https://img.shields.io/badge/docs-webifier.github.io-blue)](https://webifier.github.io/)
+[![PyPI](https://img.shields.io/pypi/v/webifier.svg)](https://pypi.org/project/webifier/)
+[![Python Package](https://github.com/webifier/build/actions/workflows/python-publish.yml/badge.svg)](https://github.com/webifier/build/actions/workflows/python-publish.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Webifier turns YAML, Markdown, HTML, notebooks, and other static content into a
 static website. It is meant to remove the publishing overhead from personal
 projects, research notes, notebooks, reports, and evolving documentation: decide
@@ -16,6 +21,8 @@ ship as the `webifier-extensions` package, which is installed automatically with
 ```shell
 pip install webifier
 ```
+
+Documentation and examples live at [webifier.github.io](https://webifier.github.io/).
 
 ## Build Locally
 
@@ -77,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: webifier/build@main
+      - uses: webifier/build@v1.0.1
         with:
           baseurl: ""
           index: index.yml
