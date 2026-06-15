@@ -40,3 +40,20 @@ def test_old_github_math_images_become_mathjax_text():
 
     assert 'render.githubusercontent.com/render/math' not in html
     assert "\\(X_i \\leq Y_i + Z_i\\)" in html
+
+
+def test_mermaid_fences_become_mermaid_blocks():
+    builder = SimpleNamespace(
+        assets_dir="assets",
+        markdown_extensions=("md_in_html", "fenced_code"),
+    )
+    html = build_markdown(
+        "```mermaid\nflowchart LR\n  A --> B\n```\n\n```python\nprint('kept as code')\n```",
+        builder,
+        process_html=False,
+    )
+
+    assert '<div class="mermaid">' in html
+    assert "flowchart LR" in html
+    assert "A --&gt; B" in html
+    assert "print('kept as code')" in html

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import typing as th
+from html import escape
 from urllib.parse import unquote
 
 import markdown
@@ -17,6 +18,10 @@ MATH_PATTERNS = (
     re.compile(r"(?<!\\)(?<!\$)\$(?![\s$]|@@WEBIFIER_MATH_)(?:\\.|[^\n\\$])+?(?<![\s\\])\$(?!\$)"),
 )
 FENCED_CODE_PATTERN = re.compile(r"(^|\n)(`{3,}|~{3,})[^\n]*\n.*?\n\2[ \t]*(?=\n|$)", re.DOTALL)
+MERMAID_FENCE_PATTERN = re.compile(
+    r"(^|\n)(`{3,}|~{3,})mermaid[^\n]*\n(.*?)\n\2[ \t]*(?=\n|$)",
+    re.IGNORECASE | re.DOTALL,
+)
 INLINE_CODE_PATTERN = re.compile(r"(`+)(.+?)(?<!`)\1", re.DOTALL)
 GITHUB_MATH_IMAGE_PATTERN = re.compile(
     r"<img\s+[^>]*src=(['\"])https://render\.githubusercontent\.com/render/math\?math=(.*?)\1[^>]*>",
@@ -52,7 +57,11 @@ def build_markdown(
         math_spans.append(math_text)
         return f"@@WEBIFIER_MATH_{len(math_spans) - 1}@@"
 
+    def render_mermaid(match: re.Match[str]) -> str:
+        return f'{match.group(1)}<div class="mermaid">\n{escape(match.group(3).strip())}\n</div>'
+
     raw = GITHUB_MATH_IMAGE_PATTERN.sub(lambda match: f"\\({unquote(match.group(2))}\\)", raw)
+    raw = MERMAID_FENCE_PATTERN.sub(render_mermaid, raw)
     protected = FENCED_CODE_PATTERN.sub(stash_code, raw)
     protected = INLINE_CODE_PATTERN.sub(stash_code, protected)
     for pattern in MATH_PATTERNS:

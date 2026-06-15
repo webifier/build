@@ -106,7 +106,7 @@ def _process_html_anchor(
         if key not in ("href", "class"):
             link[key] = anchor[key]
 
-    if link_type in ("md", "notebook"):
+    if link_type in ("md", "notebook") or (link_type == "pdf" and builder._content_renderer_key(url, "pdf")):
         # Build a content sub-page
         link["src"] = url
         from .base import NodeContext

@@ -486,6 +486,8 @@ class Builder:
         """Resolve background image paths in a dict."""
         if "background" in data and isinstance(data["background"], str):
             bg = data["background"]
+            if re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", bg) or bg.startswith("//"):
+                return data
             new_path = self.files.copy_file(
                 bg,
                 bg,
