@@ -61,4 +61,4 @@ jobs:
           rm -rf dist
           python -m build --sdist --wheel
           python -m twine check dist/*
-          python -m twine upload --non-interactive dist/*
+          python -m twine upload --non-interactive --skip-existing dist/*
