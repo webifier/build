@@ -4,9 +4,12 @@ on:
   push:
     tags:
       - "v*"
-  release:
-    types: [created]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish, for example v1.0.5"
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -15,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,8 +31,18 @@ jobs:
           python -m pip install build twine
 
       - name: Verify release tag
+        env:
+          REQUESTED_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || '' }}
         run: |
-          TAG="$(git describe --tags --exact-match)"
+          TAG="$REQUESTED_TAG"
+          if [ -z "$TAG" ]; then
+            TAG="$(git describe --tags --exact-match)"
+          fi
+          CHECKED_OUT_TAG="$(git describe --tags --exact-match)"
+          if [ "$TAG" != "$CHECKED_OUT_TAG" ]; then
+            echo "Requested tag '$TAG' but checked out '$CHECKED_OUT_TAG'."
+            exit 1
+          fi
           case "$TAG" in
             v[0-9]*)
               echo "Publishing $TAG"
@@ -44,6 +58,7 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
+          rm -rf dist
           python -m build --sdist --wheel
           python -m twine check dist/*
-          python -m twine upload dist/*
+          python -m twine upload --non-interactive dist/*
