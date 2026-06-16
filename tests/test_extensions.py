@@ -138,9 +138,17 @@ docs:
     assert ">GitHub<" in html
 
 
-def test_content_pages_can_add_default_comments(tmp_path, monkeypatch):
+def test_content_pages_can_render_explicit_comments_sections(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "page.md").write_text("# Body\n\nMarkdown content.", encoding="utf-8")
+    (tmp_path / "page.yml").write_text(
+        """
+comments:
+  label: false
+  kind: comments
+""",
+        encoding="utf-8",
+    )
     (tmp_path / "index.yml").write_text(
         """
 title: Test Site
@@ -156,10 +164,6 @@ config:
   comments:
     repo: owner/comments
     issue_term: pathname
-  content_pages:
-    comments:
-      label: false
-      kind: comments
 nav: false
 docs:
   label: Docs
@@ -175,6 +179,93 @@ docs:
     html = (tmp_path / "out" / "page.html").read_text(encoding="utf-8")
     assert "utteranc.es/client.js" in html
     assert 'repo="owner/comments"' in html
+
+
+def test_extension_can_consume_page_keys_before_section_rendering(tmp_path, monkeypatch):
+    from webifier_extensions.registry import EXTENSIONS
+
+    class WeatherExtension(Extension):
+        id = "test.weather"
+
+        def register(self, ctx):
+            ctx.consume_page_key("weather", self.consume_weather)
+
+        def consume_weather(self, builder, *, value, page, instance_name, **_kwargs):
+            return {"forecast": value, "page_title": page.get("title"), "instance": instance_name}
+
+    available = dict(EXTENSIONS)
+    available["test.weather"] = WeatherExtension
+    monkeypatch.setattr(ExtensionManager, "discover", lambda self: available)
+    monkeypatch.chdir(tmp_path)
+
+    (tmp_path / "index.yml").write_text(
+        """
+title: Extension Test
+config:
+  webifier:
+    extensions:
+      site:
+        uses: webifier.standard
+      markdown:
+        uses: webifier.markdown
+      weather:
+        uses: test.weather
+nav: false
+weather: cloudy
+intro:
+  label: Intro
+  content: Visible content.
+""",
+        encoding="utf-8",
+    )
+
+    Builder(output_dir="out", templates_dir=".").build()
+
+    html = (tmp_path / "out" / "index.html").read_text(encoding="utf-8")
+    assert "Visible content." in html
+    assert "cloudy" not in html
+    assert "weather" not in html.lower()
+
+
+def test_duplicate_page_key_consumers_require_override(monkeypatch):
+    class OneExtension(Extension):
+        id = "test.consume-one"
+        page_keys = {"weather": lambda builder, **_kwargs: None}
+
+    class TwoExtension(Extension):
+        id = "test.consume-two"
+        page_keys = {"weather": lambda builder, **_kwargs: None}
+
+    monkeypatch.setattr(
+        ExtensionManager,
+        "discover",
+        lambda self: {"test.consume-one": OneExtension, "test.consume-two": TwoExtension},
+    )
+
+    builder = Builder()
+    with pytest.raises(ValueError, match="override: true"):
+        builder.configure_extensions(
+            {
+                "webifier": {
+                    "extensions": {
+                        "one": {"uses": "test.consume-one"},
+                        "two": {"uses": "test.consume-two"},
+                    }
+                }
+            }
+        )
+
+    builder = Builder()
+    builder.configure_extensions(
+        {
+            "webifier": {
+                "extensions": {
+                    "one": {"uses": "test.consume-one"},
+                    "two": {"uses": "test.consume-two", "override": True},
+                }
+            }
+        }
+    )
 
 
 def test_page_navigation_src_entries_resolve_to_generated_urls(tmp_path, monkeypatch):
@@ -216,6 +307,91 @@ docs:
 
     html = (tmp_path / "out" / "one.html").read_text(encoding="utf-8")
     assert 'href="/site/two.html"' in html
+
+
+def test_page_navigation_can_be_overridden_per_page(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "one.md").write_text(
+        """---
+title: One
+config:
+  page_navigation:
+    next:
+      title: Custom Next
+      href: /custom-next.html
+---
+
+# One
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / "two.md").write_text(
+        """---
+title: Two
+config:
+  page_navigation:
+    previous: false
+---
+
+# Two
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / "hidden.md").write_text(
+        """---
+title: Hidden
+config:
+  page_navigation: false
+---
+
+# Hidden
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / "index.yml").write_text(
+        """
+title: Test Site
+config:
+  webifier:
+    extensions:
+      site:
+        uses: webifier.standard
+      markdown:
+        uses: webifier.markdown
+  page_navigation:
+    home:
+      title: Guide
+      href: /
+    items:
+      - title: One
+        src: one.md
+      - title: Two
+        src: two.md
+      - title: Hidden
+        src: hidden.md
+nav: false
+docs:
+  label: Docs
+  content:
+    - text: One
+      src: one.md
+    - text: Two
+      src: two.md
+    - text: Hidden
+      src: hidden.md
+""",
+        encoding="utf-8",
+    )
+
+    Builder(base_url="", output_dir="out", templates_dir=".").build()
+
+    one_html = (tmp_path / "out" / "one.html").read_text(encoding="utf-8")
+    two_html = (tmp_path / "out" / "two.html").read_text(encoding="utf-8")
+    hidden_html = (tmp_path / "out" / "hidden.html").read_text(encoding="utf-8")
+    assert "Custom Next" in one_html
+    assert 'href="/custom-next.html"' in one_html
+    assert "Back to One" not in two_html
+    assert "Page navigation" not in hidden_html
 
 
 def test_extension_registration_requires_explicit_override(monkeypatch):

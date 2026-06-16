@@ -110,11 +110,20 @@ class Builder:
         """Return global config merged with page-local config."""
         config = copy.deepcopy(self.config)
         if isinstance(data, dict):
+            page_configs = []
             if isinstance(data.get("config"), dict):
-                config = _deep_merge(config, data["config"])
+                page_configs.append(data["config"])
             metadata = data.get("metadata")
             if isinstance(metadata, dict) and isinstance(metadata.get("config"), dict):
-                config = _deep_merge(config, metadata["config"])
+                page_configs.append(metadata["config"])
+            for page_config in page_configs:
+                self.extensions.configure_page_extensions(page_config)
+                for key, value, reset in self.extensions.page_config_overlays(page_config):
+                    if reset:
+                        config[key] = copy.deepcopy(value)
+                    else:
+                        config[key] = _deep_merge(config.get(key, {}), value)
+                config = _deep_merge(config, page_config)
         return config
 
     def page_navigation(self, config: dict | None = None, data: dict | None = None, ctx=None) -> dict:
@@ -122,6 +131,24 @@ class Builder:
         nav_config = (config or {}).get("page_navigation")
         if not isinstance(nav_config, dict):
             return {}
+
+        def link_from(value: Any, fallback_title: str = "") -> dict[str, str] | None:
+            if value is False or value is None:
+                return None
+            if isinstance(value, str):
+                return {"title": fallback_title or value, "href": value}
+            if not isinstance(value, dict):
+                return None
+            href = value.get("href") or value.get("link")
+            src = value.get("src", "")
+            if not href and src:
+                href = prepend_baseurl(strip_suffixes(src, suffixes), self.base_url)
+            if not href:
+                return None
+            return {
+                "title": value.get("title") or value.get("text") or fallback_title or href,
+                "href": href,
+            }
 
         entries = []
         suffixes = self._content_suffixes() + [".yml", ".yaml"]
@@ -134,21 +161,12 @@ class Builder:
                 if isinstance(child_items, list):
                     collect(child_items)
                 elif item.get("href") or item.get("link") or item.get("src"):
-                    href = item.get("href") or item.get("link")
-                    src = item.get("src", "")
-                    if not href and src:
-                        href = prepend_baseurl(strip_suffixes(src, suffixes), self.base_url)
-                    entries.append(
-                        {
-                            "title": item.get("title") or item.get("text") or href,
-                            "href": href,
-                            "src": src,
-                        }
-                    )
+                    entry = link_from(item)
+                    if entry:
+                        entry["src"] = item.get("src", "")
+                        entries.append(entry)
 
         collect(nav_config.get("items"))
-        if not entries:
-            return {}
 
         current_values = []
         if isinstance(data, dict):
@@ -176,21 +194,25 @@ class Builder:
                 active_index = i
                 break
 
-        if active_index is None:
-            return {}
-
-        home = nav_config.get("home", {})
         result = {}
-        if isinstance(home, dict) and (home.get("href") or home.get("link")):
-            result["home"] = {
-                "title": home.get("title") or home.get("text") or "Guide",
-                "href": home.get("href") or home.get("link"),
-            }
+        home = link_from(nav_config.get("home"), "Guide")
+        if home:
+            result["home"] = home
         if active_index is not None:
             if active_index > 0:
                 result["previous"] = entries[active_index - 1]
             if active_index < len(entries) - 1:
                 result["next"] = entries[active_index + 1]
+
+        for slot in ("previous", "home", "next"):
+            if slot not in nav_config:
+                continue
+            if nav_config[slot] is False:
+                result.pop(slot, None)
+                continue
+            override = link_from(nav_config[slot], slot.title())
+            if override:
+                result[slot] = override
         return result
 
     def _copy_extension_assets(self) -> None:
@@ -227,6 +249,8 @@ class Builder:
 
         if isinstance(data, dict):
             data = copy.deepcopy(data)
+            if ctx.depth == 0:
+                data = self.extensions.consume_page_keys(data, ctx=ctx, config=self.page_config(data))
 
             # template: path (inline override) takes precedence, but only
             # at the page level (depth 0). At section level, `template` is
@@ -365,7 +389,7 @@ class Builder:
         suffixes = [key for key in self.content_renderers if key.startswith(".")]
         return sorted(suffixes, key=len, reverse=True)
 
-    def _build_markdown_page(self, src: str, ctx: NodeContext) -> str | None:
+    def _build_markdown_page(self, src: str, ctx: NodeContext, config_namespace: str = "markdown") -> str | None:
         """Build a content page from a markdown file."""
         if not os.path.isfile(src):
             print(f"  Warning: markdown file not found: {src}")
@@ -374,10 +398,14 @@ class Builder:
         with open(src) as fh:
             raw = fh.read()
 
-        metadata_path = os.path.join(os.path.dirname(src), "metadata.yml")
+        metadata_path = os.path.join(os.path.dirname(src), "page.yml")
+        if not os.path.isfile(metadata_path):
+            metadata_path = os.path.join(os.path.dirname(src), "metadata.yml")
         metadata = read_yaml(metadata_path) if os.path.isfile(metadata_path) else {}
         front_metadata, raw = split_yaml_front_matter(raw)
         metadata.update(front_metadata)
+        if isinstance(metadata.get("config"), dict):
+            self.extensions.configure_page_extensions(metadata["config"])
 
         body_html = build_markdown(
             raw=raw,
@@ -395,6 +423,7 @@ class Builder:
             "title": metadata.get("title", os.path.basename(src)),
             "page_url": prepend_baseurl(strip_suffixes(src, self._content_suffixes()), self.base_url),
             "source_path": src,
+            "_content_config_namespace": config_namespace,
         }
         # Inject global nav/footer from root
         if self.root_data:
@@ -561,6 +590,8 @@ class Builder:
         is_root = self.root_data is None
         data = load_and_resolve(index_file)
         assert isinstance(data, dict), f"Index file must be a YAML mapping, got {type(data)}"
+        if not is_root and isinstance(data.get("config"), dict):
+            self.extensions.configure_page_extensions(data["config"])
 
         # Process config on root page
         if is_root:
@@ -620,6 +651,9 @@ class Builder:
 
         # Build root page
         self.build_page(index_file)
+
+        # Page-local extensions may register additional assets while pages render.
+        self._copy_extension_assets()
 
         self.extensions.run_hooks("after_build", index_file=index_file)
 

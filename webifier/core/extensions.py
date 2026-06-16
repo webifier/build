@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
 Hook = Callable[..., str | None]
 ContentRenderer = Callable[["Builder", str, Any], str | None]
+PageKeyConsumer = Callable[..., Any]
 
 
 @dataclass(frozen=True)
@@ -39,13 +40,13 @@ class ExtensionManifest:
     id: str
     renderers: dict[str, str | type[RendererModule]] = field(default_factory=dict)
     content_renderers: dict[str, str | ContentRenderer] = field(default_factory=dict)
+    page_keys: dict[str, str | PageKeyConsumer] = field(default_factory=dict)
     resolvers: dict[str, str | Callable] = field(default_factory=dict)
     formats: dict[str, str | Callable] = field(default_factory=dict)
     template_dirs: list[str] = field(default_factory=list)
     assets: list[AssetMount] = field(default_factory=list)
     hooks: dict[str, list[str | Hook]] = field(default_factory=dict)
     config_defaults: dict[str, Any] = field(default_factory=dict)
-    config_key: str | None = None
     default_config: dict[str, Any] = field(default_factory=dict)
     dependencies: tuple[str, ...] = ()
 
@@ -70,6 +71,9 @@ class ExtensionManifest:
         for key, renderer in self.content_renderers.items():
             ctx.register_content_renderer(key, renderer)
 
+        for key, consumer in self.page_keys.items():
+            ctx.consume_page_key(key, consumer)
+
         for name, resolver in self.resolvers.items():
             ctx.register_resolver(name, resolver)
 
@@ -91,13 +95,13 @@ class Extension:
     id: str = ""
     renderers: dict[str, str | type[RendererModule]] = {}
     content_renderers: dict[str, str | ContentRenderer] = {}
+    page_keys: dict[str, str | PageKeyConsumer] = {}
     resolvers: dict[str, str | Callable] = {}
     formats: dict[str, str | Callable] = {}
     template_dirs: list[str] = []
     assets: list[AssetMount] = []
     hooks: dict[str, list[str | Hook]] = {}
     config_defaults: dict[str, Any] = {}
-    config_key: str | None = None
     default_config: dict[str, Any] = {}
     dependencies: tuple[str, ...] = ()
 
@@ -109,13 +113,13 @@ class Extension:
             id=self.id,
             renderers=copy.deepcopy(self.renderers),
             content_renderers=copy.deepcopy(self.content_renderers),
+            page_keys=copy.deepcopy(self.page_keys),
             resolvers=copy.deepcopy(self.resolvers),
             formats=copy.deepcopy(self.formats),
             template_dirs=copy.deepcopy(self.template_dirs),
             assets=copy.deepcopy(self.assets),
             hooks=copy.deepcopy(self.hooks),
             config_defaults=copy.deepcopy(self.config_defaults),
-            config_key=self.config_key,
             default_config=copy.deepcopy(self.default_config),
             dependencies=tuple(self.dependencies),
         )
@@ -131,6 +135,7 @@ class ExtensionInstance:
     uses: str
     config: dict[str, Any]
     override: bool = False
+    reset: bool = False
 
 
 @dataclass(frozen=True)
@@ -150,6 +155,15 @@ class ExtensionHookContext:
 @dataclass(frozen=True)
 class RegisteredHook:
     callback: Hook
+    extension_id: str
+    instance_name: str
+    instance_config: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class RegisteredPageKeyConsumer:
+    key: str
+    callback: PageKeyConsumer
     extension_id: str
     instance_name: str
     instance_config: dict[str, Any]
@@ -204,6 +218,22 @@ class ExtensionContext:
             )
         self.builder.content_renderers[key] = target
 
+    def consume_page_key(self, key: str, consumer: str | PageKeyConsumer) -> None:
+        target = self._import_object(consumer)
+        existing = self.manager.page_key_consumers.get(key)
+        if existing is not None and existing.callback is not target and not self.override:
+            raise ValueError(
+                f"Page key '{key}' is already consumed by instance '{existing.instance_name}'. "
+                "Set override: true on the later extension instance to replace it."
+            )
+        self.manager.page_key_consumers[key] = RegisteredPageKeyConsumer(
+            key=key,
+            callback=target,
+            extension_id=self.extension.id,
+            instance_name=self.instance_name,
+            instance_config=copy.deepcopy(self.config),
+        )
+
     def register_resolver(self, name: str, resolver: str | Callable) -> None:
         register_resolver(name, self._import_object(resolver))
 
@@ -228,42 +258,33 @@ class ExtensionManager:
         self.builder = builder
         self.available: dict[str, type[Extension] | Extension] = {}
         self.instances: list[ExtensionInstance] = []
+        self.instances_by_name: dict[str, ExtensionInstance] = {}
+        self.enabled_instance_names: set[str] = set()
         self.enabled_extension_ids: set[str] = set()
         self.config_defaults: dict[str, Any] = {}
         self.config_overlays: dict[str, Any] = {}
         self.asset_mounts: list[AssetMount] = []
         self.hooks: dict[str, list[RegisteredHook]] = defaultdict(list)
+        self.page_key_consumers: dict[str, RegisteredPageKeyConsumer] = {}
 
     def configure(self, config: dict[str, Any]) -> None:
         """Configure extension instances from a root site config."""
         self.available = self.discover()
         for instance in self._parse_instances(config):
-            extension = self._load(instance.uses)
-            manifest = extension.manifest()
-            merged_instance_config = _deep_merge(
-                copy.deepcopy(manifest.default_config),
+            self._register_instance(instance)
+            self.config_overlays[instance.name] = _deep_merge(
+                self.config_overlays.get(instance.name, {}),
                 copy.deepcopy(instance.config),
             )
-            instance.config.clear()
-            instance.config.update(merged_instance_config)
 
-            for dependency in manifest.dependencies:
-                if dependency not in self.enabled_extension_ids:
-                    raise ValueError(
-                        f"Extension '{manifest.id}' requires '{dependency}'. "
-                        f"Enable it before instance '{instance.name}'."
-                    )
-
-            ctx = ExtensionContext(manager=self, extension=manifest, instance=instance)
-            extension.register(ctx)
-            self.instances.append(instance)
-            self.enabled_extension_ids.add(manifest.id)
-            self.config_defaults = _deep_merge(self.config_defaults, manifest.config_defaults)
-            if manifest.config_key:
-                self.config_overlays[manifest.config_key] = _deep_merge(
-                    self.config_overlays.get(manifest.config_key, {}),
-                    copy.deepcopy(instance.config),
-                )
+    def configure_page_extensions(self, config: dict[str, Any]) -> None:
+        """Register page-local extension instances before rendering that page."""
+        if not self.available:
+            self.available = self.discover()
+        for instance in self._parse_instances(config):
+            if instance.name in self.enabled_instance_names and not instance.override:
+                continue
+            self._register_instance(instance)
 
     def discover(self) -> dict[str, type[Extension] | Extension]:
         """Discover installed extension classes."""
@@ -297,6 +318,21 @@ class ExtensionManager:
             merged[key] = _deep_merge(copy.deepcopy(value), copy.deepcopy(merged.get(key, {})))
         return merged
 
+    def page_config_overlays(self, config: dict[str, Any]) -> list[tuple[str, dict[str, Any], bool]]:
+        """Return instance-name config overlays exported by page-local extensions."""
+        if not self.available:
+            self.available = self.discover()
+        overlays = []
+        for instance in self._parse_instances(config):
+            extension = self._load(instance.uses)
+            manifest = extension.manifest()
+            merged_instance_config = _deep_merge(
+                copy.deepcopy(manifest.default_config),
+                copy.deepcopy(instance.config),
+            )
+            overlays.append((instance.name, merged_instance_config, instance.reset))
+        return overlays
+
     def render_area(self, area: str, **kwargs) -> str:
         """Render string fragments contributed by hooks in an area."""
         fragments = []
@@ -310,6 +346,52 @@ class ExtensionManager:
         """Run side-effect hooks."""
         for hook in self.hooks.get(area, []):
             self._call_hook(area, hook, **kwargs)
+
+    def consume_page_keys(
+        self,
+        data: dict[str, Any],
+        *,
+        ctx: Any = None,
+        config: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Let extensions consume page-level keys before section rendering."""
+        if not self.page_key_consumers:
+            return data
+        config = config or self.builder.config
+        remaining = dict(data)
+        for key in list(data):
+            consumer = self.page_key_consumers.get(key)
+            if consumer is None:
+                continue
+            value = remaining.pop(key, data[key])
+            consumer_context = ExtensionHookContext(
+                area="page_key",
+                builder=self.builder,
+                config=config,
+                page=remaining,
+                ctx=ctx,
+                extension_id=consumer.extension_id,
+                instance_name=consumer.instance_name,
+                instance_config=copy.deepcopy(consumer.instance_config),
+            )
+            call_kwargs = {
+                "key": key,
+                "value": value,
+                "data": remaining,
+                "page": remaining,
+                "config": config,
+                "ctx": ctx,
+                "hook_context": consumer_context,
+                "extension_id": consumer.extension_id,
+                "instance_name": consumer.instance_name,
+                "instance_config": copy.deepcopy(consumer.instance_config),
+            }
+            result = _call_with_supported_kwargs(consumer.callback, self.builder, call_kwargs)
+            if result is not None:
+                extension_data = remaining.setdefault("_extension_data", {})
+                if isinstance(extension_data, dict):
+                    extension_data.setdefault(consumer.instance_name, {})[key] = result
+        return remaining
 
     def _call_hook(self, area: str, hook: RegisteredHook, **kwargs):
         config = kwargs.get("config")
@@ -382,11 +464,14 @@ class ExtensionManager:
                 continue
             uses = value.get("uses")
             if not uses:
-                raise ValueError(f"Extension instance '{name}' is missing required 'uses'.")
+                existing_instance = self.instances_by_name.get(str(name))
+                if existing_instance is None:
+                    raise ValueError(f"Extension instance '{name}' is missing required 'uses'.")
+                uses = existing_instance.uses
             config = {
                 key: copy.deepcopy(item)
                 for key, item in value.items()
-                if key not in {"uses", "override", "enabled"}
+                if key not in {"uses", "override", "enabled", "reset"}
             }
             instances.append(
                 ExtensionInstance(
@@ -394,9 +479,36 @@ class ExtensionManager:
                     uses=str(uses),
                     config=config,
                     override=bool(value.get("override", False)),
+                    reset=bool(value.get("reset", False)),
                 )
             )
         return instances
+
+    def _register_instance(self, instance: ExtensionInstance) -> ExtensionManifest:
+        extension = self._load(instance.uses)
+        manifest = extension.manifest()
+        merged_instance_config = _deep_merge(
+            copy.deepcopy(manifest.default_config),
+            copy.deepcopy(instance.config),
+        )
+        instance.config.clear()
+        instance.config.update(merged_instance_config)
+
+        for dependency in manifest.dependencies:
+            if dependency not in self.enabled_extension_ids:
+                raise ValueError(
+                    f"Extension '{manifest.id}' requires '{dependency}'. "
+                    f"Enable it before instance '{instance.name}'."
+                )
+
+        ctx = ExtensionContext(manager=self, extension=manifest, instance=instance)
+        extension.register(ctx)
+        self.instances.append(instance)
+        self.instances_by_name[instance.name] = copy.deepcopy(instance)
+        self.enabled_instance_names.add(instance.name)
+        self.enabled_extension_ids.add(manifest.id)
+        self.config_defaults = _deep_merge(self.config_defaults, manifest.config_defaults)
+        return manifest
 
 
 def _deep_merge(base: Any, override: Any) -> Any:

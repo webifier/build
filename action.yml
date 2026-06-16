@@ -37,6 +37,13 @@ inputs:
       Python version used to install and run Webifier.
     default: "3.13"
     required: false
+  extra-packages:
+    description: >
+      Additional pip packages to install before rendering, such as third-party Webifier extensions.
+      Use one package requirement per line, for example "my-webifier-extension" or
+      "my-extension @ git+https://github.com/me/my-extension.git".
+    default: ""
+    required: false
 runs:
   using: "composite"
   steps:
@@ -46,6 +53,23 @@ runs:
     - run: python -m pip install --upgrade pip
       shell: bash
     - run: python -m pip install --upgrade "webifier-extensions @ git+https://github.com/webifier/extensions.git" "webifier @ git+https://github.com/webifier/build.git"
+      shell: bash
+    - if: ${{ inputs.extra-packages != '' }}
+      env:
+        WEBIFIER_EXTRA_PACKAGES: ${{ inputs.extra-packages }}
+      run: |
+        python - <<'PY'
+        import os
+        import subprocess
+        import sys
+
+        packages = [
+            line.strip()
+            for line in os.environ["WEBIFIER_EXTRA_PACKAGES"].splitlines()
+            if line.strip()
+        ]
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", *packages])
+        PY
       shell: bash
     - run: webify --repo-full-name "${{ inputs.repo }}" --baseurl "${{ inputs.baseurl }}" --index ${{ inputs.index }} --output="${{ inputs.publish_dir }}" --templates-dir="${{ inputs.templates_dir }}"
       shell: bash
